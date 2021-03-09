@@ -166,6 +166,56 @@ function FieldBase({
 		fieldDetails += requiredText;
 	}
 
+	const content = (<>
+		{showLabel && label}
+		<FieldProperties
+			required={required}
+			tooltip={tooltip}
+		/>
+	</>
+	);
+
+	const buttons = repeatable && (<div className="lfr-ddm-form-field-repeatable-toolbar react-field-base-flex-container">
+			{repeatable && repeatedIndex > 0 && (
+				<ClayButton
+					className="ddm-form-field-repeatable-delete-button p-0"
+					disabled={readOnly}
+					onClick={() =>
+						dispatch({
+							payload: name,
+							type: EVENT_TYPES.FIELD_REMOVED,
+						})
+					}
+					small
+					title={Liferay.Language.get('remove')}
+					type="button"
+				>
+					<ClayIcon symbol="hr" />
+				</ClayButton>
+			)}
+
+			<ClayButton
+				className={classNames(
+					'ddm-form-field-repeatable-add-button p-0',
+					{
+						hide: overMaximumRepetitionsLimit,
+					}
+				)}
+				disabled={readOnly}
+				onClick={() =>
+					dispatch({
+						payload: name,
+						type: EVENT_TYPES.FIELD_REPEATED,
+					})
+				}
+				small
+				title={Liferay.Language.get('duplicate')}
+				type="button"
+			>
+				<ClayIcon symbol="plus" />
+			</ClayButton>
+		</div>)
+
 	return (
 		<ClayTooltipProvider>
 			<div
@@ -179,7 +229,45 @@ function FieldBase({
 				style={style}
 				tabIndex={parentDivTabIndex}
 			>
-				{repeatable && (
+				
+				{renderLabel && (
+					<>
+						{showLegend ? (
+							<fieldset>
+								<div className="react-field-base-flex-container">
+									<legend
+										aria-labelledby={fieldDetailsId}
+										className="lfr-ddm-legend"
+										tabIndex="0"
+									>
+										{ content }
+									</legend>
+									{ buttons }
+								</div>
+								{children}
+							</fieldset>
+						) : (
+							<>
+								<div className="react-field-base-flex-container">
+									<label
+										aria-describedby={fieldDetailsId}
+										className={classNames( 'react-field-base-flex-element', 'react-field-base-label', {
+											'ddm-empty': !showLabel && !required,
+											'ddm-label': showLabel || required,
+										})}
+										tabIndex="0"
+									>
+										{ content }
+									</label>
+									{ buttons }
+								</div>
+								{children}
+							</>
+						)}
+					</>
+				)}
+				
+				{/* {repeatable && (
 					<div className="lfr-ddm-form-field-repeatable-toolbar">
 						{repeatable && repeatedIndex > 0 && (
 							<ClayButton
@@ -220,48 +308,7 @@ function FieldBase({
 							<ClayIcon symbol="plus" />
 						</ClayButton>
 					</div>
-				)}
-
-				{renderLabel && (
-					<>
-						{showLegend ? (
-							<fieldset>
-								<legend
-									aria-labelledby={fieldDetailsId}
-									className="lfr-ddm-legend"
-									tabIndex="0"
-								>
-									{label && showLabel && label}
-
-									<FieldProperties
-										required={required}
-										tooltip={tooltip}
-									/>
-								</legend>
-								{children}
-							</fieldset>
-						) : (
-							<>
-								<label
-									aria-describedby={fieldDetailsId}
-									className={classNames({
-										'ddm-empty': !showLabel && !required,
-										'ddm-label': showLabel || required,
-									})}
-									tabIndex="0"
-								>
-									{label && showLabel && label}
-
-									<FieldProperties
-										required={required}
-										tooltip={tooltip}
-									/>
-								</label>
-								{children}
-							</>
-						)}
-					</>
-				)}
+				)} */}
 
 				{!renderLabel && children}
 
