@@ -84,12 +84,6 @@ body .ddm-user-view-content {
 	font-weight: 500;
 }
 
-
-.ddm-field label {
-	padding-right: 40px;
-}
-
-
 .lfr-ddm-form-field-container label,
 .lfr-ddm-form-field-container legend,
 .lfr-ddm-form-field-container p {
@@ -644,6 +638,18 @@ p.ddm-label {
 	margin-bottom: 0.25rem;
 	max-width: 100%;
 	word-wrap: break-word;
+}
+
+.react-field-base-flex-container {
+	display: flex;
+}
+
+.react-field-base-flex-element {
+	flex-grow: 1;
+}
+
+.react-field-base-label {
+	word-break: break-word;
 }
 
 legend .reference-mark,
