@@ -237,7 +237,7 @@ function FieldBase({
 								<div className="react-field-base-flex-container">
 									<legend
 										aria-labelledby={fieldDetailsId}
-										className="lfr-ddm-legend"
+										className={classNames( 'react-field-base-flex-element', 'lfr-ddm-legend', 'react-field-base-legend')}
 										tabIndex="0"
 									>
 										{ content }
