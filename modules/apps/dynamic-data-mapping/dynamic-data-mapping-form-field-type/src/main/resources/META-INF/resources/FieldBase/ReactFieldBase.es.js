@@ -165,6 +165,15 @@ function FieldBase({
 		fieldDetails += requiredText;
 	}
 
+	const fieldPropertiesContent = (<>
+		{showLabel && label}
+		<FieldProperties
+			required={required}
+			tooltip={tooltip}
+		/>
+	</>
+	);
+
 	return (
 		<div
 			aria-labelledby={parentDivAriaLabelledby}
@@ -229,12 +238,7 @@ function FieldBase({
 								className="lfr-ddm-legend"
 								tabIndex="0"
 							>
-								{label && showLabel && label}
-
-								<FieldProperties
-									required={required}
-									tooltip={tooltip}
-								/>
+								{ fieldPropertiesContent }
 							</legend>
 							{children}
 						</fieldset>
@@ -248,12 +252,7 @@ function FieldBase({
 								})}
 								tabIndex="0"
 							>
-								{label && showLabel && label}
-
-								<FieldProperties
-									required={required}
-									tooltip={tooltip}
-								/>
+								{ fieldPropertiesContent }
 							</label>
 							{children}
 						</>
