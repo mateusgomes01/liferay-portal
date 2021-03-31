@@ -741,13 +741,17 @@ exports[`Select has a label 1`] = `
   <div
     class="form-group hide"
   >
-    <label
-      aria-describedby="undefined_fieldDetails"
-      class="ddm-label"
-      tabindex="0"
+    <div
+      class="field-base-flex-container"
     >
-      label
-    </label>
+      <label
+        aria-describedby="undefined_fieldDetails"
+        class="field-base-flex-element field-base-label ddm-label"
+        tabindex="0"
+      >
+        label
+      </label>
+    </div>
     <select
       aria-hidden="true"
       class="form-control form-control"
@@ -1363,25 +1367,29 @@ exports[`Select puts an asterisk when field is required 1`] = `
   <div
     class="form-group hide"
   >
-    <label
-      aria-describedby="undefined_fieldDetails"
-      class="ddm-label"
-      tabindex="0"
+    <div
+      class="field-base-flex-container"
     >
-      This is the label
-      <span
-        class="ddm-label-required reference-mark"
+      <label
+        aria-describedby="undefined_fieldDetails"
+        class="field-base-flex-element field-base-label ddm-label"
+        tabindex="0"
       >
-        <svg
-          class="lexicon-icon lexicon-icon-asterisk"
-          role="presentation"
+        This is the label
+        <span
+          class="ddm-label-required reference-mark"
         >
-          <use
-            xlink:href="#asterisk"
-          />
-        </svg>
-      </span>
-    </label>
+          <svg
+            class="lexicon-icon lexicon-icon-asterisk"
+            role="presentation"
+          >
+            <use
+              xlink:href="#asterisk"
+            />
+          </svg>
+        </span>
+      </label>
+    </div>
     <select
       aria-hidden="true"
       class="form-control form-control"
@@ -1462,13 +1470,17 @@ exports[`Select renders Label if showLabel is true 1`] = `
   <div
     class="form-group hide"
   >
-    <label
-      aria-describedby="undefined_fieldDetails"
-      class="ddm-label"
-      tabindex="0"
+    <div
+      class="field-base-flex-container"
     >
-      text
-    </label>
+      <label
+        aria-describedby="undefined_fieldDetails"
+        class="field-base-flex-element field-base-label ddm-label"
+        tabindex="0"
+      >
+        text
+      </label>
+    </div>
     <select
       aria-hidden="true"
       class="form-control form-control"
