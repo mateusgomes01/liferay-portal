@@ -32,13 +32,17 @@ exports[`Field Paragraph has a label 1`] = `
     class="form-group hide"
     data-field-name="textField"
   >
-    <label
-      aria-describedby="textField_fieldDetails"
-      class="ddm-label"
-      tabindex="0"
+    <div
+      class="field-base-flex-container"
     >
-      label
-    </label>
+      <label
+        aria-describedby="textField_fieldDetails"
+        class="field-base-flex-element field-base-label ddm-label"
+        tabindex="0"
+      >
+        label
+      </label>
+    </div>
     <div
       class="form-group liferay-ddm-form-field-paragraph"
       data-field-name="textField"
@@ -193,13 +197,17 @@ exports[`Field Paragraph renders Label if showLabel is true 1`] = `
     class="form-group hide"
     data-field-name="textField"
   >
-    <label
-      aria-describedby="textField_fieldDetails"
-      class="ddm-label"
-      tabindex="0"
+    <div
+      class="field-base-flex-container"
     >
-      text
-    </label>
+      <label
+        aria-describedby="textField_fieldDetails"
+        class="field-base-flex-element field-base-label ddm-label"
+        tabindex="0"
+      >
+        text
+      </label>
+    </div>
     <div
       class="form-group liferay-ddm-form-field-paragraph"
       data-field-name="textField"
