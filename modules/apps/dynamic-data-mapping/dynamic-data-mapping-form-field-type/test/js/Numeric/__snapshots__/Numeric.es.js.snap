@@ -68,13 +68,17 @@ exports[`Field Numeric has a label 1`] = `
     class="form-group hide"
     data-field-name="numericField"
   >
-    <label
-      aria-describedby="numericField_fieldDetails"
-      class="ddm-label"
-      tabindex="0"
+    <div
+      class="field-base-flex-container"
     >
-      label
-    </label>
+      <label
+        aria-describedby="numericField_fieldDetails"
+        class="field-base-flex-element field-base-label ddm-label"
+        tabindex="0"
+      >
+        label
+      </label>
+    </div>
     <input
       class="form-control"
       name="numericField"
@@ -225,13 +229,17 @@ exports[`Field Numeric renders Label if showLabel is true 1`] = `
     class="form-group hide"
     data-field-name="numericField"
   >
-    <label
-      aria-describedby="numericField_fieldDetails"
-      class="ddm-label"
-      tabindex="0"
+    <div
+      class="field-base-flex-container"
     >
-      Numeric Field
-    </label>
+      <label
+        aria-describedby="numericField_fieldDetails"
+        class="field-base-flex-element field-base-label ddm-label"
+        tabindex="0"
+      >
+        Numeric Field
+      </label>
+    </div>
     <input
       class="form-control"
       name="numericField"

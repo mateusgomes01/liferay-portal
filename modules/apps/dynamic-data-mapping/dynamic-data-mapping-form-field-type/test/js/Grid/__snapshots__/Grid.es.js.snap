@@ -5,13 +5,17 @@ exports[`Grid has a label 1`] = `
   <div
     class="form-group hide"
   >
-    <label
-      aria-describedby="undefined_fieldDetails"
-      class="ddm-label"
-      tabindex="0"
+    <div
+      class="field-base-flex-container"
     >
-      label
-    </label>
+      <label
+        aria-describedby="undefined_fieldDetails"
+        class="field-base-flex-element field-base-label ddm-label"
+        tabindex="0"
+      >
+        label
+      </label>
+    </div>
     <div
       class="table-responsive"
     >
@@ -432,13 +436,17 @@ exports[`Grid renders Label if showLabel is true 1`] = `
   <div
     class="form-group hide"
   >
-    <label
-      aria-describedby="undefined_fieldDetails"
-      class="ddm-label"
-      tabindex="0"
+    <div
+      class="field-base-flex-container"
     >
-      text
-    </label>
+      <label
+        aria-describedby="undefined_fieldDetails"
+        class="field-base-flex-element field-base-label ddm-label"
+        tabindex="0"
+      >
+        text
+      </label>
+    </div>
     <div
       class="table-responsive"
     >

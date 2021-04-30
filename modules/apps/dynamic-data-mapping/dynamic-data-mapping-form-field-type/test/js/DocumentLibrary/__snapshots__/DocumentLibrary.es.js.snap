@@ -88,13 +88,17 @@ exports[`Field DocumentLibrary has a label 1`] = `
     class="form-group has-error hide"
     data-field-name="uploadField"
   >
-    <label
-      aria-describedby="uploadField_fieldDetails"
-      class="ddm-label"
-      tabindex="0"
+    <div
+      class="field-base-flex-container"
     >
-      label
-    </label>
+      <label
+        aria-describedby="uploadField_fieldDetails"
+        class="field-base-flex-element field-base-label ddm-label"
+        tabindex="0"
+      >
+        label
+      </label>
+    </div>
     <div
       class="liferay-ddm-form-field-document-library"
     >
@@ -596,13 +600,17 @@ exports[`Field DocumentLibrary renders Label if showLabel is true 1`] = `
     class="form-group has-error hide"
     data-field-name="uploadField"
   >
-    <label
-      aria-describedby="uploadField_fieldDetails"
-      class="ddm-label"
-      tabindex="0"
+    <div
+      class="field-base-flex-container"
     >
-      text
-    </label>
+      <label
+        aria-describedby="uploadField_fieldDetails"
+        class="field-base-flex-element field-base-label ddm-label"
+        tabindex="0"
+      >
+        text
+      </label>
+    </div>
     <div
       class="liferay-ddm-form-field-document-library"
     >

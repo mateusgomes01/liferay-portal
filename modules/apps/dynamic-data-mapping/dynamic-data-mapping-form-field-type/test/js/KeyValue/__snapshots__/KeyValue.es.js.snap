@@ -71,13 +71,17 @@ exports[`KeyValue has a label 1`] = `
     class="form-group hide"
     data-field-name="keyValue"
   >
-    <label
-      aria-describedby="keyValue_fieldDetails"
-      class="ddm-label"
-      tabindex="0"
+    <div
+      class="field-base-flex-container"
     >
-      label
-    </label>
+      <label
+        aria-describedby="keyValue_fieldDetails"
+        class="field-base-flex-element field-base-label ddm-label"
+        tabindex="0"
+      >
+        label
+      </label>
+    </div>
     <div
       aria-labelledby="keyValueLabelkeyValue_fieldDetails"
       class="form-group hide"
@@ -396,13 +400,17 @@ exports[`KeyValue renders Label if showLabel is true 1`] = `
     class="form-group hide"
     data-field-name="keyValue"
   >
-    <label
-      aria-describedby="keyValue_fieldDetails"
-      class="ddm-label"
-      tabindex="0"
+    <div
+      class="field-base-flex-container"
     >
-      text
-    </label>
+      <label
+        aria-describedby="keyValue_fieldDetails"
+        class="field-base-flex-element field-base-label ddm-label"
+        tabindex="0"
+      >
+        text
+      </label>
+    </div>
     <div
       aria-labelledby="keyValueLabelkeyValue_fieldDetails"
       class="form-group hide"

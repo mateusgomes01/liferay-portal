@@ -84,13 +84,17 @@ exports[`Field Radio has a label 1`] = `
     class="form-group hide"
     data-field-name="radioField"
   >
-    <label
-      aria-describedby="radioField_fieldDetails"
-      class="ddm-label"
-      tabindex="0"
+    <div
+      class="field-base-flex-container"
     >
-      label
-    </label>
+      <label
+        aria-describedby="radioField_fieldDetails"
+        class="field-base-flex-element field-base-label ddm-label"
+        tabindex="0"
+      >
+        label
+      </label>
+    </div>
     <div
       class="ddm-radio"
     >
@@ -487,13 +491,17 @@ exports[`Field Radio renders Label if showLabel is true 1`] = `
     class="form-group hide"
     data-field-name="radioField"
   >
-    <label
-      aria-describedby="radioField_fieldDetails"
-      class="ddm-label"
-      tabindex="0"
+    <div
+      class="field-base-flex-container"
     >
-      text
-    </label>
+      <label
+        aria-describedby="radioField_fieldDetails"
+        class="field-base-flex-element field-base-label ddm-label"
+        tabindex="0"
+      >
+        text
+      </label>
+    </div>
     <div
       class="ddm-radio"
     >

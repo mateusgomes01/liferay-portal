@@ -144,13 +144,17 @@ exports[`Field Color Picker renders field with label 1`] = `
     class="form-group hide"
     data-field-name="colorPicker"
   >
-    <label
-      aria-describedby="colorPicker_fieldDetails"
-      class="ddm-label"
-      tabindex="0"
+    <div
+      class="field-base-flex-container"
     >
-      label
-    </label>
+      <label
+        aria-describedby="colorPicker_fieldDetails"
+        class="field-base-flex-element field-base-label ddm-label"
+        tabindex="0"
+      >
+        label
+      </label>
+    </div>
     <input
       name="colorPicker"
       type="hidden"

@@ -42,13 +42,17 @@ exports[`Field Text has a label 1`] = `
     class="form-group hide"
     data-field-name="textField"
   >
-    <label
-      aria-describedby="textField_fieldDetails"
-      class="ddm-label"
-      tabindex="0"
+    <div
+      class="field-base-flex-container"
     >
-      label
-    </label>
+      <label
+        aria-describedby="textField_fieldDetails"
+        class="field-base-flex-element field-base-label ddm-label"
+        tabindex="0"
+      >
+        label
+      </label>
+    </div>
     <input
       class="form-control ddm-field-text"
       name="textField"
@@ -218,13 +222,17 @@ exports[`Field Text renders Label if showLabel is true 1`] = `
     class="form-group hide"
     data-field-name="textField"
   >
-    <label
-      aria-describedby="textField_fieldDetails"
-      class="ddm-label"
-      tabindex="0"
+    <div
+      class="field-base-flex-container"
     >
-      text
-    </label>
+      <label
+        aria-describedby="textField_fieldDetails"
+        class="field-base-flex-element field-base-label ddm-label"
+        tabindex="0"
+      >
+        text
+      </label>
+    </div>
     <input
       class="form-control ddm-field-text"
       name="textField"
