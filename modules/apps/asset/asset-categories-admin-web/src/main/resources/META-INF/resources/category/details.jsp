@@ -166,6 +166,7 @@ renderResponse.setTitle(title);
 					classPK="<%= (category != null) ? category.getCategoryId() : 0 %>"
 					classTypeId="<%= 0 %>"
 					groupId="<%= scopeGroupId %>"
+					parentClassPK="<%= parentCategoryId %>"
 					showViewInContextLink="<%= true %>"
 				/>
 			</liferay-frontend:fieldset>

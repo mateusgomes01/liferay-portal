@@ -71,7 +71,7 @@ public abstract class BaseUpgradeCompanyId extends UpgradeProcess {
 
 	protected abstract TableUpdater[] getTableUpdaters();
 
-	protected class TableUpdater implements Callable<Void> {
+	protected class TableUpdater extends BaseUpgradeCallable<Void> {
 
 		public TableUpdater(
 			String tableName, String foreignTableName, String columnName) {
@@ -93,8 +93,26 @@ public abstract class BaseUpgradeCompanyId extends UpgradeProcess {
 			_foreignNamesArray = foreignNamesArray;
 		}
 
+		public String getTableName() {
+			return _tableName;
+		}
+
+		public void setCreateCompanyIdColumn(boolean createCompanyIdColumn) {
+			_createCompanyIdColumn = createCompanyIdColumn;
+		}
+
+		public void update(Connection connection)
+			throws IOException, SQLException {
+
+			for (String[] foreignNames : _foreignNamesArray) {
+				runSQL(
+					connection,
+					getUpdateSQL(connection, foreignNames[0], foreignNames[1]));
+			}
+		}
+
 		@Override
-		public final Void call() throws Exception {
+		protected final Void doCall() throws Exception {
 			try (LoggingTimer loggingTimer = new LoggingTimer(_tableName);
 				Connection connection = DataAccess.getConnection()) {
 
@@ -120,24 +138,6 @@ public abstract class BaseUpgradeCompanyId extends UpgradeProcess {
 			}
 
 			return null;
-		}
-
-		public String getTableName() {
-			return _tableName;
-		}
-
-		public void setCreateCompanyIdColumn(boolean createCompanyIdColumn) {
-			_createCompanyIdColumn = createCompanyIdColumn;
-		}
-
-		public void update(Connection connection)
-			throws IOException, SQLException {
-
-			for (String[] foreignNames : _foreignNamesArray) {
-				runSQL(
-					connection,
-					getUpdateSQL(connection, foreignNames[0], foreignNames[1]));
-			}
 		}
 
 		protected List<Long> getCompanyIds(Connection connection)

@@ -370,6 +370,38 @@ jdbc.counter.connectionProperties=oracle.jdbc.ReadTimeout=0;oracle.net.CONNECT_T
 		</sequential>
 	</macrodef>
 
+	<macrodef name="get-browser-property">
+		<attribute name="property.name" />
+
+		<sequential>
+			<check-config />
+
+			<var name="property.name" unset="true" />
+			<var name="@{property.name}" unset="true" />
+
+			<property name="property.name" value="@{property.name}" />
+
+			<beanshell>
+				<![CDATA[
+					String propertyName = project.getProperty("property.name");
+
+					StringBuilder sb = new StringBuilder();
+
+					sb.append("browser.");
+					sb.append(project.getProperty("browser.type"));
+					sb.append(".");
+					sb.append(propertyName.substring(8));
+
+					propertyValue = project.getProperty(sb.toString());
+
+					if (propertyValue != null) {
+						project.setProperty(propertyName, propertyValue);
+					}
+				]]>
+			</beanshell>
+		</sequential>
+	</macrodef>
+
 	<macrodef name="get-commerce-license-product-name">
 		<sequential>
 			<get-testcase-property property.name="commerce.license.file" />
@@ -390,19 +422,42 @@ jdbc.counter.connectionProperties=oracle.jdbc.ReadTimeout=0;oracle.net.CONNECT_T
 				<then>
 					<property name="commerce.license.product.name" value="Liferay Commerce Subscription Development" />
 				</then>
-				<else>
-					<loadfile
-						property="commerce.license.content"
-						srcfile="${liferay.home}/osgi/modules/${commerce.license.file}"
-					/>
+				<elseif>
+					<available file="${liferay.home}/deploy/${commerce.license.file}" />
+					<then>
+						<loadfile
+							property="commerce.license.content"
+							srcfile="${liferay.home}/deploy/${commerce.license.file}"
+						/>
 
-					<propertyregex
-						casesensitive="false"
-						input="${commerce.license.content}"
-						property="commerce.license.product.name"
-						regexp="&lt;product-name&gt;(.*?)&lt;/product-name&gt;"
-						select="\1"
-					/>
+						<propertyregex
+							casesensitive="false"
+							input="${commerce.license.content}"
+							property="commerce.license.product.name"
+							regexp="&lt;product-name&gt;(.*?)&lt;/product-name&gt;"
+							select="\1"
+						/>
+					</then>
+				</elseif>
+				<elseif>
+					<available file="${liferay.home}/osgi/modules/${commerce.license.file}" />
+					<then>
+						<loadfile
+							property="commerce.license.content"
+							srcfile="${liferay.home}/osgi/modules/${commerce.license.file}"
+						/>
+
+						<propertyregex
+							casesensitive="false"
+							input="${commerce.license.content}"
+							property="commerce.license.product.name"
+							regexp="&lt;product-name&gt;(.*?)&lt;/product-name&gt;"
+							select="\1"
+						/>
+					</then>
+				</elseif>
+				<else>
+					<echo>Unable to find X or Y.</echo>
 				</else>
 			</if>
 		</sequential>
@@ -1353,6 +1408,7 @@ jdbc.counter.connectionProperties=oracle.jdbc.ReadTimeout=0;oracle.net.CONNECT_T
 
 	<macrodef name="get-test-url">
 		<sequential>
+			<get-browser-property property.name="browser.docker.image" />
 			<get-operating-system-property property.name="operating.system.docker.image" />
 			<get-testcase-property property.name="analytics.cloud.enabled" />
 			<get-testcase-property property.name="testcase.url" />
@@ -1391,7 +1447,10 @@ jdbc.counter.connectionProperties=oracle.jdbc.ReadTimeout=0;oracle.net.CONNECT_T
 					</then>
 				</elseif>
 				<elseif>
-					<contains string="${test.class}" substring="," />
+					<or>
+						<contains string="${test.class}" substring="," />
+						<isset property="browser.docker.image" />
+					</or>
 					<then>
 						<if>
 							<os family="unix" />
@@ -2646,7 +2705,10 @@ include-and-override=portal-liferay-online-limit.properties</echo>
 			<if>
 				<equals arg1="${commerce.enabled}" arg2="false" />
 				<then>
-					<delete failonerror="false" file="${liferay.home}/deploy/portal-commerce-license.xml" verbose="true" />
+					<move
+						file="${liferay.home}/deploy/portal-commerce-license.xml"
+						tofile="${liferay.home}/portal-commerce-license.xml"
+					/>
 				</then>
 				<elseif>
 					<isset property="commerce.license.file" />
@@ -4370,6 +4432,68 @@ org.apache.catalina.startup.ClassLoaderFactory.level=INFO]]>
 		</sequential>
 	</macrodef>
 
+	<macrodef name="start-docker-browser">
+		<sequential>
+			<get-browser-property property.name="browser.docker.browser.options" />
+			<get-browser-property property.name="browser.docker.image" />
+			<get-browser-property property.name="browser.docker.run.options" />
+			<get-browser-property property.name="browser.host" />
+
+			<local name="browser.docker.network.run.option" />
+
+			<condition else="" property="browser.docker.network.run.option" value="--network=${env.DOCKER_NETWORK_NAME}">
+				<isset property="env.DOCKER_NETWORK_NAME" />
+			</condition>
+
+			<local name="docker.browser.start.script" />
+
+			<property name="docker.browser.start.script" value="docker_browser_start.sh" />
+
+			<echo file="${docker.browser.start.script}">
+				<![CDATA[
+					docker run \
+						--detach \
+						--hostname=${browser.host} \
+						--interactive \
+						--name=${browser.host} \
+						--tty \
+						\
+						${browser.docker.network.run.option} \
+						${browser.docker.run.options} \
+						\
+						${browser.docker.image} \
+						\
+						${browser.docker.browser.options}
+				]]>
+			</echo>
+
+			<chmod
+				perm="a+x"
+			>
+				<fileset
+					dir="."
+					includes="${docker.browser.start.script}"
+				/>
+			</chmod>
+
+			<exec executable="/bin/bash" os="${os.apple},${os.unix}">
+				<arg value="${docker.browser.start.script}" />
+			</exec>
+
+			<exec executable="cmd.exe" os="${os.windows}">
+				<arg value="${docker.browser.start.script}" />
+			</exec>
+
+			<delete file="${docker.browser.start.script}" />
+
+			<echo>Waiting for ${browser.host}:4444 to load</echo>
+
+			<waitfor maxwait="300" maxwaitunit="second">
+				<socket port="4444" server="${browser.host}" />
+			</waitfor>
+		</sequential>
+	</macrodef>
+
 	<macrodef name="start-docker-database">
 		<sequential>
 			<get-database-property property.name="database.host" />
@@ -4939,6 +5063,45 @@ org.apache.catalina.startup.ClassLoaderFactory.level=INFO]]>
 		</sequential>
 	</macrodef>
 
+	<macrodef name="stop-docker-browser">
+		<sequential>
+			<get-browser-property property.name="browser.host" />
+
+			<local name="docker.stop.script" />
+
+			<property name="docker.stop.script" value="docker_stop.sh" />
+
+			<echo file="${docker.stop.script}">
+				<![CDATA[
+					docker kill ${browser.host}
+
+					docker rm -f ${browser.host}
+
+					docker network disconnect -f ${env.DOCKER_NETWORK_NAME} ${browser.host} 2>/dev/null
+				]]>
+			</echo>
+
+			<chmod
+				perm="a+x"
+			>
+				<fileset
+					dir="."
+					includes="${docker.stop.script}"
+				/>
+			</chmod>
+
+			<exec executable="/bin/bash" failonerror="false" os="${os.apple},${os.unix}">
+				<arg value="${docker.stop.script}" />
+			</exec>
+
+			<exec executable="cmd.exe" failonerror="false" os="${os.windows}">
+				<arg value="${docker.stop.script}" />
+			</exec>
+
+			<delete file="${docker.stop.script}" />
+		</sequential>
+	</macrodef>
+
 	<macrodef name="stop-docker-database">
 		<sequential>
 			<get-database-property property.name="database.host" />
@@ -5478,6 +5641,17 @@ war.path=${app.server.portal.dir}/</echo>
 			<delete dir="@{patching.tool.dir}/patches" />
 
 			<mkdir dir="@{patching.tool.dir}/patches" />
+		</sequential>
+	</macrodef>
+
+	<macrodef name="update-user-timezone">
+		<attribute default="UTC" name="time.zone" />
+		<sequential>
+			<replaceregexp
+				file="${app.server.dir}/bin/setenv.sh"
+				match="-Duser\.timezone=\w+"
+				replace="-Duser.timezone=@{time.zone}"
+			/>
 		</sequential>
 	</macrodef>
 
@@ -6457,6 +6631,15 @@ go</echo>
 		</gradle-execute>
 	</target>
 
+	<target name="cluster-invoke-method">
+		<if>
+			<isset property="cluster.invoke.method" />
+			<then>
+				<echo file="${liferay.home}/osgi/configs/com.liferay.cluster.test.module.configuration.ClusterTestConfiguration.config">clusterTestCommand="${cluster.invoke.method}"</echo>
+			</then>
+		</if>
+	</target>
+
 	<target name="copy-cluster-log">
 		<local name="log.dir" />
 
@@ -6861,6 +7044,18 @@ virtualHostname="localhost"
 					src="${test.commerce.license.url}"
 				/>
 			</then>
+			<elseif>
+				<available file="${liferay.home}/portal-commerce-license.xml" />
+				<then>
+					<move
+						file="${liferay.home}/portal-commerce-license.xml"
+						tofile="${liferay.home}/deploy/portal-commerce-license.xml"
+					/>
+				</then>
+			</elseif>
+			<else>
+				<echo message="No commerce XML license found to deploy" />
+			</else>
 		</if>
 	</target>
 
@@ -9512,6 +9707,7 @@ auto.deploy.dest.dir=C:/WINDOWS/system32/config/systemprofile/liferay/websphere-
 		<antcall target="prepare-selenium-analytics-cloud-properties" />
 		<antcall target="prepare-selenium-app-server-properties" />
 		<antcall target="prepare-selenium-browser" />
+		<antcall target="prepare-selenium-click-to-chat-properties" />
 		<antcall target="prepare-selenium-database-properties" />
 		<antcall target="prepare-selenium-email-properties" />
 		<antcall target="prepare-selenium-facebook-properties" />
@@ -9523,17 +9719,26 @@ auto.deploy.dest.dir=C:/WINDOWS/system32/config/systemprofile/liferay/websphere-
 		<antcall target="prepare-selenium-sharepoint-properties" />
 		<antcall target="prepare-selenium-testcase-properties" />
 
+		<get-browser-property property.name="browser.docker.image" />
 		<get-operating-system-property property.name="operating.system.docker.image" />
 
 		<if>
-			<isset property="operating.system.docker.image" />
+			<isset property="browser.docker.image" />
 			<then>
-				<get-operating-system-property property.name="operating.system.host.alias" />
-
 				<echo append="true" file="${test.ext.properties.file}">
-					default.portal.url=${operating.system.host.alias}:8080
+					default.portal.url=${test.url}
 				</echo>
 			</then>
+			<elseif>
+				<isset property="operating.system.docker.image" />
+				<then>
+					<get-operating-system-property property.name="operating.system.host.alias" />
+
+					<echo append="true" file="${test.ext.properties.file}">
+						default.portal.url=${operating.system.host.alias}:8080
+					</echo>
+				</then>
+			</elseif>
 			<else>
 				<echo append="true" file="${test.ext.properties.file}">
 					default.portal.url=http://localhost:8080
@@ -9807,12 +10012,44 @@ auto.deploy.dest.dir=C:/WINDOWS/system32/config/systemprofile/liferay/websphere-
 			</then>
 		</if>
 
+		<get-browser-property property.name="browser.docker.image" />
+
 		<if>
-			<isset property="selenium.remote.driver.url" />
+			<isset property="browser.docker.image" />
+			<then>
+				<get-browser-property property.name="browser.host" />
+
+				<echo append="true" file="${test.ext.properties.file}">
+					selenium.remote.driver.url=http://${browser.host}:4444
+				</echo>
+			</then>
+			<elseif>
+				<isset property="selenium.remote.driver.url" />
+				<then>
+					<echo append="true" file="${test.ext.properties.file}">
+						selenium.desired.capabilities.platform=${selenium.desired.capabilities.platform}
+						selenium.remote.driver.url=${selenium.remote.driver.url}
+					</echo>
+				</then>
+			</elseif>
+		</if>
+	</target>
+
+	<target name="prepare-selenium-click-to-chat-properties">
+		<if>
+			<isset property="click.to.chat.jivochat.password" />
 			<then>
 				<echo append="true" file="${test.ext.properties.file}">
-					selenium.desired.capabilities.platform=${selenium.desired.capabilities.platform}
-					selenium.remote.driver.url=${selenium.remote.driver.url}
+					click.to.chat.jivochat.password=${click.to.chat.jivochat.password}
+				</echo>
+			</then>
+		</if>
+
+		<if>
+			<isset property="click.to.chat.liveperson.password" />
+			<then>
+				<echo append="true" file="${test.ext.properties.file}">
+					click.to.chat.liveperson.password=${click.to.chat.liveperson.password}
 				</echo>
 			</then>
 		</if>
@@ -13023,6 +13260,15 @@ module.framework.properties.blacklist.portal.profile.names=${blacklist.portal.pr
 			</then>
 		</if>
 
+		<get-testcase-property property.name="user.time.zone" />
+
+		<if>
+			<isset property="user.time.zone" />
+			<then>
+				<update-user-timezone time.zone="${user.time.zone}" />
+			</then>
+		</if>
+
 		<antcall target="deploy-osgi-apps" />
 
 		<antcall target="hot-deploy-osgi-apps" />
@@ -13828,5 +14074,21 @@ url=${short.hostname}:8080</echo>
 				</beanshell>
 			</then>
 		</if>
+	</target>
+
+	<target name="wait-for-server-shutdown">
+		<sleep seconds="10" />
+
+		<waitfor checkevery="5" checkeveryunit="second" maxwait="5" maxwaitunit="minute" timeoutproperty="app.server.shutdown.timeout">
+			<not>
+				<http url="http://localhost:${app.server.port.number}/web/guest" />
+			</not>
+		</waitfor>
+
+		<fail message="Server is still available at localhost:${app.server.port.number}">
+			<condition>
+				<isset property="app.server.shutdown.timeout" />
+			</condition>
+		</fail>
 	</target>
 </project>

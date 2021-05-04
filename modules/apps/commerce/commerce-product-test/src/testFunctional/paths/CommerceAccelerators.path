@@ -99,6 +99,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>PRODUCT_CARD_QUANTITY_SELECTOR_SELECT_FIELD_OPTION_VALUE</td>
+	<td>//p[@title='${key_productName}']//../..//select[(@class='form-control quantity-selector')]//option[@value='${key_optionValue}']</td>
+	<td></td>
+</tr>
+<tr>
 	<td>PRODUCT_DETAILS_DISCOUNT</td>
 	<td>//div[contains(@class,'price')]//span[contains(@class,'price-value-discount')]</td>
 	<td></td>
@@ -116,6 +121,11 @@
 <tr>
 	<td>PRODUCT_DETAILS_NET_PRICE</td>
 	<td>//div[contains(@class,'price')]//span[contains(@class,'price-value-final')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>PRODUCT_CARD_AVAILABILITY_LABEL</td>
+	<td>//a[contains(@href,'${key_productName}')]//span[contains(@class,'m-0')]</td>
 	<td></td>
 </tr>
 <tr>

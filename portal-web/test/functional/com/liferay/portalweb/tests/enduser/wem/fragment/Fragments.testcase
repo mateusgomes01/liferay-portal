@@ -73,47 +73,6 @@ definition {
 		}
 	}
 
-	@description = "This is a test for LPS-111657. Can add the Container to a column of Row or another Container."
-	@priority = "4"
-	test AddContainerToLayoutElements {
-		task ("Add a content page") {
-			JSONLayout.addPublicLayout(
-				groupName = "Test Site Name",
-				layoutName = "Test Content Page Name",
-				type = "content");
-
-			ContentPagesNavigator.openEditContentPage(
-				pageName = "Test Content Page Name",
-				siteName = "Test Site Name");
-		}
-
-		task ("Add a Container to page") {
-			PageEditor.addFragment(
-				collectionName = "Layout Elements",
-				fragmentName = "Container");
-		}
-
-		task ("Assert add a Container to another Container") {
-			PageEditor.addElementToContainer(
-				collectionName = "Layout Elements",
-				fragmentName = "Container",
-				navTab = "Fragments");
-		}
-
-		task ("Assert add a Container to module of Grid") {
-			PageEditor.addFragment(
-				collectionName = "Layout Elements",
-				fragmentName = "Grid",
-				targetFragmentName = "Container");
-
-			PageEditor.addElementToColumn(
-				collectionName = "Layout Elements",
-				columnNumber = "1",
-				fragmentName = "Container",
-				navTab = "Fragments");
-		}
-	}
-
 	@description = "This is a test for LPS-101258. Can create a fragment with multiple Drop Zone areas."
 	@priority = "4"
 	test AddFragmentWithTwoDropZones {
@@ -175,11 +134,11 @@ definition {
 
 			PageEditor.addFragment(
 				collectionName = "Basic Components",
-				fragmentName = "Video");
+				fragmentName = "Video URL");
 		}
 
 		task ("Configure the video") {
-			PageEditor.gotoConfiguration(fragmentName = "Video");
+			PageEditor.gotoConfiguration(fragmentName = "Video URL");
 
 			PageEditor.addVideoFragmentURL(videoLink = "https://www.youtube.com/watch?v=2EPZxIC5ogU");
 
@@ -199,7 +158,7 @@ definition {
 				pageName = "Content Page Name",
 				siteName = "Test Site Name");
 
-			PageEditor.gotoConfiguration(fragmentName = "Video");
+			PageEditor.gotoConfiguration(fragmentName = "Video URL");
 
 			PageEditor.addVideoFragmentURL(videoLink = "https://www.youtube.com/watch?v=HOdbzGCI5ME");
 
@@ -218,9 +177,6 @@ definition {
 	@description = "This is a test for LPS-98241 and LPS-128667. Basic Component Button can be configured. Interact with layout selector of fragment."
 	@priority = "4"
 	test ConfigureBasicComponentButton {
-		property osgi.module.configuration.file.names = "com.liferay.layout.content.page.editor.web.internal.configuration.FFLayoutContentPageEditorConfiguration.config";
-		property osgi.module.configurations = "layoutMappingEnabled=&quot;true&quot;";
-
 		task ("Add a widget page") {
 			JSONLayout.addPublicLayout(
 				groupName = "Test Site Name",
@@ -805,112 +761,6 @@ definition {
 		}
 	}
 
-	// Ignored until LPS-120693 implement
-
-	@description = "This is a test for LPS-106776 and LPS-111657. Configure the Container and Grid elements."
-	@ignore = "true"
-	@priority = "5"
-	test ConfigureLayoutElements {
-		property portal.acceptance = "true";
-
-		task ("Add a content page") {
-			JSONLayout.addPublicLayout(
-				groupName = "Test Site Name",
-				layoutName = "Test Content Page Name",
-				type = "content");
-
-			ContentPagesNavigator.openEditContentPage(
-				pageName = "Test Content Page Name",
-				siteName = "Test Site Name");
-		}
-
-		task ("Add a Container") {
-			PageEditor.addFragment(
-				collectionName = "Layout Elements",
-				fragmentName = "Container");
-		}
-
-		task ("Add a Card fragment to Container") {
-			PageEditor.addElementToContainer(
-				collectionName = "Basic Components",
-				fragmentName = "Card",
-				navTab = "Fragments");
-		}
-
-		task ("Add a Heading below Card inside the Container") {
-			DragAndDrop.javaScriptDragAndDropObjectBelowTallNestedObject(
-				key_collectionName = "Basic Components",
-				key_fragmentName = "Heading",
-				locator1 = "PageEditor#FRAGMENTS_AND_WIDGETS_TAB_FRAGMENT",
-				locator2 = "//div[contains(@class,'page-editor__topper__bar') and contains(.,'Card')]//following-sibling::div[contains(@class,'page-editor__topper__content')]",
-				value1 = "");
-
-			AssertElementPresent(
-				key_elementHeader = "//li[contains(@class,'topper__title') and contains(.,'Heading')]",
-				key_position = "1",
-				locator1 = "PageEditor#CONTAINER_CONTAINER_NESTED_ELEMENT");
-
-			PageEditor.waitForAutoSave();
-		}
-
-		task ("Configure the Container styles") {
-			PageEditor.viewContainerStyle(
-				contentDisplay = "block",
-				position = "1");
-
-			PageEditor.editLayoutContainer(
-				backgroundColor = "Warning",
-				borderColor = "Danger",
-				borderRadius = "Border Radius Large",
-				borderWidth = "5",
-				boxShadow = "Box Shadow Large",
-				contentDisplay = "Flex",
-				horizontalAlign = "Center",
-				marginBottom = "2",
-				marginLeft = "2",
-				marginRight = "2",
-				marginTop = "2",
-				opacity = "50",
-				paddingBottom = "2",
-				paddingLeft = "2",
-				paddingRight = "2",
-				paddingTop = "2",
-				panel = "Styles",
-				verticalAlign = "Center");
-		}
-
-		task ("View the Container styles") {
-			PageEditor.viewContainerStyle(
-				backgroundColor = "warning",
-				borderColor = "danger",
-				borderRadius = "border-radius-lg",
-				borderWidth = "5",
-				boxShadow = "box-shadow-lg",
-				contentDisplay = "flex",
-				dropShadow = "lg",
-				horizontalAlign = "center",
-				marginBottom = "2",
-				marginLeft = "2",
-				marginRight = "2",
-				marginTop = "2",
-				opacity = "0.5",
-				paddingBottom = "2",
-				paddingLeft = "2",
-				paddingRight = "2",
-				paddingTop = "2",
-				position = "1",
-				verticalAlign = "center");
-		}
-
-		task ("Duplicate the Container") {
-			PageEditor.gotoDuplicate(fragmentName = "Container");
-		}
-
-		task ("View the duplicate Container fragment") {
-			PageEditor.viewDuplicateFragment(fragmentName = "Container");
-		}
-	}
-
 	@description = "This is a test for LPS-90064 and is a supplementary frontend test to the integration tests in LPS-90307. Fragments can be copied."
 	@priority = "5"
 	test CopyFragment {
@@ -1063,92 +913,6 @@ definition {
 			locator1 = "Checkbox#ANY_CHECKBOX");
 
 		PortletEntry.publish();
-	}
-
-	@description = "This is a test for LPS-100540. Global fragments can be propagated to all pages of a site or sites that use the fragments"
-	@priority = "5"
-	test PropagateGlobalFragmentChanges {
-		property osgi.module.configuration.file.names = "com.liferay.fragment.web.internal.configuration.FragmentGlobalPanelAppConfiguration.config";
-		property osgi.module.configurations = "enabled=B&quot;true&quot;";
-		property portal.acceptance = "true";
-
-		task ("Add a fragment collection in Global site") {
-			JSONFragment.addFragmentCollection(
-				groupName = "Global",
-				name = "Global Collection Name");
-		}
-
-		task ("Add a section fragment to the fragment collection via JSON") {
-			JSONFragment.addSection(
-				collectionName = "Global Collection Name",
-				fragmentStatus = "Approved",
-				groupName = "Global",
-				name = "Global Fragment Name 1");
-		}
-
-		task ("Add a section fragment to the fragment collection via JSON") {
-			JSONFragment.addSection(
-				collectionName = "Global Collection Name",
-				fragmentStatus = "Approved",
-				groupName = "Global",
-				name = "Global Fragment Name 2");
-		}
-
-		JSONLayout.addPublicLayout(
-			groupName = "Test Site Name",
-			layoutName = "Content Page Name",
-			type = "content");
-
-		ContentPagesNavigator.openEditContentPage(
-			pageName = "Content Page Name",
-			siteName = "Test Site Name");
-
-		PageEditor.addFragment(
-			collectionName = "Global Collection Name",
-			fragmentName = "Global Fragment Name 1");
-
-		PageEditor.addFragment(
-			collectionName = "Global Collection Name",
-			fragmentName = "Global Fragment Name 2",
-			targetFragmentName = "Global Fragment Name 1");
-
-		PageEditor.clickPublish();
-
-		FragmentsAdminNavigator.openFragmentsAdmin(siteURLKey = "global");
-
-		FragmentsAdminNavigator.gotoEntryEllipsisItem(
-			entry = "Global Fragment Name 1",
-			item = "Edit");
-
-		FragmentsEditor.typeFileContent(fileName = "fragment_button.html");
-
-		Button.clickPublish();
-
-		FragmentsAdminNavigator.openFragmentsAdmin(siteURLKey = "global");
-
-		FragmentsAdminNavigator.gotoEntryEllipsisItem(
-			entry = "Global Fragment Name 1",
-			item = "View Site Usages");
-
-		var key_siteName = "Test Site Name";
-
-		Check(locator1 = "Fragment#FRAGMENT_SITE_USAGE_CHECKBOX");
-
-		Click.clickNoMouseOver(locator1 = "Button#PROPAGATE");
-
-		Alert.viewSuccessMessage();
-
-		Navigator.openWithAppendToBaseURL(urlAppend = "web/test-site-name/content-page-name");
-
-		for (var button : list "Submit,Cancel") {
-			Button.viewPresent(button = "${button}");
-		}
-
-		Navigator.openWithAppendToBaseURL(urlAppend = "web/test-site-name/content-page-name");
-
-		for (var button : list "Submit,Cancel") {
-			Button.viewPresent(button = "${button}");
-		}
 	}
 
 	@description = "Fragments can be renamed."

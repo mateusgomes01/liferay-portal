@@ -59,6 +59,7 @@ import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
+import com.liferay.taglib.ui.UserPortraitTag;
 
 import java.io.Serializable;
 
@@ -290,6 +291,21 @@ public class ViewChangesDisplayContext {
 		).put(
 			"ctCollectionId", _ctCollection.getCtCollectionId()
 		).put(
+			"currentUser",
+			() -> {
+				User user = _themeDisplay.getUser();
+
+				return JSONUtil.put(
+					"userId", user.getUserId()
+				).put(
+					"userName", user.getFullName()
+				).put(
+					"userPortraitHTML",
+					UserPortraitTag.getUserPortraitHTML(
+						StringPool.BLANK, StringPool.BLANK, user, _themeDisplay)
+				);
+			}
+		).put(
 			"dataURL",
 			() -> {
 				ResourceURL dataURL = _renderResponse.createResourceURL();
@@ -297,6 +313,21 @@ public class ViewChangesDisplayContext {
 				dataURL.setResourceID("/change_tracking/get_entry_render_data");
 
 				return dataURL.toString();
+			}
+		).put(
+			"deleteCTCommentURL",
+			() -> {
+				ResourceURL deleteCTCommentURL =
+					_renderResponse.createResourceURL();
+
+				deleteCTCommentURL.setParameter(
+					"ctCollectionId",
+					String.valueOf(_ctCollection.getCtCollectionId()));
+				deleteCTCommentURL.setParameter("ctEntryId", "0");
+				deleteCTCommentURL.setResourceID(
+					"/change_tracking/delete_ct_comment");
+
+				return deleteCTCommentURL.toString();
 			}
 		).put(
 			"discardURL",
@@ -316,6 +347,21 @@ public class ViewChangesDisplayContext {
 		).put(
 			"expired",
 			_ctCollection.getStatus() == WorkflowConstants.STATUS_EXPIRED
+		).put(
+			"getCTCommentsURL",
+			() -> {
+				ResourceURL getCTCommentsURL =
+					_renderResponse.createResourceURL();
+
+				getCTCommentsURL.setParameter(
+					"ctCollectionId",
+					String.valueOf(_ctCollection.getCtCollectionId()));
+				getCTCommentsURL.setParameter("ctEntryId", "0");
+				getCTCommentsURL.setResourceID(
+					"/change_tracking/get_ct_comments");
+
+				return getCTCommentsURL.toString();
+			}
 		).put(
 			"models",
 			() -> {
@@ -396,6 +442,21 @@ public class ViewChangesDisplayContext {
 			DisplayContextUtil.getTypeNamesJSONObject(
 				classNameIdClassPKsMap.keySet(), _ctDisplayRendererRegistry,
 				_themeDisplay)
+		).put(
+			"updateCTCommentURL",
+			() -> {
+				ResourceURL updateCTCommentURL =
+					_renderResponse.createResourceURL();
+
+				updateCTCommentURL.setParameter(
+					"ctCollectionId",
+					String.valueOf(_ctCollection.getCtCollectionId()));
+				updateCTCommentURL.setParameter("ctEntryId", "0");
+				updateCTCommentURL.setResourceID(
+					"/change_tracking/update_ct_comment");
+
+				return updateCTCommentURL.toString();
+			}
 		).put(
 			"userInfo",
 			DisplayContextUtil.getUserInfoJSONObject(

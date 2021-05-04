@@ -156,6 +156,124 @@ definition {
 		Portlet.viewTitle(portletName = "IFrame");
 	}
 
+	@priority = "3"
+	test LocaleNotAppendedToAlternateDefaultLocaleURL {
+		User.firstLoginPG();
+
+		JSONLayout.addPublicLayout(
+			groupName = "Test Site Name",
+			layoutName = "Site Page");
+
+		Site.openSiteSettingsAdmin(siteURLKey = "test-site-name");
+
+		Site.addVirtualHostsURLCP(
+			publicPageVirtualHostURL = "www.able.com",
+			publicVirtualHosts = "true");
+
+		Navigator.openSpecificURL(url = "http://www.able.com:8080/site-page");
+
+		AssertElementPresent(locator1 = "//link[@hreflang='x-default'][@href='http://www.able.com:8080']");
+		AssertElementPresent(locator1 = "//link[@hreflang='en-US'][@href='http://www.able.com:8080']");
+
+		Navigator.openSpecificURL(url = "http://www.able.com:8080");
+
+		AssertElementPresent(locator1 = "//link[@hreflang='x-default'][@href='http://www.able.com:8080']");
+		AssertElementPresent(locator1 = "//link[@hreflang='en-US'][@href='http://www.able.com:8080']");
+	}
+
+	@priority = "4"
+	test PrependFriendlyURLStyle {
+		property custom.properties = "locale.prepend.friendly.url.style=3";
+		property test.name.skip.portal.instance = "Locale#PrependFriendlyURLStyle";
+
+		var portalURL = PropsUtil.get("portal.url");
+
+		JSONLayout.addPublicLayout(
+			groupName = "Test Site Name",
+			layoutName = "Test Page");
+
+		JSONLayout.addWidgetToPublicLayout(
+			groupName = "Test Site Name",
+			layoutName = "Test Page",
+			widgetName = "Language Selector");
+
+		Navigator.openSitePage(
+			pageName = "Test Page",
+			siteName = "Test Site Name");
+
+		LanguagePortlet.selectLanguagePG(
+			locale = "es-ES",
+			textIcon = "español-España");
+
+		AssertLocation(value1 = "${portalURL}/es/web/test-site-name/test-page");
+
+		Portlet.shutdownServer();
+
+		AntCommand(
+			locator1 = "build-test.xml",
+			value1 = "portal-ext-properties-update -Dupdate.properties.original=locale.prepend.friendly.url.style=3 -Dupdate.properties=locale.prepend.friendly.url.style=0");
+
+		Portlet.startServer(deleteLiferayHome = "false");
+
+		Navigator.openSitePage(
+			pageName = "Test Page",
+			siteName = "Test Site Name");
+
+		LanguagePortlet.selectLanguagePG(
+			locale = "es-ES",
+			textIcon = "español-España");
+
+		AssertLocation(value1 = "${portalURL}/web/test-site-name/test-page");
+
+		Portlet.shutdownServer();
+
+		AntCommand(
+			locator1 = "build-test.xml",
+			value1 = "portal-ext-properties-update -Dupdate.properties.original=locale.prepend.friendly.url.style=0-Dupdate.properties=locale.prepend.friendly.url.style=1");
+
+		Portlet.startServer(deleteLiferayHome = "false");
+
+		Navigator.openSitePage(
+			pageName = "Test Page",
+			siteName = "Test Site Name");
+
+		LanguagePortlet.selectLanguagePG(
+			locale = "es-ES",
+			textIcon = "español-España");
+
+		AssertLocation(value1 = "${portalURL}/es/web/test-site-name/test-page");
+
+		LanguagePortlet.selectLanguagePG(
+			locale = "en-US",
+			textIcon = "english-United States");
+
+		AssertLocation(value1 = "${portalURL}/web/test-site-name/test-page");
+
+		Portlet.shutdownServer();
+
+		AntCommand(
+			locator1 = "build-test.xml",
+			value1 = "portal-ext-properties-update -Dupdate.properties.original=locale.prepend.friendly.url.style=1 -Dupdate.properties=locale.prepend.friendly.url.style=2");
+
+		Portlet.startServer(deleteLiferayHome = "false");
+
+		Navigator.openSitePage(
+			pageName = "Test Page",
+			siteName = "Test Site Name");
+
+		LanguagePortlet.selectLanguagePG(
+			locale = "es-ES",
+			textIcon = "español-España");
+
+		AssertLocation(value1 = "${portalURL}/es/web/test-site-name/test-page");
+
+		LanguagePortlet.selectLanguagePG(
+			locale = "en-US",
+			textIcon = "english-United States");
+
+		AssertLocation(value1 = "${portalURL}/en/web/test-site-name/test-page");
+	}
+
 	@priority = "4"
 	test RestrictAvailableLocales {
 		property custom.properties = "locales=ca_ES,zh_CN,nl_NL,en_AU,en_GB,en_US,fi_FI,fr_FR,de_DE,it_IT,iw_IL,hu_HU,ja_JP,pt_BR,es_ES";
@@ -238,6 +356,60 @@ definition {
 		}
 	}
 
+	@priority = "3"
+	test UserLockoutShowsTimezoneInformation {
+		property test.name.skip.portal.instance = "Locale#UserLockoutShowsTimezoneInformation";
+		property user.time.zone = "UTC";
+
+		User.firstLoginPG();
+
+		JSONUser.addUser(
+			userEmailAddress = "userea@liferay.com",
+			userFirstName = "userfn",
+			userLastName = "userln",
+			userScreenName = "usersn");
+
+		PortalSettings.gotoConfiguration(
+			configurationCategory = "Localization",
+			configurationName = "Time Zone",
+			configurationScope = "Virtual Instance Scope");
+
+		PortalSettings.configureTimeZone(timeZone = "(UTC +02:00) Central European Summer Time");
+
+		ApplicationsMenu.gotoPortlet(
+			category = "Security",
+			panel = "Control Panel",
+			portlet = "Password Policies");
+
+		PasswordPoliciesNavigator.gotoPolicy(passwordPolicyName = "Default Password Policy");
+
+		PasswordPolicies.enableDefaultPasswordPolicyLockout();
+
+		PasswordPolicies.setLockoutDuration(duration = "5 Minutes");
+
+		User.logoutPG();
+
+		var count = "0";
+
+		while ("${count}" != "3") {
+			User._login(
+				password = "INCORRECT",
+				userEmailAddress = "userea@liferay.com");
+
+			var count = ${count} + 1;
+		}
+
+		task ("Assert Timezone is included with account lockout message.") {
+			AssertTextEquals.assertPartialText(
+				locator1 = "Message#ERROR_1",
+				value1 = "This account is locked until");
+
+			AssertTextEquals.assertPartialText(
+				locator1 = "Message#ERROR_1",
+				value1 = "CEST.");
+		}
+	}
+
 	@priority = "4"
 	test VerifyFriendlyURLRedirectToEnableDefualtLocale {
 		property custom.properties = "locales.enabled=en_US,zh_CN,fr_FR${line.separator}locale.use.default.if.not.available=true";
@@ -315,7 +487,9 @@ definition {
 
 		Site.openSiteSettingsAdmin(siteURLKey = "guest");
 
-		Navigator.gotoNavTab(navTab = "Languages");
+		Click(
+			key_url = "site-configuration-languages",
+			locator1 = "ListGroupItem#CONFIGURATION_ITEM_LINK");
 
 		task ("Assert the default language options radio box is checked") {
 			AssertChecked.assertCheckedNotVisible(
@@ -336,6 +510,40 @@ definition {
 					locator1 = "Translation#LOCALIZATION_NAME");
 			}
 		}
+	}
+
+	@priority = "4"
+	test ViewLocaleInNewVirtualInstance {
+		User.firstLoginPG();
+
+		PortalSettings.gotoConfiguration(
+			configurationCategory = "Localization",
+			configurationName = "Language",
+			configurationScope = "Virtual Instance Scope");
+
+		PortalSettings.configureCurrentLanguagesCP(
+			currentPortalLanguages = "English (United States),Italian (Italy)",
+			defaultPortalLanguage = "English (United States)",
+			displaySettings = "Display Settings");
+
+		PortalSettings.configureCurrentLanguagesCP(
+			currentPortalLanguages = "English (United States),Italian (Italy)",
+			defaultPortalLanguage = "Italian (Italy)",
+			displaySettings = "Display Settings");
+
+		HeadlessPortalInstanceAPI.addPortalInstance(
+			domain = "www.able.com",
+			portalInstanceId = "www.able.com",
+			virtualHost = "www.able.com");
+
+		User.firstLoginPG(
+			localization = "IT",
+			localizedAgree = "Sono d'accordo",
+			localizedAnswer = "Risposta",
+			localizedSaveButton = "Salva",
+			password = "test",
+			userEmailAddress = "test@www.able.com",
+			virtualHostsURL = "http://www.able.com:8080");
 	}
 
 	@priority = "5"
@@ -377,11 +585,7 @@ definition {
 			groupName = "Site Name",
 			layoutName = "Test Page");
 
-		Navigator.openSiteURL(siteName = "Site Name");
-
-		ProductMenu.gotoPortlet(
-			category = "Configuration",
-			portlet = "Site Settings");
+		Site.openSiteSettingsAdmin(siteURLKey = "site-name");
 
 		Site.configureCurrentLanguagesCP(defaultSiteLanguage = "Spanish (Spain)");
 

@@ -26,29 +26,40 @@ import com.liferay.info.localized.InfoLocalizedValue;
 import com.liferay.petra.portlet.url.builder.PortletURLBuilder;
 import com.liferay.petra.string.CharPool;
 import com.liferay.portal.kernel.bean.BeanParamUtil;
+import com.liferay.portal.kernel.editor.configuration.EditorConfiguration;
+import com.liferay.portal.kernel.editor.configuration.EditorConfigurationFactoryUtil;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.portlet.LiferayPortletRequest;
 import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
+import com.liferay.portal.kernel.portlet.RequestBackedPortletURLFactoryUtil;
 import com.liferay.portal.kernel.service.WorkflowDefinitionLinkLocalServiceUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.kernel.util.ParamUtil;
+import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
+import com.liferay.translation.constants.TranslationPortletKeys;
 import com.liferay.translation.info.field.TranslationInfoFieldChecker;
 import com.liferay.translation.model.TranslationEntry;
 import com.liferay.translation.service.TranslationEntryLocalServiceUtil;
+import com.liferay.translation.web.internal.configuration.FFAutoTranslateConfiguration;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.portlet.PortletURL;
 
@@ -62,6 +73,7 @@ public class TranslateDisplayContext {
 	public TranslateDisplayContext(
 		List<String> availableSourceLanguageIds,
 		List<String> availableTargetLanguageIds, String className, long classPK,
+		FFAutoTranslateConfiguration ffAutoTranslateConfiguration,
 		InfoForm infoForm, LiferayPortletRequest liferayPortletRequest,
 		LiferayPortletResponse liferayPortletResponse, Object object,
 		InfoItemFieldValues sourceInfoItemFieldValues, String sourceLanguageId,
@@ -72,6 +84,7 @@ public class TranslateDisplayContext {
 		_availableTargetLanguageIds = availableTargetLanguageIds;
 		_className = className;
 		_classPK = classPK;
+		_ffAutoTranslateConfiguration = ffAutoTranslateConfiguration;
 		_infoForm = infoForm;
 		_liferayPortletResponse = liferayPortletResponse;
 		_object = object;
@@ -90,6 +103,11 @@ public class TranslateDisplayContext {
 
 		_themeDisplay = (ThemeDisplay)_httpServletRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
+	}
+
+	public String getAutoTranslateURL() {
+		return PortalUtil.getPortalURL(_httpServletRequest) +
+			Portal.PATH_MODULE + "/translation/auto_translate";
 	}
 
 	public boolean getBooleanValue(
@@ -131,6 +149,132 @@ public class TranslateDisplayContext {
 
 	public List<InfoFieldSetEntry> getInfoFieldSetEntries() {
 		return _infoForm.getInfoFieldSetEntries();
+	}
+
+	public Map<String, Object> getInfoFieldSetEntriesData() {
+		List<HashMap<String, Object>> infoFieldSetEntries = new ArrayList<>();
+
+		for (InfoFieldSetEntry infoFieldSetEntry : getInfoFieldSetEntries()) {
+			List<InfoField> infoFields = getInfoFields(infoFieldSetEntry);
+
+			if (ListUtil.isEmpty(infoFields)) {
+				continue;
+			}
+
+			Stream<InfoField> stream = infoFields.stream();
+
+			infoFieldSetEntries.add(
+				HashMapBuilder.<String, Object>put(
+					"fields",
+					stream.map(
+						infoField -> {
+							String infoFieldId =
+								"infoField--" + infoField.getName() + "--";
+
+							Map<String, Object> editorConfiguration = null;
+
+							if (getBooleanValue(
+									infoField, TextInfoFieldType.HTML)) {
+
+								editorConfiguration = _getInfoFieldEditorConfig(
+									infoFieldId);
+							}
+
+							return HashMapBuilder.<String, Object>put(
+								"editorConfiguration", editorConfiguration
+							).put(
+								"html",
+								getBooleanValue(
+									infoField, TextInfoFieldType.HTML)
+							).put(
+								"id", infoFieldId
+							).put(
+								"label",
+								infoField.getLabel(_themeDisplay.getLocale())
+							).put(
+								"multiline",
+								getBooleanValue(
+									infoField, TextInfoFieldType.MULTILINE)
+							).put(
+								"sourceContent",
+								getSourceStringValue(
+									infoField, getSourceLocale())
+							).put(
+								"sourceContentDir",
+								LanguageUtil.get(getSourceLocale(), "lang.dir")
+							).put(
+								"targetContent",
+								getTargetStringValue(
+									infoField, getTargetLocale())
+							).put(
+								"targetContentDir",
+								LanguageUtil.get(getTargetLocale(), "lang.dir")
+							).put(
+								"targetLanguageId", getTargetLanguageId()
+							).build();
+						}
+					).collect(
+						Collectors.toList()
+					)
+				).put(
+					"legend",
+					getInfoFieldSetLabel(
+						infoFieldSetEntry, _themeDisplay.getLocale())
+				).build());
+		}
+
+		return HashMapBuilder.<String, Object>put(
+			"aditionalFields",
+			HashMapBuilder.<String, Object>put(
+				"redirect", ParamUtil.getString(_httpServletRequest, "redirect")
+			).put(
+				"sourceLanguageId", getSourceLanguageId()
+			).put(
+				"targetLanguageId", getTargetLanguageId()
+			).build()
+		).put(
+			"autoTranslateButtonVisible", isAutoTranslateButtonVisible()
+		).put(
+			"getAutoTranslateURL", getAutoTranslateURL()
+		).put(
+			"infoFieldSetEntries", infoFieldSetEntries
+		).put(
+			"publishButtonDisabled", isPublishButtonDisabled()
+		).put(
+			"publishButtonLabel",
+			LanguageUtil.get(_httpServletRequest, getPublishButtonLabel())
+		).put(
+			"redirectURL", ParamUtil.getString(_httpServletRequest, "redirect")
+		).put(
+			"saveButtonDisabled", isSaveButtonDisabled()
+		).put(
+			"saveButtonLabel",
+			LanguageUtil.get(_httpServletRequest, getSaveButtonLabel())
+		).put(
+			"sourceLanguageId", getSourceLanguageId()
+		).put(
+			"sourceLanguageIdTitle", getLanguageIdTitle(getSourceLanguageId())
+		).put(
+			"targetLanguageId", getTargetLanguageId()
+		).put(
+			"targetLanguageIdTitle", getLanguageIdTitle(getTargetLanguageId())
+		).put(
+			"translateLanguagesSelectorData",
+			getTranslateLanguagesSelectorData()
+		).put(
+			"translationPermission", hasTranslationPermission()
+		).put(
+			"updateTranslationPortletURL",
+			String.valueOf(getUpdateTranslationPortletURL())
+		).put(
+			"workflowActions",
+			HashMapBuilder.<String, Object>put(
+				"PUBLISH", String.valueOf(WorkflowConstants.ACTION_PUBLISH)
+			).put(
+				"SAVE_DRAFT",
+				String.valueOf(WorkflowConstants.ACTION_SAVE_DRAFT)
+			).build()
+		).build();
 	}
 
 	public String getInfoFieldSetLabel(
@@ -259,6 +403,16 @@ public class TranslateDisplayContext {
 		return true;
 	}
 
+	public boolean isAutoTranslateButtonVisible() {
+		if (_ffAutoTranslateConfiguration.enabled() &&
+			hasTranslationPermission()) {
+
+			return true;
+		}
+
+		return false;
+	}
+
 	public boolean isPublishButtonDisabled() {
 		if (_isAvailableTargetLanguageIdsEmpty()) {
 			return true;
@@ -293,6 +447,22 @@ public class TranslateDisplayContext {
 		return _groupId;
 	}
 
+	private Map<String, Object> _getInfoFieldEditorConfig(String infoFieldId) {
+		EditorConfiguration editorConfiguration =
+			EditorConfigurationFactoryUtil.getEditorConfiguration(
+				TranslationPortletKeys.TRANSLATION, "translateEditor",
+				"ckeditor",
+				HashMapBuilder.<String, Object>put(
+					"liferay-ui:input-editor:allowBrowseDocuments", true
+				).put(
+					"liferay-ui:input-editor:name", infoFieldId
+				).build(),
+				_themeDisplay,
+				RequestBackedPortletURLFactoryUtil.create(_httpServletRequest));
+
+		return editorConfiguration.getData();
+	}
+
 	private TranslationEntry _getTranslationEntry() {
 		if (_translationEntry != null) {
 			return _translationEntry;
@@ -317,6 +487,7 @@ public class TranslateDisplayContext {
 	private final List<String> _availableTargetLanguageIds;
 	private final String _className;
 	private final long _classPK;
+	private final FFAutoTranslateConfiguration _ffAutoTranslateConfiguration;
 	private Long _groupId;
 	private final HttpServletRequest _httpServletRequest;
 	private final InfoForm _infoForm;

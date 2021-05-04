@@ -648,13 +648,11 @@ definition {
 
 		Staging.publishToLive(remoteStaging = "true");
 
-		Navigator.gotoSitePage(
-			pageName = "Test Page",
-			siteName = "Site Name");
+		Site.openSiteSettingsAdmin(siteURLKey = "site-name");
 
-		ProductMenu.gotoPortlet(
-			category = "Configuration",
-			portlet = "Site Settings");
+		Click(
+			key_url = "site-configuration-other",
+			locator1 = "ListGroupItem#CONFIGURATION_ITEM_LINK");
 
 		Panel.expandPanel(panel = "Open Graph");
 
@@ -691,6 +689,10 @@ definition {
 			category = "Configuration",
 			portlet = "Site Settings");
 
+		Click(
+			key_url = "site-configuration-other",
+			locator1 = "ListGroupItem#CONFIGURATION_ITEM_LINK");
+
 		Panel.expandPanel(panel = "Open Graph");
 
 		AssertVisible(
@@ -718,13 +720,11 @@ definition {
 
 		Staging.publishToLive(remoteStaging = "true");
 
-		Navigator.gotoSitePage(
-			pageName = "Test Page",
-			siteName = "Site Name");
+		Site.openSiteSettingsAdmin(siteURLKey = "site-name");
 
-		ProductMenu.gotoPortlet(
-			category = "Configuration",
-			portlet = "Site Settings");
+		Click(
+			key_url = "site-configuration-other",
+			locator1 = "ListGroupItem#CONFIGURATION_ITEM_LINK");
 
 		Panel.expandPanel(panel = "Open Graph");
 
@@ -753,6 +753,10 @@ definition {
 		ProductMenu.gotoPortlet(
 			category = "Configuration",
 			portlet = "Site Settings");
+
+		Click(
+			key_url = "site-configuration-other",
+			locator1 = "ListGroupItem#CONFIGURATION_ITEM_LINK");
 
 		Panel.expandPanel(panel = "Open Graph");
 
@@ -1866,13 +1870,11 @@ definition {
 
 		Staging.publishToLive(remoteStaging = "true");
 
-		Navigator.gotoSitePage(
-			pageName = "Test Page",
-			siteName = "Site Name");
+		Site.openSiteSettingsAdmin(siteURLKey = "site-name");
 
-		ProductMenu.gotoPortlet(
-			category = "Configuration",
-			portlet = "Site Settings");
+		Click(
+			key_url = "site-configuration-other",
+			locator1 = "ListGroupItem#CONFIGURATION_ITEM_LINK");
 
 		Panel.expandPanel(panel = "Open Graph");
 
@@ -1909,6 +1911,10 @@ definition {
 			category = "Configuration",
 			portlet = "Site Settings");
 
+		Click(
+			key_url = "site-configuration-other",
+			locator1 = "ListGroupItem#CONFIGURATION_ITEM_LINK");
+
 		Panel.expandPanel(panel = "Open Graph");
 
 		AssertVisible(
@@ -1920,13 +1926,11 @@ definition {
 			password = "test",
 			userEmailAddress = "test@liferay.com");
 
-		Navigator.gotoSitePage(
-			pageName = "Test Page",
-			siteName = "Site Name");
+		Site.openSiteSettingsAdmin(siteURLKey = "site-name");
 
-		ProductMenu.gotoPortlet(
-			category = "Configuration",
-			portlet = "Site Settings");
+		Click(
+			key_url = "site-configuration-other",
+			locator1 = "ListGroupItem#CONFIGURATION_ITEM_LINK");
 
 		Panel.expandPanel(panel = "Open Graph");
 
@@ -1963,6 +1967,10 @@ definition {
 		ProductMenu.gotoPortlet(
 			category = "Configuration",
 			portlet = "Site Settings");
+
+		Click(
+			key_url = "site-configuration-other",
+			locator1 = "ListGroupItem#CONFIGURATION_ITEM_LINK");
 
 		Panel.expandPanel(panel = "Open Graph");
 

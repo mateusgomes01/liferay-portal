@@ -18,6 +18,7 @@ import updatePageContents from '../actions/updatePageContents';
 import {LAYOUT_DATA_ITEM_TYPES} from '../config/constants/layoutDataItemTypes';
 import InfoItemService from '../services/InfoItemService';
 import LayoutService from '../services/LayoutService';
+import getFragmentEntryLinkIdsFromItemId from '../utils/getFragmentEntryLinkIdsFromItemId';
 
 export default function deleteItem({itemId, selectItem = () => {}, store}) {
 	return (dispatch) => {
@@ -52,8 +53,16 @@ export default function deleteItem({itemId, selectItem = () => {}, store}) {
 
 					selectItem(null);
 
+					const fragmentEntryLinkIds = getFragmentEntryLinkIdsFromItemId(
+						{
+							itemId,
+							layoutData,
+						}
+					);
+
 					dispatch(
 						deleteItemAction({
+							fragmentEntryLinkIds,
 							itemId,
 							layoutData,
 							portletIds,

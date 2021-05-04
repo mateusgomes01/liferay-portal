@@ -37,16 +37,7 @@ renderResponse.setTitle(translateDisplayContext.getTitle());
 		<nav class="component-tbar subnav-tbar-light tbar">
 			<clay:container-fluid>
 				<ul class="tbar-nav">
-					<li class="tbar-item tbar-item-expand">
-						<c:if test="<%= translateDisplayContext.hasTranslationPermission() %>">
-							<div class="tbar-section text-left">
-								<react:component
-									module="js/translate/TranslateLanguagesSelector"
-									props="<%= translateDisplayContext.getTranslateLanguagesSelectorData() %>"
-								/>
-							</div>
-						</c:if>
-					</li>
+					<li class="tbar-item tbar-item-expand"></li>
 					<li class="tbar-item">
 						<div class="metadata-type-button-row tbar-section text-right">
 							<aui:button cssClass="btn-sm mr-3" href="<%= redirect %>" type="cancel" />
@@ -176,24 +167,21 @@ renderResponse.setTitle(translateDisplayContext.getTitle());
 									>
 
 										<%
-										String id = "infoField--" + infoField.getName() + "--";
 										String targetContent = translateDisplayContext.getTargetStringValue(infoField, translateDisplayContext.getTargetLocale());
 										%>
 
 										<c:choose>
 											<c:when test="<%= html %>">
-												<liferay-editor:editor
-													configKey="translateEditor"
-													contents="<%= targetContent %>"
-													contentsLanguageId="<%= translateDisplayContext.getTargetLanguageId() %>"
-													name="<%= id %>"
-													onChangeMethod="onInputChange"
-													placeholder="<%= label %>"
-													toolbarSet="simple"
-												/>
+												<label class="control-label">
+													<%= label %>
+												</label>
+
+												<div class="translation-editor-preview" dir="<%= LanguageUtil.get(translateDisplayContext.getTargetLocale(), "lang.dir") %>">
+													<%= targetContent %>
+												</div>
 											</c:when>
 											<c:otherwise>
-												<aui:input dir='<%= LanguageUtil.get(translateDisplayContext.getTargetLocale(), "lang.dir") %>' label="<%= label %>" name="<%= id %>" onChange='<%= liferayPortletResponse.getNamespace() + "onInputChange();" %>' type='<%= multiline ? "textarea" : "text" %>' value="<%= targetContent %>" />
+												<aui:input dir='<%= LanguageUtil.get(translateDisplayContext.getTargetLocale(), "lang.dir") %>' disabled="<%= true %>" label="<%= label %>" name='<%= "infoField--" + infoField.getName() + "--" %>' type='<%= multiline ? "textarea" : "text" %>' value="<%= targetContent %>" />
 											</c:otherwise>
 										</c:choose>
 									</clay:col>
@@ -209,24 +197,9 @@ renderResponse.setTitle(translateDisplayContext.getTitle());
 			</div>
 		</clay:container-fluid>
 	</aui:form>
+
+	<react:component
+		module="js/translate/Translate"
+		props="<%= translateDisplayContext.getInfoFieldSetEntriesData() %>"
+	/>
 </div>
-
-<script>
-	var saveDraftBtn = document.getElementById('<portlet:namespace />saveDraftBtn');
-
-	saveDraftBtn.addEventListener('click', () => {
-		var workflowActionInput = document.getElementById(
-			'<portlet:namespace />workflowAction'
-		);
-
-		workflowActionInput.value = '<%= WorkflowConstants.ACTION_SAVE_DRAFT %>';
-	});
-
-	function <portlet:namespace />onInputChange(value) {
-		var translateLanguageComponent = Liferay.component(
-			'<portlet:namespace />TranslateLanguagesSelector'
-		);
-
-		translateLanguageComponent.onFormChange();
-	}
-</script>

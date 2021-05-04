@@ -32,6 +32,10 @@ definition {
 
 		Site.openSiteSettingsAdmin(siteURLKey = "site-name");
 
+		Click(
+			key_url = "site-configuration-details",
+			locator1 = "ListGroupItem#CONFIGURATION_ITEM_LINK");
+
 		PortletEntry.inputLocalizedName(
 			language = "es_ES",
 			localizedName = "Nombre del Sitio");
@@ -364,6 +368,10 @@ definition {
 
 		Site.openSiteSettingsAdmin(siteURLKey = "site-name");
 
+		Click(
+			key_url = "site-configuration-details",
+			locator1 = "ListGroupItem#CONFIGURATION_ITEM_LINK");
+
 		PortletEntry.inputLocalizedName(
 			language = "es_ES",
 			localizedName = "Nombre del Sitio");
@@ -682,8 +690,6 @@ definition {
 		Site.configureCurrentLanguagesCP(
 			currentSiteLanguages = "English (United States),Hungarian (Hungary)",
 			defaultSiteLanguage = "English (United States)");
-
-		Navigator.gotoNavTab(navTab = "General");
 
 		User.logoutPG();
 

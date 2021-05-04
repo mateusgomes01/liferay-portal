@@ -607,6 +607,10 @@ definition {
 	}
 
 	macro addRepeatableFieldsGroup {
+		WaitForElementPresent(
+			key_fieldsetLabel = "${fieldsGroupLabel}",
+			locator1 = "WCEditWebContent#FIELDSET_REPEATABLE_BUTTON");
+
 		Click(
 			key_fieldsetLabel = "${fieldsGroupLabel}",
 			locator1 = "WCEditWebContent#FIELDSET_REPEATABLE_BUTTON");
@@ -657,6 +661,24 @@ definition {
 		Click(locator1 = "Sidebar#BACK");
 	}
 
+	macro assertFieldNotPresent {
+		if (isSet(fieldFieldLabel)) {
+			AssertElementNotPresent(
+				key_fieldFieldLabel = "${fieldFieldLabel}",
+				locator1 = "DDMEditStructure#FORM_FIELD_CONTAINER");
+		}
+		else if (isSet(fieldsetLabel)) {
+			AssertElementNotPresent(
+				key_fieldsetLabel = "${fieldsetLabel}",
+				locator1 = "DDMEditStructure#FORM_FIELD_SETS_CONTAINER_LABEL");
+		}
+		else if (isSet(fieldsGroupLabel)) {
+			AssertElementNotPresent(
+				key_fieldFieldLabel = "${fieldsGroupLabel}",
+				locator1 = "DDMEditStructure#FORM_FIELD_CONTAINER_LABEL");
+		}
+	}
+
 	macro assertFieldRepeated {
 		AssertElementPresent(
 			key_fieldName = "${fieldName}",
@@ -669,6 +691,16 @@ definition {
 			key_fieldName = "${fieldName}",
 			key_index = "${index}",
 			locator1 = "WCEditWebContent#REPEATED_FIELD");
+	}
+
+	macro assertFieldsGroup {
+		for (var fieldFieldLabel : list "${fieldsLabelList}") {
+			AssertElementPresent(
+				key_fieldFieldLabel = "${fieldFieldLabel}",
+				key_fieldGroupDepth = "${fieldGroupDepth}",
+				key_fieldGroupLabel = "${fieldGroupLabel}",
+				locator1 = "DataEngineBuilder#FORM_FIELDS_GROUP_FIELD_WITH_DEPTH");
+		}
 	}
 
 	macro assertNonLocalizableField {
@@ -916,6 +948,8 @@ definition {
 	}
 
 	macro editFieldLocalizable {
+		var checkboxName = "Localizable";
+
 		AssertClick.assertPartialTextClickAt(
 			key_fieldFieldLabel = "${fieldFieldLabel}",
 			locator1 = "DDMEditStructure#FORM_FIELD_CONTAINER",
@@ -925,9 +959,7 @@ definition {
 			Navigator.gotoNavTab(navTab = "Advanced");
 		}
 
-		Uncheck.uncheckToggleSwitch(
-			checkboxName = "Localizable",
-			locator1 = "Checkbox#ANY_CHECKBOX");
+		Click.javaScriptClick(locator1 = "Checkbox#ANY_CHECKBOX");
 
 		Click(locator1 = "Sidebar#BACK");
 	}

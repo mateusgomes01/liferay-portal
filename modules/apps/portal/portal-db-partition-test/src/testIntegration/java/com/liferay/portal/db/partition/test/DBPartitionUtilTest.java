@@ -29,12 +29,15 @@ import com.liferay.portal.kernel.dao.jdbc.DataAccess;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
+import com.liferay.portal.kernel.upgrade.UpgradeProcess;
+import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.InfrastructureUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.Props;
 import com.liferay.portal.test.rule.Inject;
+import com.liferay.portal.util.PortalInstances;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -44,6 +47,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.sql.DataSource;
@@ -155,6 +159,13 @@ public class DBPartitionUtilTest extends BaseDBPartitionTestCase {
 	}
 
 	@Test
+	public void testForEachCompanyId() throws Exception {
+		DBPartitionUtil.forEachCompanyId(
+			companyId -> Assert.assertEquals(
+				companyId, CompanyThreadLocal.getCompanyId()));
+	}
+
+	@Test
 	public void testRemoveDBPartition() throws Exception {
 		_addDBPartition();
 
@@ -205,6 +216,51 @@ public class DBPartitionUtilTest extends BaseDBPartitionTestCase {
 				statement.execute("drop table if exists " + fullTestTableName);
 			}
 		}
+	}
+
+	@Test
+	public void testUpgrade() throws Exception {
+		_addDBPartition();
+
+		try (SafeClosable safeClosable =
+				CompanyThreadLocal.setInitializingCompanyId(_COMPANY_ID)) {
+
+			_insertCompanyAndDefaultUser();
+
+			DBPartitionUpgradeProcess dbPartitionUpgradeProcess =
+				new DBPartitionUpgradeProcess();
+
+			dbPartitionUpgradeProcess.upgrade();
+
+			long[] expectedCompanyIds = PortalInstances.getCompanyIdsBySQL();
+
+			Arrays.sort(expectedCompanyIds);
+
+			long[] actualCompanyIds = dbPartitionUpgradeProcess.getCompanyIds();
+
+			Arrays.sort(actualCompanyIds);
+
+			Assert.assertArrayEquals(expectedCompanyIds, actualCompanyIds);
+		}
+		finally {
+			_deleteCompanyAndDefaultUser();
+		}
+	}
+
+	public class DBPartitionUpgradeProcess extends UpgradeProcess {
+
+		public long[] getCompanyIds() {
+			return _companyIds;
+		}
+
+		@Override
+		protected void doUpgrade() throws Exception {
+			_companyIds = ArrayUtil.append(
+				_companyIds, CompanyThreadLocal.getCompanyId());
+		}
+
+		private long[] _companyIds = new long[0];
+
 	}
 
 	private static void _disableDBPartition() {
@@ -294,6 +350,16 @@ public class DBPartitionUtilTest extends BaseDBPartitionTestCase {
 		}
 	}
 
+	private void _deleteCompanyAndDefaultUser() throws Exception {
+		try (Statement statement = _connection.createStatement()) {
+			statement.execute(
+				"delete from Company where companyId = " + _COMPANY_ID);
+
+			statement.execute(
+				"delete from User_ where companyId = " + _COMPANY_ID);
+		}
+	}
+
 	private int _getCount(String tableName, boolean defaultSchema)
 		throws Exception {
 
@@ -349,6 +415,32 @@ public class DBPartitionUtilTest extends BaseDBPartitionTestCase {
 		List<String> viewNames = _getObjectNames("VIEW");
 
 		return viewNames.size();
+	}
+
+	private void _insertCompanyAndDefaultUser() throws Exception {
+		try (PreparedStatement preparedStatement1 =
+				_connection.prepareStatement(
+					"insert into Company (companyId, webId) values (?, ?)");
+			PreparedStatement preparedStatement2 = _connection.prepareStatement(
+				"insert into User_ (userId, companyId, defaultUser, " +
+					"screenName, emailAddress, languageId, timeZoneId) " +
+						"values (?, ?, ?, ?, ?, ?, ?)")) {
+
+			preparedStatement1.setLong(1, _COMPANY_ID);
+			preparedStatement1.setString(2, "Test");
+
+			preparedStatement1.executeUpdate();
+
+			preparedStatement2.setLong(1, 1);
+			preparedStatement2.setLong(2, _COMPANY_ID);
+			preparedStatement2.setBoolean(3, true);
+			preparedStatement2.setString(4, "Test");
+			preparedStatement2.setString(5, "test@test.com");
+			preparedStatement2.setString(6, "en_US");
+			preparedStatement2.setString(7, "UTC");
+
+			preparedStatement2.executeUpdate();
+		}
 	}
 
 	private void _removeDBPartition() throws Exception {

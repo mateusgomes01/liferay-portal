@@ -45,8 +45,6 @@ Group stagingGroup = null;
 
 long stagingGroupId = 0;
 
-UnicodeProperties liveGroupTypeSettings = null;
-
 if (group != null) {
 	if (group.isStagingGroup()) {
 		liveGroup = group.getLiveGroup();
@@ -66,33 +64,20 @@ if (group != null) {
 	if (stagingGroup != null) {
 		stagingGroupId = stagingGroup.getGroupId();
 	}
-
-	liveGroupTypeSettings = liveGroup.getTypeSettingsProperties();
-}
-else {
-	liveGroupTypeSettings = new UnicodeProperties();
-}
-
-LayoutSetPrototype layoutSetPrototype = null;
-
-long layoutSetPrototypeId = ParamUtil.getLong(request, "layoutSetPrototypeId");
-
-if (layoutSetPrototypeId > 0) {
-	layoutSetPrototype = LayoutSetPrototypeServiceUtil.getLayoutSetPrototype(layoutSetPrototypeId);
 }
 %>
 
-<liferay-ui:success key='<%= SiteAdminPortletKeys.SITE_SETTINGS + "requestProcessed" %>' message="site-was-added" />
+<liferay-ui:success key='<%= ConfigurationAdminPortletKeys.SITE_SETTINGS + "requestProcessed" %>' message="site-was-added" />
 
 <portlet:actionURL name="/site_admin/edit_group" var="editGroupURL">
-	<portlet:param name="mvcPath" value="/edit_site.jsp" />
+	<portlet:param name="mvcRenderCommandName" value="/configuration_admin/view_configuration_screen" />
+	<portlet:param name="configurationScreenKey" value="site-configuration-other" />
 </portlet:actionURL>
 
 <liferay-frontend:edit-form
 	action="<%= editGroupURL %>"
 	method="post"
 	name="fm"
-	onSubmit='<%= "event.preventDefault(); " + liferayPortletResponse.getNamespace() + "saveGroup();" %>'
 >
 	<aui:input name="redirect" type="hidden" value="<%= currentURL %>" />
 	<aui:input name="backURL" type="hidden" value="<%= backURL %>" />
@@ -102,10 +87,8 @@ if (layoutSetPrototypeId > 0) {
 
 	<%
 	request.setAttribute("site.group", group);
-	request.setAttribute("site.layoutSetPrototype", layoutSetPrototype);
 	request.setAttribute("site.liveGroup", liveGroup);
 	request.setAttribute("site.liveGroupId", Long.valueOf(liveGroupId));
-	request.setAttribute("site.liveGroupTypeSettings", liveGroupTypeSettings);
 	request.setAttribute("site.stagingGroup", stagingGroup);
 	request.setAttribute("site.stagingGroupId", Long.valueOf(stagingGroupId));
 	%>
@@ -125,9 +108,3 @@ if (layoutSetPrototypeId > 0) {
 		<aui:button href="<%= backURL %>" type="cancel" />
 	</liferay-frontend:edit-form-footer>
 </liferay-frontend:edit-form>
-
-<script>
-	function <portlet:namespace />saveGroup(forceDisable) {
-		submitForm(document.<portlet:namespace />fm);
-	}
-</script>

@@ -21,6 +21,7 @@ import com.liferay.portal.kernel.dao.jdbc.AutoBatchPreparedStatementUtil;
 import com.liferay.portal.kernel.dao.jdbc.DataAccess;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.upgrade.BaseUpgradeCallable;
 import com.liferay.portal.kernel.util.LoggingTimer;
 import com.liferay.portal.kernel.verify.model.VerifiableGroupedModel;
 
@@ -50,8 +51,9 @@ public class VerifyGroupedModel extends VerifyProcess {
 			unverifiedTableNames.add(verifiableGroupedModel.getTableName());
 		}
 
-		List<VerifiableGroupedModelCallable> verifiableGroupedModelCallables =
-			new ArrayList<>(unverifiedTableNames.size());
+		List<VerifiableGroupedModelUpgradeCallable>
+			verifiableGroupedModelUpgradeCallables = new ArrayList<>(
+				unverifiedTableNames.size());
 
 		while (!unverifiedTableNames.isEmpty()) {
 			int count = unverifiedTableNames.size();
@@ -67,11 +69,13 @@ public class VerifyGroupedModel extends VerifyProcess {
 					continue;
 				}
 
-				VerifiableGroupedModelCallable verifiableGroupedModelCallable =
-					new VerifiableGroupedModelCallable(verifiableGroupedModel);
+				VerifiableGroupedModelUpgradeCallable
+					verifiableGroupedModelUpgradeCallable =
+						new VerifiableGroupedModelUpgradeCallable(
+							verifiableGroupedModel);
 
-				verifiableGroupedModelCallables.add(
-					verifiableGroupedModelCallable);
+				verifiableGroupedModelUpgradeCallables.add(
+					verifiableGroupedModelUpgradeCallable);
 
 				unverifiedTableNames.remove(
 					verifiableGroupedModel.getTableName());
@@ -83,7 +87,7 @@ public class VerifyGroupedModel extends VerifyProcess {
 			}
 		}
 
-		doVerify(verifiableGroupedModelCallables);
+		doVerify(verifiableGroupedModelUpgradeCallables);
 	}
 
 	@Override
@@ -199,16 +203,17 @@ public class VerifyGroupedModel extends VerifyProcess {
 	private static final Log _log = LogFactoryUtil.getLog(
 		VerifyGroupedModel.class);
 
-	private class VerifiableGroupedModelCallable implements Callable<Void> {
+	private class VerifiableGroupedModelUpgradeCallable
+		extends BaseUpgradeCallable<Void> {
 
 		@Override
-		public Void call() throws Exception {
+		protected Void doCall() throws Exception {
 			verifyGroupedModel(_verifiableGroupedModel);
 
 			return null;
 		}
 
-		private VerifiableGroupedModelCallable(
+		private VerifiableGroupedModelUpgradeCallable(
 			VerifiableGroupedModel verifiableGroupedModel) {
 
 			_verifiableGroupedModel = verifiableGroupedModel;

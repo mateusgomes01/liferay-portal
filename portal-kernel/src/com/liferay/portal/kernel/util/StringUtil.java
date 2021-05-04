@@ -2199,8 +2199,8 @@ public class StringUtil {
 			while (enumeration.hasMoreElements()) {
 				URL url = enumeration.nextElement();
 
-				try (InputStream is = url.openStream()) {
-					String s = read(is);
+				try (InputStream inputStream = url.openStream()) {
+					String s = read(inputStream);
 
 					if (s != null) {
 						sb.append(s);
@@ -2214,15 +2214,15 @@ public class StringUtil {
 			return s.trim();
 		}
 
-		try (InputStream is = classLoader.getResourceAsStream(name)) {
-			if (is == null) {
+		try (InputStream inputStream = classLoader.getResourceAsStream(name)) {
+			if (inputStream == null) {
 				throw new IOException(
 					StringBundler.concat(
 						"Unable to open resource ", name, " in class loader ",
 						String.valueOf(classLoader)));
 			}
 
-			return read(is);
+			return read(inputStream);
 		}
 	}
 
@@ -2280,7 +2280,7 @@ public class StringUtil {
 			return s;
 		}
 
-		StringBuilder sb = new StringBuilder(s.length());
+		StringBundler sb = new StringBundler(s.length());
 
 		iterate:
 		for (int i = 0; i < s.length(); i++) {

@@ -15,7 +15,7 @@
 </tr>
 <tr>
 	<td>ADD_FIELD_TYPE</td>
-	<td>//*[contains(@class, 'criteria-sidebar-item-root') and contains(text(),'${key_propertyOption}')]</td>
+	<td>//*[contains(@class, 'criteria-sidebar-item-root') and (text()='${key_propertyOption}')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -60,7 +60,7 @@
 </tr>
 <tr>
 	<td>ENABLE_ASSIGN_ROLES_SEGMENTS_CHECKBOX</td>
-	<td>//*[contains(@class, 'custom-control custom-checkbox')]//*[contains(@class, 'custom-control-label') and contains(text(), 'Enable Assign Roles by Segment')]</td>
+	<td>//input[contains(@class, 'custom-control-input') and contains(@name, 'roleSegmentation')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -90,7 +90,7 @@
 </tr>
 <tr>
 	<td>SEARCH_FIELD</td>
-	<td>//*[contains(@aria-label,'Search')]</td>
+	<td>//input[contains(@class,'form-control') and contains(@placeholder,'Search')]</td>
 	<td></td>
 </tr>
 <tr>

@@ -15,7 +15,6 @@
 import ClayButton from '@clayui/button';
 import ClayDropDown from '@clayui/drop-down';
 import ClayIcon from '@clayui/icon';
-import ClayLabel from '@clayui/label';
 import ClayLayout from '@clayui/layout';
 import classNames from 'classnames';
 import {openModal} from 'frontend-js-web';
@@ -25,52 +24,89 @@ import React, {useEffect, useState} from 'react';
 import {
 	useHoverItem,
 	useHoveredItemId,
+	useSelectItem,
 } from '../../../../../app/components/Controls';
 import {EDITABLE_FRAGMENT_ENTRY_PROCESSOR} from '../../../../../app/config/constants/editableFragmentEntryProcessor';
+import {ITEM_ACTIVATION_ORIGINS} from '../../../../../app/config/constants/itemActivationOrigins';
 import {ITEM_TYPES} from '../../../../../app/config/constants/itemTypes';
 import {useSelector} from '../../../../../app/store/index';
 
-export default function PageContent(props) {
+export default function PageContent({
+	actions,
+	classNameId,
+	classPK,
+	editableId,
+	icon,
+	subtype,
+	title,
+	type,
+}) {
 	const [active, setActive] = useState(false);
-	const {editURL, permissionsURL, viewUsagesURL} = props.actions;
 	const hoverItem = useHoverItem();
 	const hoveredItemId = useHoveredItemId();
 	const fragmentEntryLinks = useSelector((state) => state.fragmentEntryLinks);
 	const [isHovered, setIsHovered] = useState(false);
+	const selectItem = useSelectItem();
+
+	let editURL = null;
+	let permissionsURL = null;
+	let viewUsagesURL = null;
+
+	if (actions) {
+		editURL = actions.editURL;
+		permissionsURL = actions.permissionsURL;
+		viewUsagesURL = actions.viewUsagesURL;
+	}
 
 	useEffect(() => {
 		if (hoveredItemId) {
-			const [fragmentEntryLinkId, ...editableId] = hoveredItemId.split(
-				'-'
-			);
+			if (editableId) {
+				setIsHovered(editableId === hoveredItemId);
+			}
+			else {
+				const [
+					fragmentEntryLinkId,
+					...editableId
+				] = hoveredItemId.split('-');
 
-			if (fragmentEntryLinks[fragmentEntryLinkId]) {
-				const fragmentEntryLink =
-					fragmentEntryLinks[fragmentEntryLinkId];
+				if (fragmentEntryLinks[fragmentEntryLinkId]) {
+					const fragmentEntryLink =
+						fragmentEntryLinks[fragmentEntryLinkId];
 
-				const editableValue =
-					fragmentEntryLink.editableValues[
-						EDITABLE_FRAGMENT_ENTRY_PROCESSOR
-					];
+					const editableValue =
+						fragmentEntryLink.editableValues[
+							EDITABLE_FRAGMENT_ENTRY_PROCESSOR
+						];
 
-				const editable = editableValue[editableId.join('-')];
+					const editable = editableValue[editableId.join('-')];
 
-				if (editable) {
-					setIsHovered(editable.classPK === props.classPK);
+					if (editable) {
+						setIsHovered(editable.classPK === classPK);
+					}
 				}
 			}
 		}
 		else {
 			setIsHovered(false);
 		}
-	}, [fragmentEntryLinks, hoveredItemId, props.classPK]);
+	}, [fragmentEntryLinks, hoveredItemId, classPK, editableId]);
 
 	const handleMouseOver = () => {
 		setIsHovered(true);
 
-		hoverItem(`${props.classNameId}-${props.classPK}`, {
-			itemType: ITEM_TYPES.mappedContent,
-		});
+		if (editableId) {
+			hoverItem(editableId, {
+				itemType: ITEM_TYPES.inlineContent,
+				origin: ITEM_ACTIVATION_ORIGINS.contents,
+			});
+		}
+
+		if (classNameId && classPK) {
+			hoverItem(`${classNameId}-${classPK}`, {
+				itemType: ITEM_TYPES.mappedContent,
+				origin: ITEM_ACTIVATION_ORIGINS.contents,
+			});
+		}
 	};
 
 	const handleMouseLeave = () => {
@@ -78,44 +114,46 @@ export default function PageContent(props) {
 		hoverItem(null);
 	};
 
+	const onClickEditInlineText = () => {
+		selectItem(`${editableId}`, {
+			itemType: ITEM_TYPES.editable,
+			origin: ITEM_ACTIVATION_ORIGINS.sidebar,
+		});
+	};
+
 	return (
 		<li
-			className={classNames('page-editor__contents__page-content', {
-				'page-editor__contents__page-content--mapped-item-hovered': isHovered,
+			className={classNames('page-editor__page-contents__page-content', {
+				'page-editor__page-contents__page-content--mapped-item-hovered': isHovered,
 			})}
 			onMouseLeave={handleMouseLeave}
 			onMouseOver={handleMouseOver}
 		>
-			<div className="d-flex pl-3 pr-2 py-3">
+			<div
+				className={classNames('d-flex', {
+					'align-items-center': !subtype,
+				})}
+			>
+				<ClayIcon
+					className={classNames('mr-3', {
+						'mt-1': subtype,
+					})}
+					focusable="false"
+					monospaced="true"
+					role="presentation"
+					symbol={icon || 'document-text'}
+				/>
 				<ClayLayout.ContentCol expand>
-					<strong className="list-group-title text-truncate">
-						{props.title}
-					</strong>
-
-					<span className="small text-secondary">{props.name}</span>
-
-					<span className="small text-secondary">
-						{props.usagesCount === 1
-							? Liferay.Language.get('used-in-1-page')
-							: Liferay.Util.sub(
-									Liferay.Language.get('used-in-x-pages'),
-									props.usagesCount
-							  )}
+					<span className="font-weight-semi-bold text-truncate">
+						{title}
 					</span>
 
-					<div>
-						{props.status.hasApprovedVersion && (
-							<ClayLabel displayType="success">
-								{Liferay.Language.get('approved')}
-							</ClayLabel>
-						)}
-						<ClayLabel displayType={props.status.style}>
-							{props.status.label}
-						</ClayLabel>
-					</div>
+					{subtype && (
+						<span className="text-secondary">{subtype}</span>
+					)}
 				</ClayLayout.ContentCol>
 
-				{(editURL || permissionsURL || viewUsagesURL) && (
+				{editURL || permissionsURL || viewUsagesURL || type ? (
 					<ClayDropDown
 						active={active}
 						onActiveChange={setActive}
@@ -171,6 +209,17 @@ export default function PageContent(props) {
 							)}
 						</ClayDropDown.ItemList>
 					</ClayDropDown>
+				) : (
+					<ClayButton
+						className="btn-monospaced btn-sm text-secondary"
+						displayType="unstyled"
+						onClick={onClickEditInlineText}
+					>
+						<span className="sr-only">
+							{Liferay.Language.get('edit-inline-text')}
+						</span>
+						<ClayIcon symbol="pencil" />
+					</ClayButton>
 				)}
 			</div>
 		</li>
@@ -179,12 +228,8 @@ export default function PageContent(props) {
 
 PageContent.propTypes = {
 	actions: PropTypes.object,
-	name: PropTypes.string.isRequired,
-	status: PropTypes.shape({
-		hasApprovedVersion: PropTypes.bool,
-		label: PropTypes.string,
-		style: PropTypes.string,
-	}),
+	icon: PropTypes.string,
+	name: PropTypes.string,
+	subtype: PropTypes.string,
 	title: PropTypes.string.isRequired,
-	usagesCount: PropTypes.number.isRequired,
 };

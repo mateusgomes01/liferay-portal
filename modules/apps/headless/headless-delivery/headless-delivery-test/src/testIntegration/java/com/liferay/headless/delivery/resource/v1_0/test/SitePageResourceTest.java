@@ -79,7 +79,7 @@ public class SitePageResourceTest extends BaseSitePageResourceTestCase {
 	@Test
 	public void testGetSiteSitePageExperienceExperienceKey() throws Exception {
 		Layout layout = _addLayout(
-			StringPool.BLANK, testGroup.getGroupId(), true);
+			testGroup.getGroupId(), true, RandomTestUtil.randomString());
 
 		String friendlyURL = layout.getFriendlyURL();
 
@@ -98,7 +98,7 @@ public class SitePageResourceTest extends BaseSitePageResourceTestCase {
 		throws Exception {
 
 		Layout layout = _addLayout(
-			StringPool.BLANK, testGroup.getGroupId(), true);
+			testGroup.getGroupId(), true, RandomTestUtil.randomString());
 
 		String friendlyURL = layout.getFriendlyURL();
 		SegmentsExperience segmentsExperience = _addSegmentsExperience(
@@ -164,18 +164,6 @@ public class SitePageResourceTest extends BaseSitePageResourceTestCase {
 			sitePagePage.getTotalCount());
 	}
 
-	@Ignore
-	@Override
-	@Test
-	public void testGetSiteSitePagesPageWithFilterStringEquals() {
-	}
-
-	@Ignore
-	@Override
-	@Test
-	public void testGetSiteSitePagesPageWithSortString() {
-	}
-
 	@Override
 	@Test
 	public void testGraphQLGetSiteSitePagesPage() throws Exception {
@@ -213,7 +201,7 @@ public class SitePageResourceTest extends BaseSitePageResourceTestCase {
 			Long siteId, SitePage sitePage)
 		throws Exception {
 
-		Layout layout = _addLayout(siteId);
+		Layout layout = _addLayout(siteId, false, sitePage.getTitle());
 
 		sitePage.setDateCreated(layout.getCreateDate());
 		sitePage.setDateModified(layout.getModifiedDate());
@@ -224,25 +212,24 @@ public class SitePageResourceTest extends BaseSitePageResourceTestCase {
 		sitePage.setFriendlyUrlPath(friendlyURL.substring(1));
 
 		sitePage.setSiteId(siteId);
-		sitePage.setTitle(layout.getName(LocaleUtil.getDefault()));
 		sitePage.setUuid(layout.getUuid());
 
 		return sitePage;
 	}
 
 	private Layout _addLayout(long groupId) throws Exception {
-		return _addLayout(StringPool.BLANK, groupId, false);
+		return _addLayout(groupId, false, RandomTestUtil.randomString());
 	}
 
 	private Layout _addLayout(
-			String friendlyURL, long groupId, boolean importPageDefinition)
+			long groupId, boolean importPageDefinition, String title)
 		throws Exception {
 
 		Layout layout = _layoutLocalService.addLayout(
 			TestPropsValues.getUserId(), groupId, false,
-			LayoutConstants.DEFAULT_PARENT_LAYOUT_ID,
-			RandomTestUtil.randomString(), RandomTestUtil.randomString(),
-			StringPool.BLANK, LayoutConstants.TYPE_CONTENT, false, friendlyURL,
+			LayoutConstants.DEFAULT_PARENT_LAYOUT_ID, title,
+			RandomTestUtil.randomString(), StringPool.BLANK,
+			LayoutConstants.TYPE_CONTENT, false, StringPool.BLANK,
 			ServiceContextTestUtil.getServiceContext(groupId));
 
 		if (importPageDefinition) {
@@ -269,7 +256,7 @@ public class SitePageResourceTest extends BaseSitePageResourceTestCase {
 
 				_layoutPageTemplatesImporter.importPageElement(
 					layout, layoutStructure, layoutStructure.getMainItemId(),
-					_read("test-content-page-definition.json"), 0);
+					_read("test-page-element.json"), 0);
 			}
 			finally {
 				PrincipalThreadLocal.setName(name);

@@ -45,6 +45,30 @@ public interface BenchmarksPropsKeys {
 	public static final String MAX_BLOGS_ENTRY_COUNT =
 		"sample.sql.max.blogs.entry.count";
 
+	public static final String MAX_COMMERCE_ACCOUNT_ENTRY_COUNT =
+		"sample.sql.max.commerce.account.entry.count";
+
+	public static final String MAX_COMMERCE_CATALOG_COUNT =
+		"sample.sql.max.commerce.catalog.count";
+
+	public static final String MAX_COMMERCE_GROUP_COUNT =
+		"sample.sql.max.commerce.group.count";
+
+	public static final String MAX_COMMERCE_INVENTORY_WAREHOUSE_COUNT =
+		"sample.sql.max.commerce.inventory.warehouse.count";
+
+	public static final String MAX_COMMERCE_ORDER_STATUS_CANCELLED_COUNT =
+		"sample.sql.max.commerce.order.status.cancelled.count";
+
+	public static final String MAX_COMMERCE_ORDER_STATUS_OPEN_COUNT =
+		"sample.sql.max.commerce.order.status.open.count";
+
+	public static final String MAX_COMMERCE_ORDER_STATUS_PENDING_COUNT =
+		"sample.sql.max.commerce.order.status.pending.count";
+
+	public static final String MAX_COMMERCE_PRICE_LIST_COUNT =
+		"sample.sql.max.commerce.price.list.count";
+
 	public static final String MAX_COMMERCE_PRODUCT_COUNT =
 		"sample.sql.max.commerce.product.count";
 
@@ -54,8 +78,24 @@ public interface BenchmarksPropsKeys {
 	public static final String MAX_COMMERCE_PRODUCT_INSTANCE_COUNT =
 		"sample.sql.max.commerce.product.instance.count";
 
+	public static final String MAX_COMMERCE_PRODUCT_OPTION_CATEGORY_COUNT =
+		"sample.sql.max.commerce.product.option.category.count";
+
 	public static final String MAX_CONTENT_LAYOUT_COUNT =
 		"sample.sql.max.content.layout.count";
+
+	public static final String MAX_CP_DEFINITION_ATTACHMENT_TYPE_IMAGE_COUNT =
+		"sample.sql.max.cp.definition.attachment.type.image.count";
+
+	public static final String MAX_CP_DEFINITION_ATTACHMENT_TYPE_PDF_COUNT =
+		"sample.sql.max.cp.definition.attachment.type.pdf.count";
+
+	public static final String
+		MAX_CP_DEFINITION_SPECIFICATION_OPTION_VALUE_COUNT =
+			"sample.sql.max.cp.definition.specification.option.value.count";
+
+	public static final String MAX_CP_SPECIFICATION_OPTION_COUNT =
+		"sample.sql.max.cp.specification.option.count";
 
 	public static final String MAX_DDL_CUSTOM_FIELD_COUNT =
 		"sample.sql.max.ddl.custom.field.count";

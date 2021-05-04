@@ -119,10 +119,11 @@ definition {
 			key_tab = "Open Graph",
 			locator1 = "NavTab#TAB_LINK");
 
-		ProductMenu.gotoPortlet(
-			category = "Configuration",
-			portlet = "Site Settings",
-			site = "Test Site Name");
+		Site.openSiteSettingsAdmin(siteURLKey = "test-site-name");
+
+		Click(
+			key_url = "site-configuration-other",
+			locator1 = "ListGroupItem#CONFIGURATION_ITEM_LINK");
 
 		AssertElementNotPresent(
 			key_panel = "open graph",
@@ -140,13 +141,6 @@ definition {
 	@refactorneeded
 	test DisableConfigurationAtSiteLevel {
 		property test.name.skip.portal.instance = "OpenGraph#DisableConfigurationAtSiteLevel";
-
-		ApplicationsMenu.gotoSite(site = "Test Site Name");
-
-		ProductMenu.gotoPortlet(
-			category = "Configuration",
-			portlet = "Site Settings",
-			site = "Test Site Name");
 
 		OpenGraph.disableOpenGraphAtSiteLevel();
 
@@ -440,11 +434,11 @@ definition {
 
 		var portalURL = PropsUtil.get("portal.url");
 
-		SitePages.openPagesAdmin(siteURLKey = "test-site-name");
+		Site.openSiteSettingsAdmin(siteURLKey = "test-site-name");
 
-		ProductMenu.gotoPortlet(
-			category = "Configuration",
-			portlet = "Site Settings");
+		Click(
+			key_url = "site-configuration-other",
+			locator1 = "ListGroupItem#CONFIGURATION_ITEM_LINK");
 
 		Panel.expandPanel(panel = "Open Graph");
 

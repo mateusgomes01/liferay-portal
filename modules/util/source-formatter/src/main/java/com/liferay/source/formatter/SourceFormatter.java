@@ -492,6 +492,19 @@ public class SourceFormatter {
 	}
 
 	private Set<String> _addDependentFileName(
+		Set<String> dependentFileNames, String fileName) {
+
+		File file = new File(_sourceFormatterArgs.getBaseDirName() + fileName);
+
+		if (file.exists()) {
+			dependentFileNames.add(
+				_sourceFormatterArgs.getBaseDirName() + fileName);
+		}
+
+		return dependentFileNames;
+	}
+
+	private Set<String> _addDependentFileName(
 		Set<String> dependentFileNames, String fileName,
 		String dependentFileName) {
 
@@ -519,7 +532,7 @@ public class SourceFormatter {
 		}
 	}
 
-	private void _addDependentFileNames() {
+	private void _addDependentFileNames() throws Exception {
 		Set<String> recentChangesFileNames =
 			_sourceFormatterArgs.getRecentChangesFileNames();
 
@@ -534,16 +547,10 @@ public class SourceFormatter {
 
 		for (String recentChangesFileName : recentChangesFileNames) {
 			if (!buildPropertiesAdded &&
-				recentChangesFileName.contains("/modules/")) {
+				recentChangesFileName.endsWith(".lfrbuild-portal")) {
 
-				File file = new File(
-					_sourceFormatterArgs.getBaseDirName() + "build.properties");
-
-				if (file.exists()) {
-					dependentFileNames.add(
-						_sourceFormatterArgs.getBaseDirName() +
-							"build.properties");
-				}
+				dependentFileNames = _addDependentFileName(
+					dependentFileNames, "build.properties");
 
 				buildPropertiesAdded = true;
 			}
@@ -605,6 +612,23 @@ public class SourceFormatter {
 					_sourceFormatterArgs.getBaseDirName() +
 						"/portal-impl/src/com/liferay/portlet/social/util" +
 							"/SocialConfigurationImpl.java");
+			}
+		}
+
+		if (!buildPropertiesAdded &&
+			_sourceFormatterArgs.isFormatCurrentBranch()) {
+
+			List<String> deletedFileNames = GitUtil.getCurrentBranchFileNames(
+				_sourceFormatterArgs.getBaseDirName(),
+				_sourceFormatterArgs.getGitWorkingBranchName(), true);
+
+			for (String deletedFileName : deletedFileNames) {
+				if (deletedFileName.endsWith(".lfrbuild-portal")) {
+					dependentFileNames = _addDependentFileName(
+						dependentFileNames, "build.properties");
+
+					break;
+				}
 			}
 		}
 

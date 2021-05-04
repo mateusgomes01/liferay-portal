@@ -30,7 +30,7 @@ public class BatchExportOutputTypeResolver
 
 	@Override
 	public String getCategoryName() {
-		return "liferay-batch-export";
+		return "liferay-batch";
 	}
 
 	@Override

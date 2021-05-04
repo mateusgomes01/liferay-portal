@@ -20,6 +20,7 @@ import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBManagerUtil;
 import com.liferay.portal.kernel.dao.jdbc.AutoBatchPreparedStatementUtil;
 import com.liferay.portal.kernel.dao.jdbc.DataAccess;
+import com.liferay.portal.kernel.upgrade.BaseUpgradeCallable;
 import com.liferay.portal.kernel.util.LoggingTimer;
 import com.liferay.portal.kernel.uuid.PortalUUIDUtil;
 import com.liferay.portal.kernel.verify.model.VerifiableUUIDModel;
@@ -32,7 +33,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
 
 /**
  * @author Brian Wing Shun Chan
@@ -61,17 +61,17 @@ public class VerifyUUID extends VerifyProcess {
 	protected void doVerify(VerifiableUUIDModel... verifiableUUIDModels)
 		throws Exception {
 
-		List<VerifyUUIDCallable> verifyUUIDCallables = new ArrayList<>(
-			verifiableUUIDModels.length);
+		List<VerifyUUIDUpgradeCallable> verifyUUIDUpgradeCallables =
+			new ArrayList<>(verifiableUUIDModels.length);
 
 		for (VerifiableUUIDModel verifiableUUIDModel : verifiableUUIDModels) {
-			VerifyUUIDCallable verifyUUIDCallable = new VerifyUUIDCallable(
-				verifiableUUIDModel);
+			VerifyUUIDUpgradeCallable verifyUUIDUpgradeCallable =
+				new VerifyUUIDUpgradeCallable(verifiableUUIDModel);
 
-			verifyUUIDCallables.add(verifyUUIDCallable);
+			verifyUUIDUpgradeCallables.add(verifyUUIDUpgradeCallable);
 		}
 
-		doVerify(verifyUUIDCallables);
+		doVerify(verifyUUIDUpgradeCallables);
 	}
 
 	protected void verifyUUID(VerifiableUUIDModel verifiableUUIDModel)
@@ -129,16 +129,18 @@ public class VerifyUUID extends VerifyProcess {
 		}
 	}
 
-	private class VerifyUUIDCallable implements Callable<Void> {
+	private class VerifyUUIDUpgradeCallable extends BaseUpgradeCallable<Void> {
 
 		@Override
-		public Void call() throws Exception {
+		protected Void doCall() throws Exception {
 			verifyUUID(_verifiableUUIDModel);
 
 			return null;
 		}
 
-		private VerifyUUIDCallable(VerifiableUUIDModel verifiableUUIDModel) {
+		private VerifyUUIDUpgradeCallable(
+			VerifiableUUIDModel verifiableUUIDModel) {
+
 			_verifiableUUIDModel = verifiableUUIDModel;
 		}
 

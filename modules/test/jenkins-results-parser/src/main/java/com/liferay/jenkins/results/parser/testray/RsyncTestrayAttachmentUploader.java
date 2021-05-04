@@ -92,21 +92,45 @@ public class RsyncTestrayAttachmentUploader
 					"\""));
 		}
 
-		remoteExecutor.execute(
-			1, new String[] {_getMasterHostname()},
-			commands.toArray(new String[0]));
+		if (JenkinsResultsParserUtil.isWindows()) {
+			remoteExecutor.execute(
+				1, new String[] {"root@" + _getMasterHostname()},
+				commands.toArray(new String[0]));
+		}
+		else {
+			remoteExecutor.execute(
+				1, new String[] {_getMasterHostname()},
+				commands.toArray(new String[0]));
+		}
 	}
 
 	protected void rsync() {
-		String command = JenkinsResultsParserUtil.combine(
-			"rsync -aqz --chmod=go=rx \"",
-			JenkinsResultsParserUtil.getCanonicalPath(
-				_getSourceTestrayLogsDir()),
-			"\"/* \"", _getMasterHostname(),
-			"::testray-results/production/logs/\"");
+		String[] commands = null;
+
+		if (JenkinsResultsParserUtil.isWindows()) {
+			commands = new String[2];
+
+			commands[0] = JenkinsResultsParserUtil.combine(
+				"cd ",
+				JenkinsResultsParserUtil.getCanonicalPath(
+					_getSourceTestrayLogsDir()));
+			commands[1] = JenkinsResultsParserUtil.combine(
+				"rsync -aqz --chmod=go=rx ./* \"root@", _getMasterHostname(),
+				"::testray-results/production/logs/\"");
+		}
+		else {
+			commands = new String[1];
+
+			commands[0] = JenkinsResultsParserUtil.combine(
+				"rsync -aqz --chmod=go=rx \"",
+				JenkinsResultsParserUtil.getCanonicalPath(
+					_getSourceTestrayLogsDir()),
+				"\"/* \"", _getMasterHostname(),
+				"::testray-results/production/logs/\"");
+		}
 
 		try {
-			JenkinsResultsParserUtil.executeBashCommands(command);
+			JenkinsResultsParserUtil.executeBashCommands(commands);
 		}
 		catch (IOException | TimeoutException exception) {
 			throw new RuntimeException(exception);
@@ -115,7 +139,7 @@ public class RsyncTestrayAttachmentUploader
 		for (File sourceTestrayLogsFile : _getSourceTestrayLogsFiles()) {
 			System.out.println(
 				JenkinsResultsParserUtil.combine(
-					"Uploaded ", String.valueOf(_getTestrayServerURL()),
+					"Uploaded ", String.valueOf(_testrayServerURL),
 					"/reports/production/logs/",
 					JenkinsResultsParserUtil.fixURL(
 						JenkinsResultsParserUtil.getPathRelativeTo(
@@ -158,10 +182,6 @@ public class RsyncTestrayAttachmentUploader
 		catch (IOException ioException) {
 			throw new RuntimeException(ioException);
 		}
-	}
-
-	private URL _getTestrayServerURL() {
-		return _testrayServerURL;
 	}
 
 	private List<File> _sourceTestrayLogsFiles;

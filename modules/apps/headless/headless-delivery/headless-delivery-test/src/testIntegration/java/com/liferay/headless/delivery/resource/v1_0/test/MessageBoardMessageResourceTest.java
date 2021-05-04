@@ -70,8 +70,9 @@ public class MessageBoardMessageResourceTest
 		MessageBoardMessage putMessageBoardMessage =
 			messageBoardMessageResource.
 				putSiteMessageBoardMessageByExternalReferenceCode(
+					testGroup.getGroupId(),
 					randomMessageBoardMessage.getExternalReferenceCode(),
-					testGroup.getGroupId(), randomMessageBoardMessage);
+					randomMessageBoardMessage);
 
 		assertEquals(randomMessageBoardMessage, putMessageBoardMessage);
 		assertValid(putMessageBoardMessage);
@@ -79,8 +80,8 @@ public class MessageBoardMessageResourceTest
 		MessageBoardMessage getMessageBoardMessage =
 			messageBoardMessageResource.
 				getSiteMessageBoardMessageByExternalReferenceCode(
-					putMessageBoardMessage.getExternalReferenceCode(),
-					testGroup.getGroupId());
+					testGroup.getGroupId(),
+					putMessageBoardMessage.getExternalReferenceCode());
 
 		assertEquals(randomMessageBoardMessage, getMessageBoardMessage);
 		assertValid(getMessageBoardMessage);
@@ -108,8 +109,9 @@ public class MessageBoardMessageResourceTest
 				400,
 				messageBoardMessageResource.
 					putSiteMessageBoardMessageByExternalReferenceCodeHttpResponse(
+						testGroup.getGroupId(),
 						randomMessageBoardMessage.getExternalReferenceCode(),
-						testGroup.getGroupId(), randomMessageBoardMessage));
+						randomMessageBoardMessage));
 		}
 	}
 
@@ -211,6 +213,14 @@ public class MessageBoardMessageResourceTest
 
 	@Override
 	protected MessageBoardMessage
+			testGetSiteMessageBoardMessagePermissionsPage_addMessageBoardMessage()
+		throws Exception {
+
+		return _addMessageBoardMessage();
+	}
+
+	@Override
+	protected MessageBoardMessage
 			testGetSiteMessageBoardMessagesPage_addMessageBoardMessage(
 				Long siteId, MessageBoardMessage messageBoardMessage)
 		throws Exception {
@@ -250,6 +260,14 @@ public class MessageBoardMessageResourceTest
 
 	@Override
 	protected MessageBoardMessage
+			testPutMessageBoardMessagePermission_addMessageBoardMessage()
+		throws Exception {
+
+		return _addMessageBoardMessage();
+	}
+
+	@Override
+	protected MessageBoardMessage
 			testPutMessageBoardMessageSubscribe_addMessageBoardMessage()
 		throws Exception {
 
@@ -267,6 +285,14 @@ public class MessageBoardMessageResourceTest
 	@Override
 	protected MessageBoardMessage
 			testPutSiteMessageBoardMessageByExternalReferenceCode_addMessageBoardMessage()
+		throws Exception {
+
+		return _addMessageBoardMessage();
+	}
+
+	@Override
+	protected MessageBoardMessage
+			testPutSiteMessageBoardMessagePermission_addMessageBoardMessage()
 		throws Exception {
 
 		return _addMessageBoardMessage();

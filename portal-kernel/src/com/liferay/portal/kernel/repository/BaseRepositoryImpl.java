@@ -64,10 +64,10 @@ public abstract class BaseRepositoryImpl
 			ServiceContext serviceContext)
 		throws PortalException {
 
-		try (InputStream is = new FileInputStream(file)) {
+		try (InputStream inputStream = new FileInputStream(file)) {
 			return addFileEntry(
 				userId, folderId, sourceFileName, mimeType, title, description,
-				changeLog, is, file.length(), serviceContext);
+				changeLog, inputStream, file.length(), serviceContext);
 		}
 		catch (IOException ioException) {
 			throw new SystemException(ioException);
@@ -136,7 +136,7 @@ public abstract class BaseRepositoryImpl
 		throw new IllegalArgumentException(
 			String.format(
 				"Capability %s is not supported by repository %s",
-				capabilityClass.getName(), _repositoryId));
+				capabilityClass.getName(), getRepositoryId()));
 	}
 
 	public long getCompanyId() {
@@ -400,10 +400,10 @@ public abstract class BaseRepositoryImpl
 			ServiceContext serviceContext)
 		throws PortalException {
 
-		try (InputStream is = new FileInputStream(file)) {
+		try (InputStream inputStream = new FileInputStream(file)) {
 			return updateFileEntry(
 				userId, fileEntryId, sourceFileName, mimeType, title,
-				description, changeLog, dlVersionNumberIncrease, is,
+				description, changeLog, dlVersionNumberIncrease, inputStream,
 				file.length(), serviceContext);
 		}
 		catch (IOException ioException) {
@@ -462,7 +462,7 @@ public abstract class BaseRepositoryImpl
 		throws PortalException {
 
 		return repositoryEntryLocalService.getRepositoryEntry(
-			PrincipalThreadLocal.getUserId(), _groupId, _repositoryId,
+			PrincipalThreadLocal.getUserId(), getGroupId(), getRepositoryId(),
 			objectId);
 	}
 

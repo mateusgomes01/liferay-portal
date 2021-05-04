@@ -54,6 +54,14 @@ public class UpgradeClassNames extends UpgradeKernelPackage {
 					_CLASS_NAME_CAL_EVENT + "%'");
 
 			runSQL(
+				"delete from MBDiscussion where classNameId = " +
+					PortalUtil.getClassNameId(_CLASS_NAME_CAL_EVENT));
+
+			runSQL(
+				"delete from MBMessage where classNameId = " +
+					PortalUtil.getClassNameId(_CLASS_NAME_CAL_EVENT));
+
+			runSQL(
 				"delete from ResourceAction where name like '" +
 					_CLASS_NAME_CAL_EVENT + "%'");
 

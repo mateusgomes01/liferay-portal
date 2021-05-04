@@ -65,6 +65,207 @@ definition {
 			webContentTitle = "WC Web Content Title");
 	}
 
+	@description = "This is a test for LRQA-66584. This test validates the fields creation into a field group up to 3 levels, field groups edition, and field groups deletion"
+	@priority = "5"
+	test CreateEditAndDeleteFieldGroups {
+		property portal.acceptance = "true";
+
+		DataEngine.addField(
+			fieldFieldLabel = "Text",
+			fieldName = "Text");
+
+		DataEngine.addFieldNested(
+			fieldFieldLabel = "Numeric",
+			fieldName = "Numeric",
+			targetFieldLabel = "Text");
+
+		DataEngine.editFieldsGroupLabel(
+			fieldsGroupLabel = "Fields Group",
+			fieldsGroupLabelEdit = "Fields Group 1");
+
+		DataEngine.addFieldNested(
+			fieldFieldLabel = "Date",
+			fieldName = "Date",
+			targetFieldLabel = "Numeric");
+
+		DataEngine.editFieldsGroupLabel(
+			fieldsGroupLabel = "Fields Group",
+			fieldsGroupLabelEdit = "Fields Group 2");
+
+		DataEngine.addFieldNested(
+			fieldFieldLabel = "Color",
+			fieldName = "Color",
+			targetFieldLabel = "Date");
+
+		DataEngine.editFieldsGroupLabel(
+			fieldsGroupLabel = "Fields Group",
+			fieldsGroupLabelEdit = "Fields Group 3");
+
+		WebContentStructures.saveCP();
+
+		WebContentNavigator.gotoEditStructure(structureName = "WC Structure Name");
+
+		DataEngine.assertFieldsGroup(
+			fieldGroupDepth = "1",
+			fieldGroupLabel = "Fields Group 1",
+			fieldsLabelList = "Text,Fields Group 2");
+
+		DataEngine.assertFieldsGroup(
+			fieldGroupDepth = "2",
+			fieldGroupLabel = "Fields Group 2",
+			fieldsLabelList = "Numeric,Fields Group 3");
+
+		DataEngine.assertFieldsGroup(
+			fieldGroupDepth = "3",
+			fieldGroupLabel = "Fields Group 3",
+			fieldsLabelList = "Date,Color");
+
+		for (var fieldFieldLabel : list "Text,Numeric,Date,Color") {
+			DataEngine.editFieldLabel(
+				fieldFieldLabel = "${fieldFieldLabel}",
+				fieldFieldLabelEdit = "Edited ${fieldFieldLabel}");
+		}
+
+		WebContentStructures.saveCP();
+
+		WebContentNavigator.gotoEditStructure(structureName = "WC Structure Name");
+
+		DataEngine.assertFieldsGroup(
+			fieldGroupDepth = "1",
+			fieldGroupLabel = "Fields Group 1",
+			fieldsLabelList = "Edited Text,Fields Group 2");
+
+		DataEngine.assertFieldsGroup(
+			fieldGroupDepth = "2",
+			fieldGroupLabel = "Fields Group 2",
+			fieldsLabelList = "Edited Numeric,Fields Group 3");
+
+		DataEngine.assertFieldsGroup(
+			fieldGroupDepth = "3",
+			fieldGroupLabel = "Fields Group 3",
+			fieldsLabelList = "Edited Date,Edited Color");
+
+		Navigator.gotoBack();
+
+		NavItem.gotoWebContent();
+
+		WebContentNavigator.gotoAddWithStructureCP(structureName = "WC Structure Name");
+
+		WebContent.addWithStructureCP(
+			webContentColor = "FF0D0D",
+			webContentColorFieldLabel = "Edited Color",
+			webContentDate = "01/04/2021",
+			webContentDateFieldLabel = "Edited Date",
+			webContentNumeric = "12",
+			webContentNumericFieldLabel = "Edited Numeric",
+			webContentText = "This is a Text field",
+			webContentTextFieldLabel = "Edited Text",
+			webContentTitle = "Web Content Title");
+
+		PortletEntry.publish();
+
+		WebContent.viewWithStructureCP(
+			webContentColor = "FF0D0D",
+			webContentColorFieldLabel = "Edited Color",
+			webContentDate = "01/04/2021",
+			webContentDateFieldLabel = "Edited Date",
+			webContentNumeric = "12",
+			webContentNumericFieldLabel = "Edited Numeric",
+			webContentText = "This is a Text field",
+			webContentTextFieldLabel = "Edited Text",
+			webContentTitle = "Web Content Title");
+
+		WebContent.addWithStructureCP(
+			webContentColor = "7F26FF",
+			webContentColorFieldLabel = "Edited Color",
+			webContentDate = "04/20/2021",
+			webContentDateFieldLabel = "Edited Date",
+			webContentNumeric = "50",
+			webContentNumericFieldLabel = "Edited Numeric",
+			webContentText = "This is a Text field - edited",
+			webContentTextFieldLabel = "Edited Text");
+
+		PortletEntry.publish();
+
+		WebContent.viewWithStructureCP(
+			webContentColor = "7F26FF",
+			webContentColorFieldLabel = "Edited Color",
+			webContentDate = "04/20/2021",
+			webContentDateFieldLabel = "Edited Date",
+			webContentNumeric = "50",
+			webContentNumericFieldLabel = "Edited Numeric",
+			webContentText = "This is a Text field - edited",
+			webContentTextFieldLabel = "Edited Text",
+			webContentTitle = "Web Content Title");
+
+		Navigator.gotoBack();
+
+		NavItem.gotoStructures();
+
+		WebContentNavigator.gotoEditStructure(structureName = "WC Structure Name");
+
+		DataEngine.delete(fieldsGroupLabel = "Fields Group 3");
+
+		WebContentStructures.saveCP();
+
+		WebContentNavigator.gotoEditStructure(structureName = "WC Structure Name");
+
+		DataEngine.assertFieldNotPresent(fieldsGroupLabel = "Fields Group 3");
+
+		Navigator.gotoBack();
+
+		NavItem.gotoWebContent();
+
+		WebContent.viewWithStructureCP(
+			webContentNumeric = "50",
+			webContentNumericFieldLabel = "Edited Numeric",
+			webContentText = "This is a Text field - edited",
+			webContentTextFieldLabel = "Edited Text",
+			webContentTitle = "Web Content Title");
+
+		DataEngine.assertFieldNotPresent(fieldsGroupLabel = "Fields Group 3");
+
+		Navigator.gotoBack();
+
+		NavItem.gotoStructures();
+
+		WebContentNavigator.gotoEditStructure(structureName = "WC Structure Name");
+
+		for (var fieldFieldLabel : list "Edited Text,Edited Numeric") {
+			DataEngine.delete(fieldFieldLabel = "${fieldFieldLabel}");
+		}
+
+		DataEngine.addField(
+			fieldFieldLabel = "Text",
+			fieldName = "Text");
+
+		WebContentStructures.saveCP();
+
+		WebContentNavigator.gotoEditStructure(structureName = "WC Structure Name");
+
+		DataEngine.viewField(
+			fieldFieldLabel = "Text",
+			fieldName = "Text");
+
+		for (var fieldFieldLabel : list "Edited Text,Edited Numeric,Edited Date,Edited Color") {
+			DataEngine.assertFieldNotPresent(fieldFieldLabel = "${fieldFieldLabel}");
+		}
+
+		Navigator.gotoBack();
+
+		NavItem.gotoWebContent();
+
+		WebContentNavigator.gotoEditCP(webContentTitle = "Web Content Title");
+
+		WebContent.assertFieldOnWebContent(
+			fieldFieldLabel = "Text",
+			fieldName = "Text");
+
+		for (var fieldFieldLabel : list "Edited Text,Edited Numeric,Edited Date,Edited Color") {
+			DataEngine.assertFieldNotPresent(fieldFieldLabel = "${fieldFieldLabel}");
+		}
+	}
+
 	@description = "This is a test for LPS-98077. Group two or more fields into a FieldGroup"
 	@priority = "5"
 	test CreateFieldGroup {
@@ -249,6 +450,184 @@ definition {
 		FormFields.assertFieldsVisibleInFieldGroup(
 			fieldGroupLabel = "Copy of Fields Group",
 			fieldGroupLabelList = "Copy of Numeric,Copy of Date");
+	}
+
+	@description = "This is a test for LRQA-66584. This test validates the duplication of field groups up to 2 levels"
+	@priority = "5"
+	test DuplicateTwoLevelFieldGroups {
+		property portal.acceptance = "true";
+
+		DataEngine.addField(
+			fieldFieldLabel = "Text 1",
+			fieldName = "Text");
+
+		DataEngine.addFieldNested(
+			fieldFieldLabel = "Text 2",
+			fieldName = "Text",
+			targetFieldLabel = "Text 1");
+
+		DataEngine.editFieldsGroupLabel(
+			fieldsGroupLabel = "Fields Group",
+			fieldsGroupLabelEdit = "Fields Group 1");
+
+		DataEngine.addFieldNested(
+			fieldFieldLabel = "Text 3",
+			fieldName = "Text",
+			targetFieldLabel = "Text 2");
+
+		DataEngine.editFieldsGroupLabel(
+			fieldsGroupLabel = "Fields Group",
+			fieldsGroupLabelEdit = "Fields Group 2");
+
+		DataEngine.editFieldsGroupRepeatable(fieldsGroupLabel = "Fields Group 2");
+
+		WebContentStructures.saveCP();
+
+		NavItem.gotoWebContent();
+
+		WebContentNavigator.gotoAddWithStructureCP(structureName = "WC Structure Name");
+
+		DataEngine.addRepeatableFieldsGroup(fieldsGroupLabel = "Fields Group 2");
+
+		WebContent.addWithStructureCP(
+			webContentText = "This is a Text field - 1",
+			webContentTextFieldLabel = "Text 1",
+			webContentTitle = "Web Content Title");
+
+		for (var index : list "1,2") {
+			for (var labelCount : list "2,3") {
+				WebContent.editFieldValue(
+					fieldFieldLabel = "Text ${labelCount}",
+					index = "${index}",
+					value = "This is a Text field - ${labelCount}");
+			}
+		}
+
+		PortletEntry.publish();
+
+		WebContent.viewWithStructureCP(
+			webContentText = "This is a Text field - 1",
+			webContentTextFieldLabel = "Text 1",
+			webContentTitle = "Web Content Title");
+
+		for (var index : list "1,2") {
+			for (var labelCount : list "2,3") {
+				AssertTextEquals.assertValue(
+					index = "${index}",
+					key_fieldFieldLabel = "Text ${labelCount}",
+					locator1 = "WCEditWebContent#ANY_TEXT_INPUT",
+					value1 = "This is a Text field - ${labelCount}");
+			}
+		}
+
+		for (var index : list "1,2") {
+			for (var labelCount : list "2,3") {
+				WebContent.editFieldValue(
+					fieldFieldLabel = "Text ${labelCount}",
+					index = "${index}",
+					value = "This is a Text field - ${labelCount} edited");
+			}
+		}
+
+		PortletEntry.publish();
+
+		WebContent.viewWithStructureCP(
+			webContentText = "This is a Text field - 1",
+			webContentTextFieldLabel = "Text 1",
+			webContentTitle = "Web Content Title");
+
+		for (var index : list "1,2") {
+			for (var labelCount : list "2,3") {
+				AssertTextEquals.assertValue(
+					index = "${index}",
+					key_fieldFieldLabel = "Text ${labelCount}",
+					locator1 = "WCEditWebContent#ANY_TEXT_INPUT",
+					value1 = "This is a Text field - ${labelCount} edited");
+			}
+		}
+
+		WebContent.removeDuplicatedFieldsGroup(index = "3");
+
+		PortletEntry.publish();
+
+		WebContentNavigator.gotoEditCP(webContentTitle = "Web Content Title");
+
+		for (var labelCount : list "2,3") {
+			AssertElementNotPresent(
+				key_fieldFieldLabel = "Text ${labelCount}",
+				key_index = "2",
+				locator1 = "DDMEditStructure#FORM_FIELD_CONTAINER_LABEL_ANY");
+		}
+
+		Navigator.gotoBack();
+
+		NavItem.gotoStructures();
+
+		WebContentNavigator.gotoEditStructure(structureName = "WC Structure Name");
+
+		DataEngine.editFieldsGroupRepeatable(fieldsGroupLabel = "Fields Group 1");
+
+		WebContentStructures.saveCP();
+
+		NavItem.gotoWebContent();
+
+		WebContentNavigator.gotoEditCP(webContentTitle = "Web Content Title");
+
+		DataEngine.addRepeatableFieldsGroup(fieldsGroupLabel = "Fields Group 1");
+
+		for (var labelCount : list "1,2,3") {
+			WebContent.editFieldValue(
+				fieldFieldLabel = "Text ${labelCount}",
+				index = "2",
+				value = "This is a Text field - ${labelCount}");
+		}
+
+		PortletEntry.publish();
+
+		WebContent.viewWithStructureCP(
+			webContentText = "This is a Text field - 1",
+			webContentTextFieldLabel = "Text 1",
+			webContentTitle = "Web Content Title");
+
+		for (var labelCount : list "2,3") {
+			AssertTextEquals.assertValue(
+				index = "1",
+				key_fieldFieldLabel = "Text ${labelCount}",
+				locator1 = "WCEditWebContent#ANY_TEXT_INPUT",
+				value1 = "This is a Text field - ${labelCount} edited");
+		}
+
+		for (var labelCount : list "1,2,3") {
+			AssertTextEquals.assertValue(
+				index = "2",
+				key_fieldFieldLabel = "Text ${labelCount}",
+				locator1 = "WCEditWebContent#ANY_TEXT_INPUT",
+				value1 = "This is a Text field - ${labelCount}");
+		}
+
+		WebContent.removeDuplicatedFieldsGroup(index = "3");
+
+		PortletEntry.publish();
+
+		WebContent.viewWithStructureCP(
+			webContentText = "This is a Text field - 1",
+			webContentTextFieldLabel = "Text 1",
+			webContentTitle = "Web Content Title");
+
+		for (var labelCount : list "2,3") {
+			AssertTextEquals.assertValue(
+				index = "1",
+				key_fieldFieldLabel = "Text ${labelCount}",
+				locator1 = "WCEditWebContent#ANY_TEXT_INPUT",
+				value1 = "This is a Text field - ${labelCount} edited");
+		}
+
+		for (var labelCount : list "1,2,3") {
+			AssertElementNotPresent(
+				key_fieldFieldLabel = "Text ${labelCount}",
+				key_index = "2",
+				locator1 = "DDMEditStructure#FORM_FIELD_CONTAINER_LABEL_ANY");
+		}
 	}
 
 	@description = "This is a test for LPS-98077. Edit the label of the FieldGroup"

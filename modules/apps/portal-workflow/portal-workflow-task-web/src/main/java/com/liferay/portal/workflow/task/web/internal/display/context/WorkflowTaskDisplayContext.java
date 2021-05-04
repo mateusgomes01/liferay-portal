@@ -241,7 +241,7 @@ public class WorkflowTaskDisplayContext {
 	public String getDisplayStyle() {
 		if (_displayStyle == null) {
 			_displayStyle = WorkflowTaskPortletUtil.getWorkflowTaskDisplayStyle(
-				_liferayPortletRequest, _getDisplayViews());
+				_liferayPortletRequest, _DISPLAY_VIEWS);
 		}
 
 		return _displayStyle;
@@ -801,10 +801,6 @@ public class WorkflowTaskDisplayContext {
 		}
 
 		return curParam;
-	}
-
-	private String[] _getDisplayViews() {
-		return _DISPLAY_VIEWS;
 	}
 
 	private PortletURL _getEditPortletURL(WorkflowTask workflowTask)

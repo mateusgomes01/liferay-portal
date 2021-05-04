@@ -21,8 +21,6 @@ definition {
 			JSONUser.tearDownNonAdminUsers();
 
 			JSONOrganization.deleteOrganizationByName(organizationName = "Staging Organization Name");
-
-			Role.tearDownCP();
 		}
 	}
 
@@ -118,9 +116,7 @@ definition {
 			roleTitle = "Organization Administrator",
 			userEmailAddress = "usereaoa@liferay.com");
 
-		Staging.openStagingAdmin(siteURLKey = "staging-organization-name");
-
-		Staging.activateStagingCP(siteName = "Staging Organization Name");
+		JSONStaging.enableLocalStaging(groupName = "Staging Organization Name LFR_ORGANIZATION");
 
 		Workflow.openWorkflowAdmin(siteURLKey = "staging-organization-name-staging");
 

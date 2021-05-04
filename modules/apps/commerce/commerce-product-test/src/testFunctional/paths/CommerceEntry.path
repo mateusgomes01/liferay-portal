@@ -19,6 +19,16 @@
 	<td></td>
 </tr>
 <tr>
+    <td>PRODUCT_CARD_COMPARE_CHECKBOX</td>
+    <td>//p[@title='${key_productName}']//../..//input[contains(@aria-label,'Compare')]</td>
+    <td></td>
+</tr>
+<tr>
+    <td>MINI_COMPARE_ITEM_ACTIVE</td>
+    <td>//div[@class="mini-compare-item active"]//div[@class="mini-compare-thumbnail"]</td>
+    <td></td>
+</tr>
+<tr>
 	<td>CHANNEL_CHECKBOX</td>
 	<td>//input[contains(@id,'Channel') and (@type='checkbox')]</td>
 	<td></td>
@@ -35,7 +45,7 @@
 </tr>
 <tr>
 	<td>CODE_FIELD</td>
-	<td>//div/input[contains(@id,'code')]</td>
+	<td>//div/input[contains(@id,'regionCode')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -504,6 +514,11 @@
 	<td>//h4[contains(.,'Images')]//..//button[contains(@class,'btn-primary')]</td>
 	<td></td>
 </tr>
+<tr>
+	<td>PRODUCT_CARD_CUSTOM_IMAGE</td>
+	<td>//span[contains(text(),'${key_itemName}')]/../../../../../../..//div[contains(@class,'product-card')]//div[contains(@style,'${key_itemImage}')]</td>
+	<td></td>
+</tr>
 <!--ATTACHMENT-->
 <tr>
 	<td>ATTACHMENT_PLUS_BUTTON</td>
@@ -522,8 +537,23 @@
 	<td></td>
 </tr>
 <tr>
+	<td>PRODUCT_CARD_SKU</td>
+	<td>//div[@class="cp-information"]//span[contains(text(),'${key_productSKU}')]//following::p[contains(.,'${key_productName}')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>PRODUCT_FULL_DESCRIPTION</td>
 	<td>//div/label[@class='control-label' and contains(.,'${key_customFieldName}')]/..//p</td>
+	<td></td>
+</tr>
+<tr>
+	<td>PAYMENT_SUBSCRIPTION_TOGGLE</td>
+	<td>//h4[contains(text(), 'Payment Subscription')]//following-sibling::span[contains(@class,'toggle-switch-handle')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>DELIVERY_SUBSCRIPTION_TOGGLE</td>
+	<td>//h4[contains(text(), 'Delivery Subscription')]//following-sibling::span[contains(@class,'toggle-switch-handle')]</td>
 	<td></td>
 </tr>
 <!--OPTION-->
@@ -581,6 +611,11 @@
     <td>VALUE_PRODUCT_RELATIONS</td>
     <td>//a[contains(text(),'${key_productName}')]/../../..//div[contains(@class,'dnd-td') and contains(text(),'${key_Value}')]</td>
     <td></td>
+</tr>
+<tr>
+	<td>ENTRY_SUBSCRIPTIONS</td>
+	<td>//h4[contains(text(), '${key_entryName}')]</td>
+	<td></td>
 </tr>
 </tbody>
 </table>

@@ -803,11 +803,11 @@ definition {
 
 	macro clickManagementBar {
 		var elementHeight = selenium.getElementHeight("PageEditor#MANAGEMENT_BAR");
-		var offSetY = MathUtil.product("50","${elementHeight}");
+		var offSetY = MathUtil.product("10","${elementHeight}");
 		var offSetY = MathUtil.quotient("${offSetY}","100");
 
 		var elementWidth = selenium.getElementWidth("PageEditor#MANAGEMENT_BAR");
-		var offSetX = MathUtil.product("25","${elementWidth}");
+		var offSetX = MathUtil.product("50","${elementWidth}");
 		var offSetX = MathUtil.quotient("${offSetX}","100");
 
 		Click.clickAt(
@@ -1532,7 +1532,7 @@ definition {
 
 		Segmentation.fillTitle(titleField = "AddSegmentUserEmailAddressContains Test 2");
 
-		Segmentation.changeCriterionInputEmailAddress(criterionInputOption = "Contains");
+		Segmentation.changeCriterionInput(criterionInputOption = "Contains");
 
 		Segmentation.fillProperty(propertyField = "liferay2");
 
@@ -1883,25 +1883,37 @@ definition {
 
 				Pause(locator1 = "3000");
 
-				if ("${contentDisplay}" == "Flex") {
-					if (isSet(horizontalAlign)) {
+				if ("${contentDisplay}" != "Block") {
+					if (isSet(alignItems)) {
 						Select(
-							key_fieldLabel = "Horizontal Align",
+							key_fieldLabel = "Align Items",
 							locator1 = "Select#GENERIC_SELECT_FIELD",
-							value1 = "${horizontalAlign}");
+							value1 = "${alignItems}");
 
 						Pause(locator1 = "3000");
 					}
 
-					if (isSet(verticalAlign)) {
+					if (isSet(justifyContent)) {
 						Select(
-							key_fieldLabel = "Vertical Align",
+							key_fieldLabel = "Justify Content",
 							locator1 = "Select#GENERIC_SELECT_FIELD",
-							value1 = "${verticalAlign}");
+							value1 = "${justifyContent}");
 
 						Pause(locator1 = "3000");
 					}
 				}
+			}
+
+			if (isSet(height)) {
+				Type(
+					key_borderBottom = "Size",
+					key_fieldLabel = "Height",
+					locator1 = "TextInput#BORDER_BOTTOM_INPUT_FIELD",
+					value1 = "${height}");
+
+				Click(
+					key_sidebarButton = "Selection",
+					locator1 = "PageEditor#FRAGMENT_SIDEBAR_TITLE");
 			}
 
 			if (isSet(marginBottom)) {
@@ -2736,6 +2748,13 @@ definition {
 	}
 
 	macro viewContainerStyle {
+		if (isSet(alignItems)) {
+			AssertElementPresent(
+				key_alignItems = "${alignItems}",
+				key_position = "${position}",
+				locator1 = "PageEditor#CONTAINER_CONFIGURATION_ALIGN_ITEMS");
+		}
+
 		if (isSet(backgroundColor)) {
 			AssertElementPresent(
 				key_paletteItem = "${backgroundColor}",
@@ -2810,11 +2829,18 @@ definition {
 				locator1 = "PageEditor#CONTAINER_CONFIGURATION_CONTENT_DISPLAY");
 		}
 
-		if (isSet(horizontalAlign)) {
+		if (isSet(justifyContent)) {
 			AssertElementPresent(
-				key_horizontalAlign = "${horizontalAlign}",
+				key_justifyContent = "${justifyContent}",
 				key_position = "${position}",
-				locator1 = "PageEditor#CONTAINER_CONFIGURATION_HORIZONTAL_ALIGN");
+				locator1 = "PageEditor#CONTAINER_CONFIGURATION_JUSTIFY_CONTENT");
+		}
+
+		if (isSet(height)) {
+			AssertElementPresent(
+				key_height = "${height}",
+				key_position = "${position}",
+				locator1 = "PageEditor#CONTAINER_CONFIGURATION_HEIGHT");
 		}
 
 		if (isSet(marginBottom)) {
@@ -2878,13 +2904,6 @@ definition {
 				key_paddingTop = "${paddingTop}",
 				key_position = "${position}",
 				locator1 = "PageEditor#CONTAINER_CONFIGURATION_PADDING_TOP");
-		}
-
-		if (isSet(verticalAlign)) {
-			AssertElementPresent(
-				key_position = "${position}",
-				key_verticalAlign = "${verticalAlign}",
-				locator1 = "PageEditor#CONTAINER_CONFIGURATION_VERTICAL_ALIGN");
 		}
 	}
 

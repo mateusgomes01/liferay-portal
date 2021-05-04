@@ -47,6 +47,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -95,7 +96,8 @@ public class FreeMarkerTool {
 	}
 
 	public Map<String, Schema> getAllSchemas(
-		OpenAPIYAML openAPIYAML, Map<String, Schema> schemas) {
+		Map<String, Schema> allExternalSchemas, OpenAPIYAML openAPIYAML,
+		Map<String, Schema> schemas) {
 
 		Map<String, PathItem> pathItems = openAPIYAML.getPathItems();
 
@@ -114,7 +116,14 @@ public class FreeMarkerTool {
 
 				for (String tag : tags) {
 					if (!schemas.containsKey(tag)) {
-						schemas.put(tag, new Schema());
+						if ((allExternalSchemas != null) &&
+							allExternalSchemas.containsKey(tag)) {
+
+							schemas.put(tag, allExternalSchemas.get(tag));
+						}
+						else {
+							schemas.put(tag, new Schema());
+						}
 					}
 				}
 			}
@@ -311,12 +320,11 @@ public class FreeMarkerTool {
 		List<JavaMethodSignature> javaMethodSignatures,
 		OpenAPIYAML openAPIYAML) {
 
-		StringBuilder sb = new StringBuilder();
+		StringBundler sb = new StringBundler(5);
 
-		sb.append("Invoke this method with the command line:\n*\n* ");
-		sb.append("curl -H 'Content-Type: text/plain; charset=utf-8' ");
-		sb.append("-X 'POST' 'http://localhost:8080/o/graphql' ");
-		sb.append("-d $'");
+		sb.append("Invoke this method with the command line:\n*\n* curl -H ");
+		sb.append("'Content-Type: text/plain; charset=utf-8' -X 'POST' ");
+		sb.append("'http://localhost:8080/o/graphql' -d $'");
 		sb.append(
 			_getGraphQLBody(
 				javaMethodSignature, javaMethodSignatures, openAPIYAML));
@@ -570,7 +578,7 @@ public class FreeMarkerTool {
 				continue;
 			}
 
-			StringBuilder sb = new StringBuilder();
+			StringBundler sb = new StringBundler(3);
 
 			sb.append(getHTTPMethod(operation));
 
@@ -661,10 +669,9 @@ public class FreeMarkerTool {
 		ConfigYAML configYAML, JavaMethodSignature javaMethodSignature,
 		OpenAPIYAML openAPIYAML) {
 
-		StringBuilder sb = new StringBuilder();
+		StringBundler sb = new StringBundler(10);
 
-		sb.append("Invoke this method with the command line:\n*\n* ");
-		sb.append("curl -X '");
+		sb.append("Invoke this method with the command line:\n*\n* curl -X '");
 		sb.append(
 			StringUtil.toUpperCase(
 				OpenAPIParserUtil.getHTTPMethod(
@@ -696,7 +703,7 @@ public class FreeMarkerTool {
 			return new HashMap<>();
 		}
 
-		return components.getSchemas();
+		return new TreeMap<>(components.getSchemas());
 	}
 
 	public String getSchemaVarName(String schemaName) {
@@ -721,6 +728,21 @@ public class FreeMarkerTool {
 			javaMethodSignatureMethodName ->
 				javaMethodSignatureMethodName.equals(methodName)
 		);
+	}
+
+	public boolean hasParameter(
+		JavaMethodSignature javaMethodSignature, String parameterName) {
+
+		List<JavaMethodParameter> javaMethodParameters =
+			javaMethodSignature.getJavaMethodParameters();
+
+		for (JavaMethodParameter javaMethodParameter : javaMethodParameters) {
+			if (parameterName.equals(javaMethodParameter.getParameterName())) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	public boolean hasPathParameter(JavaMethodSignature javaMethodSignature) {
@@ -853,7 +875,7 @@ public class FreeMarkerTool {
 		List<JavaMethodSignature> javaMethodSignatures,
 		OpenAPIYAML openAPIYAML) {
 
-		StringBuilder sb = new StringBuilder("{\"query\": \"query {");
+		StringBundler sb = new StringBundler("{\"query\": \"query {");
 
 		sb.append(
 			getGraphQLPropertyName(javaMethodSignature, javaMethodSignatures));
@@ -895,10 +917,7 @@ public class FreeMarkerTool {
 		String returnType = javaMethodSignature.getReturnType();
 
 		if (returnType.startsWith("java.util.Collection<")) {
-			sb.append("items {__}, ");
-			sb.append("page, ");
-			sb.append("pageSize, ");
-			sb.append("totalCount");
+			sb.append("items {__}, page, pageSize, totalCount");
 		}
 		else {
 			Map<String, Schema> schemas = getSchemas(openAPIYAML);
@@ -1051,7 +1070,7 @@ public class FreeMarkerTool {
 	private String _getRESTBody(
 		JavaMethodSignature javaMethodSignature, OpenAPIYAML openAPIYAML) {
 
-		StringBuilder sb = new StringBuilder();
+		StringBundler sb = new StringBundler();
 
 		Set<String> properties = new TreeSet<>();
 

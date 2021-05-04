@@ -1173,11 +1173,11 @@ definition {
 	}
 
 	macro editDisplayPage {
-		Panel.expandPanel(panel = "Display Page Template");
+		Panel.expandPanel(panel = "Display Page");
 
 		Select(
 			locator1 = "WCEditWebContent#DISPLAY_PAGE_SELECT",
-			value1 = "Specific Display Page Template");
+			value1 = "Specific");
 
 		Click.javaScriptClick(locator1 = "WCEditWebContent#DISPLAY_PAGE_CHOOSE_BUTTON");
 
@@ -1230,6 +1230,14 @@ definition {
 		Pause(locator1 = "3000");
 
 		SelectFrame(value1 = "relative=top");
+	}
+
+	macro editFieldValue {
+		Type(
+			index = "${index}",
+			key_fieldFieldLabel = "${fieldFieldLabel}",
+			locator1 = "WCEditWebContent#ANY_TEXT_INPUT",
+			value1 = "${value}");
 	}
 
 	macro editFriendlyURL {
@@ -1611,10 +1619,39 @@ definition {
 		MenuItem.click(menuItem = "${itemsPerPage}");
 	}
 
+	macro previewDisplayPageTemplate {
+		Panel.expandPanel(panel = "Display Page");
+
+		WaitForLiferayEvent.initializeLiferayEventLog();
+
+		Click(
+			key_fieldsetName = "displayPage",
+			locator1 = "WC#PREVIEW_BUTTON");
+
+		SelectFrame(locator1 = "IFrame#MODAL_BODY");
+
+		AssertTextPresent(
+			locator1 = "IFrame#MODAL_BODY",
+			value1 = "${webContentContent}");
+
+		Pause(locator1 = "3000");
+
+		takeScreenshot();
+
+		IFrame.closeFrame();
+	}
+
 	macro publishViaWCD {
 		Button.clickPublish();
 
 		AssertVisible(locator1 = "WCD#WEB_CONTENT_CONTENT");
+	}
+
+	macro removeDuplicatedFieldsGroup {
+		Click(
+			key_fieldName = "FieldsGroup",
+			key_index = "${index}",
+			locator1 = "FormFields#FIELD_REMOVE");
 	}
 
 	macro saveAsDraftViaAP {
@@ -2300,7 +2337,7 @@ definition {
 	}
 
 	macro viewSelectedDisplayPageTemplateCP {
-		Panel.expandPanel(panel = "Display Page Template");
+		Panel.expandPanel(panel = "Display Page");
 
 		AssertSelectedLabel(
 			locator1 = "WCEditWebContent#DISPLAY_PAGE_SELECT",
@@ -2490,11 +2527,13 @@ definition {
 
 	macro viewWithStructureCP {
 		if (!(isSet(predefinedValue))) {
-			LexiconEntry.changeDisplayStyle(displayStyle = "list");
+			if ("${skipGotoEditCP}" != "true") {
+				LexiconEntry.changeDisplayStyle(displayStyle = "list");
 
-			WebContentNavigator.gotoEditCP(
-				webContentTitle = "${webContentTitle}",
-				webContentTitleEscapeCharacter = "${webContentTitleEscapeCharacter}");
+				WebContentNavigator.gotoEditCP(
+					webContentTitle = "${webContentTitle}",
+					webContentTitleEscapeCharacter = "${webContentTitleEscapeCharacter}");
+			}
 
 			if (isSet(webContentLocaleFieldLabel)) {
 				PortletEntry.changeLocale(locale = "${webContentLocaleFieldLabel}");

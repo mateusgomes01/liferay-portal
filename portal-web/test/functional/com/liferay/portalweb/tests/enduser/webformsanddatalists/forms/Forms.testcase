@@ -35,10 +35,9 @@ definition {
 		}
 	}
 
+	@ignore = "true"
 	@priority = "4"
 	test Add20Forms {
-		property portal.acceptance = "true";
-		property portal.upstream = "true";
 		property test.name.skip.portal.instance = "Forms#Add20Forms";
 
 		Navigator.openURL();
@@ -69,10 +68,9 @@ definition {
 		}
 	}
 
+	@ignore = "true"
 	@priority = "4"
 	test Add30Fields {
-		property portal.acceptance = "true";
-		property portal.upstream = "true";
 		property test.name.skip.portal.instance = "Forms#Add30Fields";
 
 		Navigator.openURL();
@@ -730,6 +728,79 @@ definition {
 			configurationScope = "Virtual Instance Scope");
 
 		PortalSettings.configureCurrentLanguagesCP(defaultPortalLanguage = "English (United States)");
+	}
+
+	@description = "Verify that a Form can be created"
+	@ignore = "true"
+	@priority = "5"
+	test CanBeCreated {
+		property portal.acceptance = "false";
+
+		// TODO LPS-130500 CanBeCreated pending implementation
+
+	}
+
+	@description = "Verify that a Form can be published from an autosaved draft"
+	@ignore = "true"
+	@priority = "5"
+	test CanBeCreatedFromAutosavedDraft {
+		property portal.acceptance = "false";
+
+		// TODO LPS-130511 CanBeCreatedFromAutosavedDraft pending implementation
+	}
+
+	@description = "Verify that a Form can be created with more than one page"
+	@ignore = "true"
+	@priority = "5"
+	test CanBeCreatedWithMultiplePages {
+		property portal.acceptance = "false";
+
+		// TODO LPS-130996 CanBeCreatedWithMultiplePages pending implementation
+	}
+
+	@description = "Verify that a Form can be deleted"
+	@ignore = "true"
+	@priority = "5"
+	test CanBeDeleted {
+		property portal.acceptance = "false";
+
+		// TODO LPS-130509 CanBeDeleted pending implementation
+	}
+
+	@description = "Verify that a Form can be duplicated"
+	@ignore = "true"
+	@priority = "5"
+	test CanBeDuplicated {
+		property portal.acceptance = "false";
+
+		// TODO LPS-130508 CanBeDuplicated pending implementation
+	}
+
+	@description = "Verify that a Form can be edited"
+	@ignore = "true"
+	@priority = "5"
+	test CanBeEdited {
+		property portal.acceptance = "false";
+
+		// TODO LPS-130501 CanBeEdited pending implementation
+	}
+
+	@description = "Verify that a Form can be saved"
+	@ignore = "true"
+	@priority = "5"
+	test CanBeSaved {
+		property portal.acceptance = "false";
+
+		// TODO LPS-130997 CanBeSaved pending implementation
+	}
+
+	@description = "Verify that a Form can be unpublished"
+	@ignore = "true"
+	@priority = "5"
+	test CanBeUnpublished {
+		property portal.acceptance = "false";
+
+		// TODO LPS-130507 CanBeUnpublished pending implementation
 	}
 
 	@description = "This is a use case for LPS-75116 and LPS-79101."
@@ -1991,11 +2062,7 @@ definition {
 			saveButton = "Guardar",
 			successMessage = "Your request completed successfully.");
 
-		Navigator.openURL();
-
-		ProductMenu.gotoPortlet(
-			category = "Configuration",
-			portlet = "Site Settings");
+		Site.openSiteSettingsAdmin(siteURLKey = "guest");
 
 		Site.configureCurrentLanguagesCP(
 			defaultSiteLanguage = "Spanish (Spain)",
@@ -2245,6 +2312,24 @@ definition {
 		FormsAdminNavigator.gotoEditFormByName(formName = "Text");
 
 		Form.viewFormName(formName = "Text");
+	}
+
+	@description = "Verify that Form Pages can be reordered"
+	@ignore = "true"
+	@priority = "5"
+	test PagesCanBeReordered {
+		property portal.acceptance = "false";
+
+		// TODO LPS-130999 PagesCanBeReordered pending implementation
+	}
+
+	@description = "Verify that Form Pages can be reset"
+	@ignore = "true"
+	@priority = "5"
+	test PagesCanBeReset {
+		property portal.acceptance = "false";
+
+		// TODO LPS-131000 PagesCanBeReset pending implementation
 	}
 
 	@description = "This is a use case for LPS-61740"
@@ -2594,6 +2679,15 @@ definition {
 		FormsAdmin.viewFormTableEntry(
 			fieldLabel = "Select",
 			fieldValue = "Select 3, Select 4");
+	}
+
+	@description = "Verify that a Form cannot be created without at least 1 field"
+	@ignore = "true"
+	@priority = "5"
+	test ShouldHaveAtLeastOneField {
+		property portal.acceptance = "false";
+
+		// TODO LPS-130503 ShouldHaveAtLeastOneField pending implementation
 	}
 
 	@priority = "5"
@@ -3929,11 +4023,10 @@ definition {
 	}
 
 	@description = "This is a use case for LPS-125860."
-	@ignore = "true"
 	@priority = "5"
 	test SubmitFormWithRequiredConfirmationTextField {
-		property portal.acceptance = "false";
-		property portal.upstream = "false";
+		property portal.acceptance = "true";
+		property portal.upstream = "true";
 		property test.name.skip.portal.instance = "Forms#SubmitFormWithRequiredConfirmationTextField";
 
 		Navigator.openURL();
@@ -5482,6 +5575,15 @@ definition {
 		FormPortlet.viewSuccessPage(
 			successPageDescription = "Edited: Your information was successfully received. Thank you for filling out the form.",
 			successPageTitle = "Edited: Thank You");
+	}
+
+	@description = "Verify that a Form autosaves after 1 minute by default"
+	@ignore = "true"
+	@priority = "5"
+	test WillAutosaveAfterOneMinute {
+		property portal.acceptance = "false";
+
+		// TODO LPS-130510 WillAutosaveAfterOneMinute pending implementation
 	}
 
 }

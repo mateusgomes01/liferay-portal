@@ -107,6 +107,25 @@ public class NumericDDMFormFieldTypeSettingsTest
 			directionPredefinedValue.getString(
 				directionPredefinedValue.getDefaultLocale()));
 
+		DDMFormField inputMaskDDMFormField = ddmFormFieldsMap.get("inputMask");
+
+		Assert.assertEquals(
+			"true", inputMaskDDMFormField.getProperty("showAsSwitcher"));
+
+		DDMFormField inputMaskFormatDDMFormField = ddmFormFieldsMap.get(
+			"inputMaskFormat");
+
+		Assert.assertEquals(
+			"string", inputMaskFormatDDMFormField.getDataType());
+		Assert.assertEquals(
+			"^[^1-8]+$", inputMaskFormatDDMFormField.getProperty("regex"));
+		Assert.assertEquals("text", inputMaskFormatDDMFormField.getType());
+		Assert.assertEquals(true, inputMaskFormatDDMFormField.isRequired());
+		Assert.assertNotNull(inputMaskFormatDDMFormField.getLabel());
+		Assert.assertNotNull(
+			inputMaskFormatDDMFormField.getProperty("placeholder"));
+		Assert.assertNotNull(inputMaskFormatDDMFormField.getTip());
+
 		DDMFormField placeholderDDMFormField = ddmFormFieldsMap.get(
 			"placeholder");
 
@@ -139,15 +158,27 @@ public class NumericDDMFormFieldTypeSettingsTest
 
 		List<DDMFormRule> ddmFormRules = ddmForm.getDDMFormRules();
 
-		Assert.assertEquals(ddmFormRules.toString(), 1, ddmFormRules.size());
+		Assert.assertEquals(ddmFormRules.toString(), 2, ddmFormRules.size());
 
 		DDMFormRule ddmFormRule0 = ddmFormRules.get(0);
 
-		Assert.assertEquals("TRUE", ddmFormRule0.getCondition());
+		Assert.assertEquals(
+			"equals(getValue('dataType'), 'double')",
+			ddmFormRule0.getCondition());
 
 		List<String> actions = ddmFormRule0.getActions();
 
-		Assert.assertEquals(actions.toString(), 7, actions.size());
+		Assert.assertEquals(actions.toString(), 2, actions.size());
+		Assert.assertEquals("setValue('inputMask', FALSE)", actions.get(0));
+		Assert.assertEquals("setVisible('inputMask', FALSE)", actions.get(1));
+
+		DDMFormRule ddmFormRule1 = ddmFormRules.get(1);
+
+		Assert.assertEquals("TRUE", ddmFormRule1.getCondition());
+
+		actions = ddmFormRule1.getActions();
+
+		Assert.assertEquals(actions.toString(), 8, actions.size());
 
 		Assert.assertTrue(
 			actions.toString(),
@@ -175,6 +206,10 @@ public class NumericDDMFormFieldTypeSettingsTest
 			actions.toString(),
 			actions.contains(
 				"setVisible('direction', getValue('requireConfirmation'))"));
+		Assert.assertTrue(
+			actions.toString(),
+			actions.contains(
+				"setVisible('inputMaskFormat', getValue('inputMask'))"));
 		Assert.assertTrue(
 			actions.toString(),
 			actions.contains("setVisible('tooltip', false)"));

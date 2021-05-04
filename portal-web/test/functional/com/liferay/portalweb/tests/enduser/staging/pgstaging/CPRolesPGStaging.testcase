@@ -6,8 +6,6 @@ definition {
 	property testray.component.names = "Roles";
 	property testray.main.component.name = "Staging";
 
-	var siteName = "Site Name";
-
 	setUp {
 		TestCase.setUpPortalInstance();
 
@@ -29,11 +27,11 @@ definition {
 		else {
 			Workflow.tearDownSiteWorkflow();
 
-			Role.tearDownCP();
+			JSONRole.deleteRole(roleTitle = "Regrole Name");
 
 			JSONUser.tearDownNonAdminUsers();
 
-			Site.tearDownCP();
+			JSONGroup.deleteGroupByName(groupName = "Site Name");
 		}
 	}
 
@@ -41,15 +39,7 @@ definition {
 	test AccessStaging {
 		property portal.acceptance = "true";
 
-		Navigator.openSiteURL(siteName = "Site Name");
-
-		ProductMenu.gotoPortlet(
-			category = "Publishing",
-			portlet = "Staging");
-
-		Staging.activateStagingCP(siteName = "Site Name");
-
-		Navigator.openSiteURL(siteName = "Site Name");
+		JSONStaging.enableLocalStaging(groupName = "Site Name");
 
 		JSONUser.addUser(
 			userEmailAddress = "userea@liferay.com",
@@ -131,15 +121,11 @@ definition {
 
 	@priority = "4"
 	test StagingBlogsRolesWorkflow {
-		Navigator.openSiteURL(siteName = "Site Name");
-
 		JSONUser.addUser(
 			userEmailAddress = "usereapu@liferay.com",
 			userFirstName = "userfnpu",
 			userLastName = "userlnpu",
 			userScreenName = "usersnpu");
-
-		Navigator.openSiteURL(siteName = "Site Name");
 
 		ApplicationsMenu.gotoPortlet(
 			category = "Users",
@@ -286,13 +272,7 @@ definition {
 			userLastName = "userlna",
 			userScreenName = "usersna");
 
-		Navigator.openSiteURL(siteName = "Site Name");
-
-		ProductMenu.gotoPortlet(
-			category = "Publishing",
-			portlet = "Staging");
-
-		Staging.activateStagingCP(siteName = "Site Name");
+		JSONStaging.enableLocalStaging(groupName = "Site Name");
 
 		Navigator.openSiteURL(siteName = "Site Name");
 

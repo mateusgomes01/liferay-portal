@@ -21,34 +21,21 @@ definition {
 			value1 = "${propertyOption}");
 	}
 
-	macro changeCriterionInputDate {
-		Click(
-			key_criterion = "date",
-			locator1 = "Segmentation#CRITERION_INPUT_FORM_CONTROL");
+	macro assignOrganization {
+		Click(locator1 = "Button#SELECT");
 
-		KeyPress(
-			key_criterion = "date",
-			locator1 = "Segmentation#CRITERION_INPUT_FORM_CONTROL",
-			value1 = "\BACK_SPACE");
+		SelectFrame.selectFrameNoLoading(locator1 = "IFrame#MODAL_BODY");
 
-		RobotType(locator1 = "${year}");
+		Check(
+			key_checkboxName = "${orgName}",
+			locator1 = "Checkbox#ENABLE_CHECKBOX");
 
-		KeyPress(
-			key_criterion = "date",
-			locator1 = "Segmentation#CRITERION_INPUT_FORM_CONTROL",
-			value1 = "\RIGHT");
+		IFrame.selectTopFrame();
 
-		RobotType(locator1 = "${month}");
-
-		KeyPress(
-			key_criterion = "date",
-			locator1 = "Segmentation#CRITERION_INPUT_FORM_CONTROL",
-			value1 = "\RIGHT");
-
-		RobotType(locator1 = "${day}");
+		Click(locator1 = "Modal#SELECT_BUTTON");
 	}
 
-	macro changeCriterionInputEmailAddress {
+	macro changeCriterionInput {
 		var key_criterionInputOption = "${criterionInputOption}";
 
 		Click(locator1 = "Segmentation#CRITERION_INPUT");
@@ -74,16 +61,10 @@ definition {
 		Click(locator1 = "Segmentation#DELETE_SEGMENT");
 	}
 
-	macro editSegment {
-		Click.waitForMenuToggleJSClick(
-			key_tableEntry = "${entry}",
-			locator1 = "LexiconTable#TABLE_ENTRY_ELLIPSIS");
-
-		MenuItem.clickNoError(menuItem = "Edit");
-	}
-
-	macro enableAssingRolesBySegmentsCheckbox {
-		Click(locator1 = "Segmentation#ENABLE_ASSIGN_ROLES_SEGMENTS_CHECKBOX");
+	macro disableAssingRolesBySegmentsCheckbox {
+		if (IsChecked(locator1 = "Segmentation#ENABLE_ASSIGN_ROLES_SEGMENTS_CHECKBOX")) {
+			Click.javaScriptClick(locator1 = "Segmentation#ENABLE_ASSIGN_ROLES_SEGMENTS_CHECKBOX");
+		}
 
 		if (IsElementPresent(locator1 = "Button#SAVE")) {
 			Click(locator1 = "Button#SAVE");
@@ -93,7 +74,31 @@ definition {
 			Click(locator1 = "Button#UPDATE");
 		}
 
-		Pause(locator1 = "3000");
+		AssertNotChecked.assertNotCheckedNotVisible(locator1 = "Segmentation#ENABLE_ASSIGN_ROLES_SEGMENTS_CHECKBOX");
+	}
+
+	macro editSegment {
+		Click.waitForMenuToggleJSClick(
+			key_tableEntry = "${entry}",
+			locator1 = "LexiconTable#TABLE_ENTRY_ELLIPSIS");
+
+		MenuItem.clickNoError(menuItem = "Edit");
+	}
+
+	macro enableAssingRolesBySegmentsCheckbox {
+		if (IsNotChecked.isNotCheckedNotVisible(locator1 = "Segmentation#ENABLE_ASSIGN_ROLES_SEGMENTS_CHECKBOX")) {
+			Click.javaScriptClick(locator1 = "Segmentation#ENABLE_ASSIGN_ROLES_SEGMENTS_CHECKBOX");
+		}
+
+		if (IsElementPresent(locator1 = "Button#SAVE")) {
+			Click(locator1 = "Button#SAVE");
+		}
+
+		if (IsElementPresent(locator1 = "Button#UPDATE")) {
+			Click(locator1 = "Button#UPDATE");
+		}
+
+		AssertChecked.assertCheckedNotVisible(locator1 = "Segmentation#ENABLE_ASSIGN_ROLES_SEGMENTS_CHECKBOX");
 	}
 
 	macro fillProperty {
@@ -116,6 +121,45 @@ definition {
 				value1 = "${resolutionValue}");
 		}
 
+		else if (isSet(selectRole)) {
+			Click(locator1 = "Button#SELECT");
+
+			SelectFrame(locator1 = "IFrame#MODAL_BODY");
+
+			Check(
+				key_tableEntry = "${selectRole}",
+				locator1 = "LexiconTable#TABLE_ENTRY_CHECKBOX");
+
+			SelectFrame(value1 = "relative=top");
+		}
+
+		else if (isSet(tagName)) {
+			Click(locator1 = "Button#SELECT");
+
+			SelectFrame(locator1 = "IFrame#MODAL_BODY");
+
+			AssertClick(
+				key_rowEntry = "${tagName}",
+				locator1 = "ContentRow#ENTRY_CONTENT_ENTRY_NAME_LINK",
+				value1 = "${tagName}");
+
+			SelectFrame(value1 = "relative=top");
+		}
+
+		else if (isSet(dateValue)) {
+			Type.sendKeys(
+				key_criterion = "date",
+				locator1 = "Segmentation#CRITERION_INPUT_FORM_CONTROL",
+				value1 = "${dateValue}");
+		}
+
+		else if (isSet(optionsValue)) {
+			Select(
+				key_criterion = "options",
+				locator1 = "Segmentation#CRITERION_INPUT_FORM_CONTROL",
+				value1 = "${optionsValue}");
+		}
+
 		else {
 			Type(
 				locator1 = "Segmentation#PROPERTY_FIELD",
@@ -132,6 +176,16 @@ definition {
 	}
 
 	macro openSegmentOptions {
+		Click(locator1 = "Segmentation#SEARCH_FIELD");
+
+		Type(
+			locator1 = "Segmentation#SEARCH_FIELD",
+			value1 = "${segmentName}");
+
+		KeyPress(
+			locator1 = "Segmentation#SEARCH_FIELD",
+			value1 = "\ENTER");
+
 		if (IsElementPresent(locator1 = "Icon#BODY_VERTICAL_ELLIPSIS")) {
 			Click(locator1 = "Icon#BODY_VERTICAL_ELLIPSIS");
 		}
@@ -184,9 +238,7 @@ definition {
 
 		SelectFrame.selectFrameNoLoading(locator1 = "IFrame#MODAL_BODY");
 
-		AssertTextPresent(
-			locator1 = "Segmentation#MEMBER_NAME_LISTED",
-			value1 = "Test Test");
+		AssertElementPresent(locator1 = "Segmentation#MEMBER_NAME_LISTED");
 
 		SelectFrame(value1 = "relative=top");
 
@@ -208,6 +260,12 @@ definition {
 				value1 = "${criterionValue}");
 		}
 
+		else if (isSet(criterionInputOption)) {
+			AssertValue(
+				locator1 = "Segmentation#CRITERION_INPUT",
+				value1 = "${criterionInputOption}");
+		}
+
 		else if (isSet(resolutionValue)) {
 			AssertValue(
 				key_criterion = "decimal-number",
@@ -220,6 +278,12 @@ definition {
 				key_criterion = "date",
 				locator1 = "Segmentation#CRITERION_INPUT_FORM_CONTROL",
 				value1 = "${date}");
+		}
+
+		else if ("${key_criterion}" == "options") {
+			AssertValue(
+				locator1 = "Segmentation#CRITERION_INPUT_FORM_CONTROL",
+				value1 = "${propertyField}");
 		}
 
 		else {

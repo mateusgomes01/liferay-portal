@@ -1090,8 +1090,8 @@ definition {
 
 		FormViewBuilder.validateLocalizationForFieldSet(symbolName = "es-ES");
 
-		Navigator.openURL();
 		Site.openSiteSettingsAdmin(siteURLKey = "guest");
+
 		Site.configureCurrentLanguagesCP(defaultSiteLanguage = "English (United States)");
 	}
 

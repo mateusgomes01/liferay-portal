@@ -45,12 +45,56 @@ definition {
 	}
 
 	@description = "This is a test for LPS-130275."
-	@ignore = "true"
 	@priority = "5"
 	test AddSegmentByOrganizationDateModified {
 		property portal.acceptance = "false";
 
-		// TODO LPS-130275 AddSegmentByOrganizationDateModified pending implementation
+		JSONUser.addUser(
+			userEmailAddress = "userea@liferay.com",
+			userFirstName = "userfn",
+			userLastName = "userln",
+			userScreenName = "usersn");
+
+		JSONUser.setFirstPassword(
+			agreeToTermsAndAnswerReminderQuery = "true",
+			requireReset = "false",
+			userEmailAddress = "userea@liferay.com");
+
+		JSONOrganization.addOrganization(organizationName = "organization Name");
+
+		JSONOrganization.assignUserToOrganization(
+			organizationName = "organization Name",
+			userEmailAddress = "userea@liferay.com");
+
+		LexiconEntry.gotoAdd();
+
+		Segmentation.selectOrganization();
+
+		Segmentation.addProperties(propertyOption = "Date Modified");
+
+		Segmentation.changeCriterionInput(criterionInputOption = "Greater Than");
+
+		Segmentation.fillTitle(titleField = "AddSegmentByOrganizationDateModified Test");
+
+		Segmentation.viewMembers(memberName = "userfn userln");
+
+		Button.clickSave();
+
+		Alert.viewSuccessMessage();
+
+		Segmentation.editSegment(entry = "AddSegmentByOrganizationDateModified Test");
+
+		var displayDateDay = DateUtil.getCurrentDate();
+		var displayDateMonth = DateUtil.getCurrentMonth();
+
+		if (("${displayDateMonth}" != "10") && ("${displayDateMonth}" != "11") && ("${displayDateMonth}" != "12")) {
+			var displayDateMonth= "0${displayDateMonth}";
+		}
+
+		var displayDateYear = DateUtil.getCurrentYear();
+		var displayDate = "${displayDateYear}-${displayDateMonth}-${displayDateDay}";
+
+		Segmentation.viewSegment(date = "${displayDate}");
 	}
 
 	@description = "This is a test for LPS-130276."
@@ -336,6 +380,12 @@ definition {
 		Button.clickSave();
 
 		Alert.viewSuccessMessage();
+
+		Segmentation.editSegment(entry = "AddSegmentBySessionLanguage Test");
+
+		Segmentation.viewSegment(
+			key_criterion = "options",
+			propertyField = "es_ES");
 	}
 
 	@description = "This is a test for LPS-130320."
@@ -351,10 +401,7 @@ definition {
 
 		Segmentation.fillTitle(titleField = "AddSegmentBySessionLastSignInDate Test");
 
-		Segmentation.changeCriterionInputDate(
-			day = "31",
-			month = "03",
-			year = "2021");
+		Segmentation.fillProperty(dateValue = "03/31/2021");
 
 		Button.clickSave();
 
@@ -378,63 +425,148 @@ definition {
 
 		Segmentation.fillTitle(titleField = "AddSegmentBySessionLocalDate Test");
 
-		Segmentation.changeCriterionInputDate(
-			day = "31",
-			month = "03",
-			year = "2021");
+		Segmentation.fillProperty(dateValue = "03/31/2021");
 
 		Button.clickSave();
 
 		Alert.viewSuccessMessage();
 
-		Segmentation.editSegment(entry = "AddSegmentBySessionLastSignInDate Test");
+		Segmentation.editSegment(entry = "AddSegmentBySessionLocalDate Test");
 
 		Segmentation.viewSegment(date = "2021-03-31");
 	}
 
 	@description = "This is a test for LPS-130322."
-	@ignore = "true"
 	@priority = "5"
 	test AddSegmentBySessionReferrerURL {
 		property portal.acceptance = "false";
 
-		// TODO LPS-130322 AddSegmentBySessionReferrerURL pending implementation
+		LexiconEntry.gotoAdd();
+
+		Segmentation.selectSession();
+
+		Segmentation.addProperties(propertyOption = "Referrer URL");
+
+		Segmentation.fillTitle(titleField = "AddSegmentBySessionReferrerURL Test");
+
+		Segmentation.fillProperty(propertyField = "http://localhost:8080");
+
+		Button.clickSave();
+
+		Alert.viewSuccessMessage();
+
+		Segmentation.editSegment(entry = "AddSegmentBySessionReferrerURL Test");
+
+		Segmentation.viewSegment(propertyField = "http://localhost:8080");
 	}
 
 	@description = "This is a test for LPS-130323."
-	@ignore = "true"
 	@priority = "5"
 	test AddSegmentBySessionRequestParameters {
 		property portal.acceptance = "false";
 
-		// TODO LPS-130323 AddSegmentBySessionRequestParameters pending implementation
+		LexiconEntry.gotoAdd();
+
+		Segmentation.selectSession();
+
+		Segmentation.addProperties(propertyOption = "Request Parameters");
+
+		Segmentation.fillTitle(titleField = "AddSegmentBySessionRequestParameters Test");
+
+		Segmentation.fillProperty(
+			criterionKey = "languageId",
+			criterionValue = "en_US");
+
+		Button.clickSave();
+
+		Alert.viewSuccessMessage();
+
+		Segmentation.editSegment(entry = "AddSegmentBySessionRequestParameters Test");
+
+		Segmentation.viewSegment(
+			criterionKey = "languageId",
+			criterionValue = "en_US");
 	}
 
 	@description = "This is a test for LPS-130324."
-	@ignore = "true"
 	@priority = "5"
 	test AddSegmentBySessionSignedIn {
 		property portal.acceptance = "false";
 
-		// TODO LPS-130324 AddSegmentBySessionSignedIn pending implementation
+		LexiconEntry.gotoAdd();
+
+		Segmentation.selectSession();
+
+		Segmentation.addProperties(propertyOption = "Signed In");
+
+		Segmentation.fillTitle(titleField = "Signed In Test");
+
+		Select(
+			key_criterion = "options",
+			locator1 = "Segmentation#CRITERION_INPUT_FORM_CONTROL",
+			value1 = "FALSE");
+
+		Button.clickSave();
+
+		Alert.viewSuccessMessage();
+
+		Segmentation.editSegment(entry = "Signed In Test");
+
+		Segmentation.viewSegment(
+			key_criterion = "options",
+			propertyField = "false");
 	}
 
 	@description = "This is a test for LPS-130325."
-	@ignore = "true"
 	@priority = "5"
 	test AddSegmentBySessionURL {
 		property portal.acceptance = "false";
 
-		// TODO LPS-130325 AddSegmentBySessionURL pending implementation. This test is already created as EditSegmentUserBySessionURL, but if you are able to do it better, delete the test EditSegmentUserBySessionURL.
+		LexiconEntry.gotoAdd();
+
+		Segmentation.selectSession();
+
+		Segmentation.addProperties(propertyOption = "URL");
+
+		Segmentation.fillTitle(titleField = "AddSegmentBySessionURL Test");
+
+		Segmentation.fillProperty(propertyField = "http://localhost:8080");
+
+		Button.clickSave();
+
+		Alert.viewSuccessMessage();
+
+		Segmentation.editSegment(entry = "AddSegmentBySessionURL Test");
+
+		Segmentation.viewSegment(propertyField = "http://localhost:8080");
 	}
 
 	@description = "This is a test for LPS-130326."
-	@ignore = "true"
 	@priority = "5"
 	test AddSegmentBySessionUserAgent {
 		property portal.acceptance = "false";
 
-		// TODO LPS-130326 AddSegmentBySessionUserAgent pending implementation
+		LexiconEntry.gotoAdd();
+
+		Segmentation.selectSession();
+
+		Segmentation.addProperties(propertyOption = "URL");
+
+		Segmentation.fillTitle(titleField = "AddSegmentBySessionUserAgent Test");
+
+		Segmentation.changeCriterionInput(criterionInputOption = "Contains");
+
+		Segmentation.fillProperty(propertyField = "Chrome");
+
+		Button.clickSave();
+
+		Alert.viewSuccessMessage();
+
+		Segmentation.editSegment(entry = "AddSegmentBySessionUserAgent Test");
+
+		Segmentation.viewSegment(
+			criterionInputOption = "contains",
+			propertyField = "Chrome");
 	}
 
 	@description = "This is a test for LPS-130284."
@@ -527,7 +659,7 @@ definition {
 
 		Segmentation.fillTitle(titleField = "AddSegmentUserEmailAddressContains Test");
 
-		Segmentation.changeCriterionInputEmailAddress(criterionInputOption = "Contains");
+		Segmentation.changeCriterionInput(criterionInputOption = "Contains");
 
 		Segmentation.fillProperty(propertyField = "liferay");
 
@@ -545,7 +677,7 @@ definition {
 
 		Segmentation.fillTitle(titleField = "AddSegmentUserEmailAddressEquals Test");
 
-		Segmentation.changeCriterionInputEmailAddress(criterionInputOption = "Equals");
+		Segmentation.changeCriterionInput(criterionInputOption = "Equals");
 
 		Segmentation.fillProperty(propertyField = "liferay");
 
@@ -563,7 +695,7 @@ definition {
 
 		Segmentation.fillTitle(titleField = "AddSegmentUserEmailAddressNotContains Test");
 
-		Segmentation.changeCriterionInputEmailAddress(criterionInputOption = "Not Contains");
+		Segmentation.changeCriterionInput(criterionInputOption = "Not Contains");
 
 		Segmentation.fillProperty(propertyField = "liferay");
 
@@ -581,7 +713,7 @@ definition {
 
 		Segmentation.fillTitle(titleField = "AddSegmentUserEmailAddressNotEquals Test");
 
-		Segmentation.changeCriterionInputEmailAddress(criterionInputOption = "Not Equals");
+		Segmentation.changeCriterionInput(criterionInputOption = "Not Equals");
 
 		Segmentation.fillProperty(propertyField = "liferay");
 
@@ -662,7 +794,7 @@ definition {
 
 		Segmentation.fillTitle(titleField = "Segment View Members");
 
-		Segmentation.changeCriterionInputEmailAddress(criterionInputOption = "Contains");
+		Segmentation.changeCriterionInput(criterionInputOption = "Contains");
 
 		Segmentation.fillProperty(propertyField = "test");
 

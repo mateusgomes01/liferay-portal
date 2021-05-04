@@ -46,21 +46,81 @@ definition {
 	}
 
 	@description = "COMMERCE-5907. As a buyer, I want to be unable to add multiple SKU product to the cart directly, I want to be unable to select the quantity of the product directly and I want to be unable to check the availability of the product directly"
-	@ignore = "true"
 	@priority = "3"
 	test AssertMultipleSKUProductCannotBeDirectlyAddedToCart {
 		property portal.acceptance = "false";
 
-		// TODO COMMERCE-5907 AssertMultipleSKUProductCannotBeDirectlyAddedToCart pending implementation
+		CommerceAccelerators.initializeNewSiteViaAccelerator(siteName = "Minium");
+
+		ApplicationsMenu.gotoSite(site = "Minium");
+
+		CommerceAcceleratorsInitializer.changeProductsSorting(sortingType = "Name Ascending");
+
+		AssertElementNotPresent(
+			key_productName = "Break Fluid",
+			locator1 = "CommerceAccelerators#PRODUCT_CARD_QUANTITY_SELECTOR_SELECT_FIELD");
+
+		AssertElementNotPresent(
+			key_productName = "Break Fluid",
+			locator1 = "CommerceAccelerators#ADD_TO_CART_BUTTON");
+
+		AssertElementNotPresent(
+			key_productName = "Break Fluid",
+			locator1 = "CommerceAccelerators#PRODUCT_CARD_AVAILABILITY_LABEL");
+
+		AssertElementNotPresent(
+			key_productSKU = "MIN93016A",
+			locator1 = "CommerceEntry#PRODUCT_CARD_SKU");
 	}
 
 	@description = "COMMERCE-6160. As a buyer, I want to be able to select only the allowed quantities of a product, if set"
-	@ignore = "true"
 	@priority = "3"
 	test AssertOnlyAllowedQuantitiesAreSelectable {
 		property portal.acceptance = "false";
 
-		// TODO COMMERCE-6160 AssertOnlyAllowedQuantitiesAreSelectable pending implementation
+		CommerceAccelerators.initializeNewSiteViaAccelerator(siteName = "Minium");
+
+		CommerceNavigator.gotoPortlet(
+			category = "Product Management",
+			portlet = "Products");
+
+		CommerceNavigator.searchEntry(entryName = "U-Joint");
+
+		CommerceNavigator.gotoEntry(entryName = "U-Joint");
+
+		CommerceEntry.gotoMenuTab(menuTab = "Configuration");
+
+		AssertElementPresent(
+			key_fieldLabel = "Allowed Order Quantities",
+			locator1 = "TextInput#GENERIC_TEXT_INPUT");
+
+		Type(
+			key_fieldLabel = "Allowed Order Quantities",
+			locator1 = "TextInput#GENERIC_TEXT_INPUT",
+			value1 = "1 4 5 7 11");
+
+		Button.clickPublish();
+
+		ApplicationsMenu.gotoSite(site = "Minium");
+
+		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Account Management");
+
+		CommerceAcceleratorsInitializer.createNewAccountViaFront(
+			accountName = "Test",
+			adminEmailAddress = "test@liferay.com");
+
+		ApplicationsMenu.gotoSite(site = "Minium");
+
+		Click(
+			key_productName = "U-Joint",
+			locator1 = "CommerceAccelerators#PRODUCT_CARD_QUANTITY_SELECTOR_SELECT_FIELD");
+
+		for (var number : list "1,4,5,7,11") {
+			AssertElementPresent(
+				key_optionValue = "${number}",
+				key_productName = "U-Joint",
+				locator1 = "CommerceAccelerators#PRODUCT_CARD_QUANTITY_SELECTOR_SELECT_FIELD_OPTION_VALUE");
+		}
 	}
 
 	@description = "COMMERCE-6162. As a buyer, I want to be able to select the quantity of a product by multiple value, if set"
@@ -118,12 +178,33 @@ definition {
 	}
 
 	@description = "COMMERCE-5857. As a buyer, I want to view the product's own image if set"
-	@ignore = "true"
 	@priority = "3"
 	test AssertProductCardShowsCustomImageIfSet {
 		property portal.acceptance = "false";
 
-		// TODO COMMERCE-5857 AssertProductCardShowsCustomImageIfSet pending implementation
+		CommerceAccelerators.initializeNewSiteViaAccelerator(siteName = "Minium");
+
+		CommerceNavigator.gotoPortlet(
+			category = "Product Management",
+			portlet = "Products");
+
+		CPCommerceCatalog.newProductsEntry(
+			productCatalog = "Minium",
+			productName = "Blue T-Shirt",
+			productType = "Simple");
+
+		CommerceEntry.gotoMenuTab(menuTab = "Media");
+
+		CommerceProductImages.addProductImages(
+			imageTitles = "Blue",
+			validationImage = "true");
+
+		ApplicationsMenu.gotoSite(site = "Minium");
+
+		AssertElementPresent(
+			key_itemImage = "Commerce_Blue",
+			key_itemName = "Blue T-Shirt",
+			locator1 = "CommerceEntry#PRODUCT_CARD_CUSTOM_IMAGE");
 	}
 
 	@description = "COMMERCE-5872. As a buyer, I want to view the availability of the product, if set and configured admin-side(product available)"
@@ -191,12 +272,52 @@ definition {
 	}
 
 	@description = "COMMERCE-6318. As a buyer, I want to be able to select the quantity of a cart item up to a maximum quantity, if set"
-	@ignore = "true"
 	@priority = "3"
 	test AssertQuantityCanBeSelectedUpToAMaximumQuantitySet {
 		property portal.acceptance = "false";
 
-		// TODO COMMERCE-6318 AssertQuantityCanBeSelectedUpToAMaximumQuantitySet pending implementation
+		CommerceAccelerators.initializeNewSiteViaAccelerator(siteName = "Minium");
+
+		CommerceNavigator.gotoPortlet(
+			category = "Product Management",
+			portlet = "Products");
+
+		CommerceProducts.searchProduct(search = "U-Joint");
+
+		CommerceNavigator.gotoEntry(entryName = "U-Joint");
+
+		CommerceEntry.gotoMenuTab(menuTab = "Configuration");
+
+		Type(
+			key_fieldLabel = "Maximum Order Quantity",
+			locator1 = "TextInput#GENERIC_TEXT_INPUT",
+			value1 = "4");
+
+		Button.clickPublish();
+
+		ApplicationsMenu.gotoSite(site = "Minium");
+
+		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Account Management");
+
+		CommerceAcceleratorsInitializer.createNewAccountViaFront(
+			accountName = "Commerce Account",
+			adminEmailAddress = "test@liferay.com");
+
+		ApplicationsMenu.gotoSite(site = "Minium");
+
+		Click(
+			key_productName = "U-Joint",
+			locator1 = "CommerceAccelerators#PRODUCT_CARD_QUANTITY_SELECTOR_SELECT_FIELD");
+
+		AssertElementPresent(
+			key_optionValue = "4",
+			key_productName = "U-Joint",
+			locator1 = "CommerceAccelerators#PRODUCT_CARD_QUANTITY_SELECTOR_SELECT_FIELD_OPTION_VALUE");
+
+		AssertElementNotPresent(
+			key_optionValue = "5",
+			key_productName = "U-Joint",
+			locator1 = "CommerceAccelerators#PRODUCT_CARD_QUANTITY_SELECTOR_SELECT_FIELD_OPTION_VALUE");
 	}
 
 	@description = "COMMERCE-6161. As a buyer, I want to be able to select the quantity of a product starting from a minimum quantity, if set"
@@ -238,12 +359,31 @@ definition {
 	}
 
 	@description = "COMMERCE-5869. As a buyer, I want to be able to remove a product from a product comparison items list, by unchecking the product via checkbox"
-	@ignore = "true"
 	@priority = "3"
 	test RemoveProductFromComparisonItems {
 		property portal.acceptance = "false";
 
-		// TODO COMMERCE-5869 RemoveProductFromComparisonItems pending implementation
+		CommerceAccelerators.initializeNewSiteViaAccelerator(siteName = "Minium");
+
+		ApplicationsMenu.gotoSite(site = "Minium");
+
+		Check.checkToggleSwitch(
+			key_productName = "U-Joint",
+			locator1 = "CommerceEntry#PRODUCT_CARD_COMPARE_CHECKBOX");
+
+		Refresh();
+
+		AssertChecked.assertCheckedNotVisible(
+			key_productName = "U-Joint",
+			locator1 = "CommerceEntry#PRODUCT_CARD_COMPARE_CHECKBOX");
+
+		AssertElementPresent(locator1 = "CommerceEntry#MINI_COMPARE_ITEM_ACTIVE");
+
+		Uncheck.uncheckToggleSwitch(
+			key_productName = "U-Joint",
+			locator1 = "CommerceEntry#PRODUCT_CARD_COMPARE_CHECKBOX");
+
+		AssertElementNotPresent(locator1 = "CommerceEntry#MINI_COMPARE_ITEM_ACTIVE");
 	}
 
 	@description = "COMMERCE-5867. As a buyer, I want to be able to remove a product from my wish list, by clicking on an Add To Wish List button, if already active"
@@ -283,12 +423,44 @@ definition {
 	}
 
 	@description = "COMMERCE-6158. As a buyer, I want to see the barred list price and a discount price of a product, if set"
-	@ignore = "true"
 	@priority = "3"
 	test ViewProductCardPriceWithDiscount {
 		property portal.acceptance = "false";
 
-		// TODO COMMERCE-6158 ViewProductCardPriceWithDiscount pending implementation
+		CommerceAccelerators.initializeNewSiteViaAccelerator(siteName = "Minium");
+
+		ApplicationsMenu.gotoSite(site = "Minium");
+
+		CommerceNavigator.gotoPortlet(
+			category = "Pricing",
+			portlet = "Discounts");
+
+		Click(locator1 = "Button#PLUS");
+
+		CommerceEntry.addNewDiscountsEntry(
+			channelsEligibility = "Minium Portal",
+			discountAmount = "20",
+			discountName = "Test Discount",
+			discountTarget = "Products",
+			discountType = "Percentage");
+
+		CommerceRelations.assignSingleRelationToProductsEntry(
+			entryName = "ABS Sensor",
+			title = "Add Products");
+
+		Button.clickPublish();
+
+		ApplicationsMenu.gotoSite(site = "Minium");
+
+		CommerceAcceleratorsInitializer.changeProductsSorting(sortingType = "Name Ascending");
+
+		AssertElementPresent(
+			key_productName = "ABS Sensor",
+			locator1 = "CommerceFrontStore#PRODUCT_DETAILS_PRICE_VALUE_INACTIVE");
+
+		AssertElementPresent(
+			key_productName = "ABS Sensor",
+			locator1 = "CommerceFrontStore#PRODUCT_DETAILS_PRICE_VALUE_FINAL");
 	}
 
 	@description = "COMMERCE-6159. As a buyer, I want to see the barred list price and the sale price of a product, if a price modifier is set"

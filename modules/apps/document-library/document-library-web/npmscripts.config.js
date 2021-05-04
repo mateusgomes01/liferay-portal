@@ -14,6 +14,8 @@
 
 module.exports = {
 	build: {
-		dependencies: ['asset-taglib'],
+		bundler: {
+			ignore: ['**/document_library/js/legacy/*.js'],
+		},
 	},
 };

@@ -753,20 +753,19 @@ definition {
 
 		PortletEntry.publish();
 
-		BlogsNavigator.openToBlogEntry(
+		BlogsNavigator.openToEditEntryInSite(
 			entryTitle = "Blogs Entry with Small Image",
-			layoutName = "Blogs Page",
+			groupName = "Guest",
 			siteURLKey = "guest");
-
-		BlogsNavigator.gotoEditPG(entryTitle = "Blogs Entry with Small Image");
 
 		BlogsEntry.removeSmallImage(uploadFileName = "Document_1.jpg");
 
 		PortletEntry.publish();
 
-		Navigator.gotoPage(pageName = "Blogs Page");
-
-		BlogsNavigator.gotoEditPG(entryTitle = "Blogs Entry with Small Image");
+		BlogsNavigator.openToEditEntryInSite(
+			entryTitle = "Blogs Entry with Small Image",
+			groupName = "Guest",
+			siteURLKey = "guest");
 
 		AssertElementNotPresent(
 			key_smallImage = "Document_1.jpg",
@@ -966,9 +965,11 @@ definition {
 
 		PortletEntry.publish();
 
-		Navigator.gotoPage(pageName = "Blogs Page");
-
-		BlogsNavigator.gotoEditPG(entryTitle = "Blogs Entry Title");
+		BlogsNavigator.openToEditEntryInSite(
+			entryTitle = "Blogs Entry Title",
+			friendlyURL = "custom url 1",
+			groupName = "Guest",
+			siteURLKey = "guest");
 
 		Panel.expandPanel(panel = "Configuration");
 
@@ -1152,27 +1153,29 @@ definition {
 	@priority = "4"
 	@refactordone
 	test ShouldHaveUniqueURLForDuplicateEntry {
-		JSONBlog.addEntry(
-			entryContent = "Blogs Entry Content",
-			entrySubtitle = "Blogs Entry Subtitle",
-			entryTitle = "Blogs Entry Title");
+		var portalURL = PropsUtil.get("portal.url");
 
 		JSONBlog.addEntry(
 			entryContent = "Blogs Entry Content",
 			entrySubtitle = "Blogs Entry Subtitle",
 			entryTitle = "Blogs Entry Title");
 
-		Navigator.gotoPage(pageName = "Blogs Page");
+		JSONBlog.addEntry(
+			entryContent = "Blogs Entry Content",
+			entrySubtitle = "Blogs Entry Subtitle",
+			entryTitle = "Blogs Entry Title");
 
-		BlogsNavigator.gotoEditPG(entryTitle = "Blogs Entry Title");
+		Navigator.openSpecificURL(url = "${portalURL}/web/guest/blogs-page/-/blogs/blogs-entry-title");
 
-		Panel.expandPanel(panel = "Configuration");
+		BlogsEntry.viewEntryPG(
+			entryContent = "Blogs Entry Content",
+			entryTitle = "Blogs Entry Title");
 
-		AssertChecked(locator1 = "Radio#AUTOMATIC_URL");
+		Navigator.openSpecificURL(url = "${portalURL}/web/guest/blogs-page/-/blogs/blogs-entry-title-1");
 
-		AssertTextEquals(
-			locator1 = "TextInput#BLOGS_ENTRY_URL",
-			value1 = "blogs-entry-title-1");
+		BlogsEntry.viewEntryPG(
+			entryContent = "Blogs Entry Content",
+			entryTitle = "Blogs Entry Title");
 	}
 
 	@description = "This checks that a string that is over 255 characters in the title will be trimmed to 255."
@@ -1207,9 +1210,10 @@ definition {
 			entryContent = "Blogs Entry Content",
 			entryTitle = "Blogs Entry Title");
 
-		Navigator.gotoPage(pageName = "Blogs Page");
-
-		BlogsNavigator.gotoEditPG(entryTitle = "Blogs Entry Title");
+		BlogsNavigator.openToEditEntryInSite(
+			entryTitle = "Blogs Entry Title",
+			groupName = "Guest",
+			siteURLKey = "guest");
 
 		Panel.expandPanel(panel = "Configuration");
 

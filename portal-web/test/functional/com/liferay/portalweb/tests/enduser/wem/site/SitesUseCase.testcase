@@ -116,6 +116,8 @@ definition {
 			siteName = "Moon Rocks 101",
 			siteType = "Blank");
 
+		Navigator.gotoBack();
+
 		Site.selectPageType(
 			selectPrivatePages = "true",
 			siteTemplate = "Digital Class Room");
@@ -127,6 +129,8 @@ definition {
 			parentSiteName = "College of Agricultural Science",
 			siteName = "Moon Rocks 202",
 			siteType = "Blank");
+
+		Navigator.gotoBack();
 
 		Site.selectPageType(
 			checkPrivatePagesPropagation = "true",
@@ -768,6 +772,10 @@ definition {
 			siteDetails = "true",
 			siteName = "World Cup - Russia 2018");
 
+		ProductMenu.gotoPortlet(
+			category = "Configuration",
+			portlet = "Site Settings");
+
 		for (var tagName : list "World Cup,Russia,2018") {
 			Tag.addViaSiteCP(tagName = "${tagName}");
 		}
@@ -777,6 +785,8 @@ definition {
 			privateVirtualHosts = "true",
 			publicPageVirtualHostURL = "www.able.com",
 			publicVirtualHosts = "true");
+
+		Navigator.gotoBack();
 
 		Site.editFriendlyURLCP(siteFriendlyURLEdit = "/russia2018");
 

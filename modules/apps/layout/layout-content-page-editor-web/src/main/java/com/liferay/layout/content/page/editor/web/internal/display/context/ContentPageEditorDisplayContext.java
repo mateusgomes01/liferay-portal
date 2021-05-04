@@ -49,10 +49,12 @@ import com.liferay.item.selector.criteria.InfoItemItemSelectorReturnType;
 import com.liferay.item.selector.criteria.InfoListItemSelectorReturnType;
 import com.liferay.item.selector.criteria.URLItemSelectorReturnType;
 import com.liferay.item.selector.criteria.UUIDItemSelectorReturnType;
+import com.liferay.item.selector.criteria.VideoEmbeddableHTMLItemSelectorReturnType;
 import com.liferay.item.selector.criteria.image.criterion.ImageItemSelectorCriterion;
 import com.liferay.item.selector.criteria.info.item.criterion.InfoItemItemSelectorCriterion;
 import com.liferay.item.selector.criteria.info.item.criterion.InfoListItemSelectorCriterion;
 import com.liferay.item.selector.criteria.url.criterion.URLItemSelectorCriterion;
+import com.liferay.item.selector.criteria.video.criterion.VideoItemSelectorCriterion;
 import com.liferay.layout.admin.constants.LayoutAdminPortletKeys;
 import com.liferay.layout.content.page.editor.constants.ContentPageEditorPortletKeys;
 import com.liferay.layout.content.page.editor.sidebar.panel.ContentPageEditorSidebarPanel;
@@ -129,6 +131,7 @@ import com.liferay.portal.kernel.servlet.SessionErrors;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.Constants;
+import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.HttpUtil;
@@ -139,6 +142,7 @@ import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.PortletKeys;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.util.comparator.PortletCategoryComparator;
@@ -147,6 +151,8 @@ import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.util.PortletCategoryUtil;
 import com.liferay.portal.util.WebAppPool;
 import com.liferay.segments.constants.SegmentsExperienceConstants;
+import com.liferay.segments.model.SegmentsExperience;
+import com.liferay.segments.service.SegmentsExperienceLocalServiceUtil;
 import com.liferay.site.navigation.item.selector.SiteNavigationMenuItemSelectorReturnType;
 import com.liferay.site.navigation.item.selector.criterion.SiteNavigationMenuItemSelectorCriterion;
 import com.liferay.style.book.model.StyleBookEntry;
@@ -291,10 +297,6 @@ public class ContentPageEditorDisplayContext {
 					_resourceBundleLoader.loadResourceBundle(
 						themeDisplay.getLocale()))
 			).put(
-				"containerItemFlexEnabled",
-				_ffLayoutContentPageEditorConfiguration.
-					containerItemFlexEnabled()
-			).put(
 				"contentBrowsingEnabled",
 				_ffLayoutContentPageEditorConfiguration.contentBrowsingEnabled()
 			).put(
@@ -341,20 +343,12 @@ public class ContentPageEditorDisplayContext {
 			).put(
 				"discardDraftURL", _getDiscardDraftURL()
 			).put(
-				"displayPageItemPreviewEnabled",
-				_ffLayoutContentPageEditorConfiguration.
-					displayPageItemPreviewEnabled()
-			).put(
 				"draft",
 				() -> {
 					Layout layout = themeDisplay.getLayout();
 
 					return layout.isDraft();
 				}
-			).put(
-				"dropdownFragmentEnabled",
-				_ffLayoutContentPageEditorConfiguration.
-					dropdownFragmentEnabled()
 			).put(
 				"duplicateItemURL",
 				getFragmentEntryActionURL(
@@ -466,9 +460,6 @@ public class ContentPageEditorDisplayContext {
 			).put(
 				"layoutItemSelectorURL", _getLayoutItemSelectorURL()
 			).put(
-				"layoutMappingEnabled",
-				_ffLayoutContentPageEditorConfiguration.layoutMappingEnabled()
-			).put(
 				"layoutType", String.valueOf(_getLayoutType())
 			).put(
 				"lookAndFeelURL", _getLookAndFeelURL()
@@ -528,7 +519,7 @@ public class ContentPageEditorDisplayContext {
 				"previewPageURL",
 				getResourceURL(
 					"/layout_content_page_editor/get_page_preview",
-					!isLayoutPageTemplate())
+					isPublicLayout())
 			).put(
 				"publishURL", getPublishURL()
 			).put(
@@ -600,6 +591,8 @@ public class ContentPageEditorDisplayContext {
 				getFragmentEntryActionURL(
 					"/layout_content_page_editor/update_segments_experience")
 			).put(
+				"videoItemSelectorURL", _getVideoItemSelectorURL()
+			).put(
 				"workflowEnabled", isWorkflowEnabled()
 			).build()
 		).put(
@@ -627,7 +620,7 @@ public class ContentPageEditorDisplayContext {
 			).put(
 				"pageContents",
 				ContentUtil.getPageContentsJSONArray(
-					themeDisplay.getPlid(), httpServletRequest)
+					httpServletRequest, themeDisplay.getPlid())
 			).put(
 				"permissions",
 				HashMapBuilder.<String, Object>put(
@@ -747,7 +740,31 @@ public class ContentPageEditorDisplayContext {
 	}
 
 	protected long getSegmentsExperienceId() {
-		return SegmentsExperienceConstants.ID_DEFAULT;
+		if (_segmentsExperienceId != null) {
+			return _segmentsExperienceId;
+		}
+
+		Layout layout = themeDisplay.getLayout();
+
+		UnicodeProperties unicodeProperties =
+			layout.getTypeSettingsProperties();
+
+		// LPS-131416
+
+		long segmentsExperienceId = GetterUtil.getLong(
+			unicodeProperties.getProperty("segmentsExperienceId"),
+			SegmentsExperienceConstants.ID_DEFAULT);
+
+		_segmentsExperienceId = Optional.ofNullable(
+			SegmentsExperienceLocalServiceUtil.fetchSegmentsExperience(
+				segmentsExperienceId)
+		).map(
+			SegmentsExperience::getSegmentsExperienceId
+		).orElse(
+			SegmentsExperienceConstants.ID_DEFAULT
+		);
+
+		return _segmentsExperienceId;
 	}
 
 	protected List<Map<String, Object>> getSidebarPanels(int layoutType) {
@@ -798,18 +815,10 @@ public class ContentPageEditorDisplayContext {
 		return _sidebarPanels;
 	}
 
-	protected boolean isLayoutPageTemplate() {
+	protected boolean isPublicLayout() {
 		Layout publishedLayout = _getPublishedLayout();
 
-		LayoutPageTemplateEntry layoutPageTemplateEntry =
-			LayoutPageTemplateEntryLocalServiceUtil.
-				fetchLayoutPageTemplateEntryByPlid(publishedLayout.getPlid());
-
-		if (layoutPageTemplateEntry != null) {
-			return true;
-		}
-
-		return false;
+		return !publishedLayout.isPrivateLayout();
 	}
 
 	protected final HttpServletRequest httpServletRequest;
@@ -2153,6 +2162,21 @@ public class ContentPageEditorDisplayContext {
 		return _urlItemSelectorCriterion;
 	}
 
+	private String _getVideoItemSelectorURL() {
+		VideoItemSelectorCriterion videoItemSelectorCriterion =
+			new VideoItemSelectorCriterion();
+
+		videoItemSelectorCriterion.setDesiredItemSelectorReturnTypes(
+			new VideoEmbeddableHTMLItemSelectorReturnType());
+
+		PortletURL itemSelectorURL = _itemSelector.getItemSelectorURL(
+			RequestBackedPortletURLFactoryUtil.create(httpServletRequest),
+			_renderResponse.getNamespace() + "selectVideo",
+			videoItemSelectorCriterion);
+
+		return itemSelectorURL.toString();
+	}
+
 	private List<Map<String, Object>> _getWidgetCategories(
 		PortletCategory portletCategory) {
 
@@ -2357,6 +2381,7 @@ public class ContentPageEditorDisplayContext {
 	private String _redirect;
 	private final RenderResponse _renderResponse;
 	private final ResourceBundleLoader _resourceBundleLoader;
+	private Long _segmentsExperienceId;
 	private List<Map<String, Object>> _sidebarPanels;
 	private ItemSelectorCriterion _urlItemSelectorCriterion;
 

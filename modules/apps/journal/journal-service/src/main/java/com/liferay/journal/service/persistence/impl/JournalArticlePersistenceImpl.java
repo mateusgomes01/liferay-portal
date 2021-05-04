@@ -32676,11 +32676,21 @@ public class JournalArticlePersistenceImpl
 				continue;
 			}
 
-			if (entityCache.getResult(
-					JournalArticleImpl.class, journalArticle.getPrimaryKey()) ==
-						null) {
+			JournalArticle cachedJournalArticle =
+				(JournalArticle)entityCache.getResult(
+					JournalArticleImpl.class, journalArticle.getPrimaryKey());
 
+			if (cachedJournalArticle == null) {
 				cacheResult(journalArticle);
+			}
+			else {
+				JournalArticleModelImpl journalArticleModelImpl =
+					(JournalArticleModelImpl)journalArticle;
+				JournalArticleModelImpl cachedJournalArticleModelImpl =
+					(JournalArticleModelImpl)cachedJournalArticle;
+
+				journalArticleModelImpl.setDocument(
+					cachedJournalArticleModelImpl.getDocument());
 			}
 		}
 	}
@@ -33401,7 +33411,6 @@ public class JournalArticlePersistenceImpl
 		ctStrictColumnNames.add("articleId");
 		ctStrictColumnNames.add("version");
 		ctStrictColumnNames.add("urlTitle");
-		ctStrictColumnNames.add("content");
 		ctStrictColumnNames.add("DDMStructureKey");
 		ctStrictColumnNames.add("DDMTemplateKey");
 		ctStrictColumnNames.add("defaultLanguageId");

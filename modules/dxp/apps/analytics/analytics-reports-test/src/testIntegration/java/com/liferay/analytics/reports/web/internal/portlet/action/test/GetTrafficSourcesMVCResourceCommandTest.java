@@ -43,7 +43,6 @@ import com.liferay.portal.kernel.test.util.GroupTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.util.HashMapBuilder;
-import com.liferay.portal.kernel.util.HashMapDictionary;
 import com.liferay.portal.kernel.util.Http;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.Portal;
@@ -57,7 +56,6 @@ import com.liferay.portal.util.PrefsPropsImpl;
 
 import java.io.ByteArrayOutputStream;
 
-import java.util.Dictionary;
 import java.util.Objects;
 import java.util.ResourceBundle;
 
@@ -162,10 +160,6 @@ public class GetTrafficSourcesMVCResourceCommandTest {
 					).toString()
 				).build()));
 
-		Dictionary<String, Object> properties = new HashMapDictionary<>();
-
-		properties.put("trafficSourcesEnabled", true);
-
 		try {
 			MockContextUtil.testWithMockContext(
 				MockContextUtil.MockContext.builder(
@@ -194,24 +188,24 @@ public class GetTrafficSourcesMVCResourceCommandTest {
 							mockLiferayResourceResponse.
 								getPortletOutputStream();
 
-					JSONObject jsonObject = JSONFactoryUtil.createJSONObject(
+					JSONObject jsonObject1 = JSONFactoryUtil.createJSONObject(
 						new String(byteArrayOutputStream.toByteArray()));
 
-					JSONArray jsonArray = jsonObject.getJSONArray(
+					JSONArray jsonArray = jsonObject1.getJSONArray(
 						"trafficSources");
 
 					Assert.assertEquals(5, jsonArray.length());
 
-					JSONObject jsonObject1 = jsonArray.getJSONObject(0);
+					JSONObject jsonObject2 = jsonArray.getJSONObject(0);
 
-					Assert.assertEquals("organic", jsonObject1.get("name"));
+					Assert.assertEquals("organic", jsonObject2.get("name"));
 					Assert.assertEquals(
-						89.20D, Double.valueOf(jsonObject1.getString("share")),
+						89.20D, Double.valueOf(jsonObject2.getString("share")),
 						0.0);
-					Assert.assertEquals(3192, jsonObject1.get("value"));
+					Assert.assertEquals(3192, jsonObject2.get("value"));
 
 					JSONArray countryKeywordsJSONArray =
-						(JSONArray)jsonObject1.get("countryKeywords");
+						(JSONArray)jsonObject2.get("countryKeywords");
 
 					Assert.assertEquals(
 						JSONUtil.put(
@@ -235,13 +229,13 @@ public class GetTrafficSourcesMVCResourceCommandTest {
 						).toString(),
 						countryKeywordsJSONArray.toString());
 
-					JSONObject jsonObject2 = jsonArray.getJSONObject(1);
+					JSONObject jsonObject3 = jsonArray.getJSONObject(1);
 
-					Assert.assertEquals("social", jsonObject2.get("name"));
-					Assert.assertEquals(385, jsonObject2.getInt("value"));
+					Assert.assertEquals("social", jsonObject3.get("name"));
+					Assert.assertEquals(385, jsonObject3.getInt("value"));
 
 					JSONArray referringSocialMediaJSONArray =
-						jsonObject2.getJSONArray("referringSocialMedia");
+						jsonObject3.getJSONArray("referringSocialMedia");
 
 					JSONObject referringSocialMediaJSONObject =
 						referringSocialMediaJSONArray.getJSONObject(0);
@@ -252,13 +246,13 @@ public class GetTrafficSourcesMVCResourceCommandTest {
 						385,
 						referringSocialMediaJSONObject.get("trafficAmount"));
 
-					JSONObject jsonObject3 = jsonArray.getJSONObject(2);
+					JSONObject jsonObject4 = jsonArray.getJSONObject(2);
 
-					Assert.assertEquals("referral", jsonObject3.get("name"));
-					Assert.assertEquals(2L, jsonObject3.getInt("value"));
+					Assert.assertEquals("referral", jsonObject4.get("name"));
+					Assert.assertEquals(2L, jsonObject4.getInt("value"));
 
 					JSONArray referringDomainsJSONArray =
-						jsonObject3.getJSONArray("referringDomains");
+						jsonObject4.getJSONArray("referringDomains");
 
 					JSONObject referringDomainsJSONObject =
 						referringDomainsJSONArray.getJSONObject(0);
@@ -268,7 +262,7 @@ public class GetTrafficSourcesMVCResourceCommandTest {
 						referringDomainsJSONObject.get("url"));
 
 					JSONArray referringPagesJSONArray =
-						jsonObject3.getJSONArray("referringPages");
+						jsonObject4.getJSONArray("referringPages");
 
 					JSONObject referringPagesJSONObject =
 						referringPagesJSONArray.getJSONObject(0);
@@ -277,15 +271,15 @@ public class GetTrafficSourcesMVCResourceCommandTest {
 						"https://slickdeals.net/credit-card-offers/",
 						referringPagesJSONObject.get("url"));
 
-					JSONObject jsonObject4 = jsonArray.getJSONObject(3);
+					JSONObject jsonObject5 = jsonArray.getJSONObject(3);
 
-					Assert.assertEquals("paid", jsonObject4.get("name"));
-					Assert.assertEquals(0, jsonObject4.getInt("value"));
-
-					JSONObject jsonObject5 = jsonArray.getJSONObject(4);
-
-					Assert.assertEquals("direct", jsonObject5.get("name"));
+					Assert.assertEquals("paid", jsonObject5.get("name"));
 					Assert.assertEquals(0, jsonObject5.getInt("value"));
+
+					JSONObject jsonObject6 = jsonArray.getJSONObject(4);
+
+					Assert.assertEquals("direct", jsonObject6.get("name"));
+					Assert.assertEquals(0, jsonObject6.getInt("value"));
 				});
 		}
 		finally {

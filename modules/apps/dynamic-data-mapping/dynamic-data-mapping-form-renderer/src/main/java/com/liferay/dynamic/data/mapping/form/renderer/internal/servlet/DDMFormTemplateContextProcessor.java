@@ -234,6 +234,9 @@ public class DDMFormTemplateContextProcessor {
 	}
 
 	protected void process() {
+		_ddmFormLayout.setNextPage(_jsonObject.getInt("nextPage"));
+		_ddmFormLayout.setPreviousPage(_jsonObject.getInt("previousPage"));
+
 		traversePages(_jsonObject.getJSONArray("pages"));
 	}
 

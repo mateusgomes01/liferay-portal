@@ -42,10 +42,14 @@
 	th:last-child,
 	td + td,
 	th + th {
-		padding-right: 3rem;
+		padding-right: 1rem;
 	}
 
 	th.table-head-title .title {
 		line-height: 24px;
 	}
+}
+
+.due-date-popover {
+	max-width: 20rem;
 }

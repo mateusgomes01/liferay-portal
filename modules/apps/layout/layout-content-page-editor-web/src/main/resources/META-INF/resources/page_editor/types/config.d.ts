@@ -78,8 +78,6 @@ export interface Config {
 		}>;
 	}>;
 
-	containerItemFlexEnabled: boolean;
-
 	contentBrowsingEnabled: boolean;
 
 	defaultEditorConfigurations: Record<
@@ -100,9 +98,7 @@ export interface Config {
 	deleteSegmentsExperienceURL: string;
 	discardDraftRedirectURL: string;
 	discardDraftURL: string;
-	displayPageItemPreviewEnabled: boolean;
 	draft: boolean;
-	dropdownFragmentEnabled: boolean;
 	duplicateItemURL: string;
 	duplicateSegmentsExperienceURL: string;
 	editFragmentEntryLinkCommentURL: string;
@@ -135,7 +131,6 @@ export interface Config {
 	infoItemSelectorURL: string;
 	layoutConversionWarningMessages: string[] | null;
 	layoutItemSelectorURL: String;
-	layoutMappingEnabled: boolean;
 	layoutType: LayoutTypes[keyof LayoutTypes];
 	lookAndFeelURL: string;
 	mappingFieldsURL: string;
@@ -198,5 +193,6 @@ export interface Config {
 	updateRowColumnsURL: string;
 	updateSegmentsExperiencePriorityURL: string;
 	updateSegmentsExperienceURL: string;
+	videoItemSelectorURL: string;
 	workflowEnabled: boolean;
 }

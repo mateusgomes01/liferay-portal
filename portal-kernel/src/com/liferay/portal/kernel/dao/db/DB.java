@@ -14,6 +14,8 @@
 
 package com.liferay.portal.kernel.dao.db;
 
+import com.liferay.petra.function.UnsafeConsumer;
+
 import java.io.IOException;
 
 import java.sql.Connection;
@@ -135,6 +137,9 @@ public interface DB {
 	public boolean isSupportsStringCaseSensitiveQuery();
 
 	public boolean isSupportsUpdateWithInnerJoin();
+
+	public void process(UnsafeConsumer<Long, Exception> unsafeConsumer)
+		throws Exception;
 
 	public default void runSQL(Connection con, DBTypeToSQLMap dbTypeToSQLMap)
 		throws IOException, SQLException {

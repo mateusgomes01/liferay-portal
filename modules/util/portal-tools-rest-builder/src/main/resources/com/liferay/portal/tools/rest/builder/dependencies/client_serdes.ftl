@@ -162,11 +162,6 @@ public class ${schemaName}SerDes {
 
 		Map<String, String> map = new TreeMap<>();
 
-		<#assign
-			enumSchemas = freeMarkerTool.getDTOEnumSchemas(openAPIYAML, schema)
-			properties = freeMarkerTool.getDTOProperties(configYAML, openAPIYAML, schema)
-		/>
-
 		<#list properties?keys as propertyName>
 			<#assign propertyType = properties[propertyName] />
 

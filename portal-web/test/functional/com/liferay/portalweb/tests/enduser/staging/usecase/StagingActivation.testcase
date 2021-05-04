@@ -11,8 +11,6 @@ definition {
 		User.firstLoginPG();
 
 		JSONGroup.addGroup(groupName = "Site Name");
-
-		SitePages.openPagesAdmin(siteURLKey = "Site Name");
 	}
 
 	tearDown {
@@ -32,9 +30,7 @@ definition {
 			groupName = "Site Name",
 			layoutName = "Staging Test Page");
 
-		Staging.openStagingAdmin(siteURLKey = "site-name");
-
-		Staging.activateStagingCP(siteName = "Site Name");
+		JSONStaging.enableLocalStaging(groupName = "Site Name");
 
 		JSONLayout.addWidgetToPublicLayout(
 			groupName = "Site Name-staging",
@@ -68,10 +64,9 @@ definition {
 		property portal.acceptance = "true";
 		property test.name.skip.portal.instance = "StagingActivation#CheckPublicationSummaryRemote";
 
-		Staging.remoteStagingSetUp(
-			remotePort = "9080",
-			remoteStaging = "true",
-			siteName = "Site Name");
+		Staging.remoteStagingSetUpViaJson(
+			groupName = "Site Name",
+			remotePort = "9080");
 
 		JSONLayout.addPublicLayout(
 			groupName = "Site Name",
@@ -93,6 +88,7 @@ definition {
 	}
 
 	@priority = "4"
+	@uitest
 	test DeleteRecycleBinOnStagingActivation {
 		property portal.acceptance = "true";
 

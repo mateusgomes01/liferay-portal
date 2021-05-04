@@ -366,17 +366,39 @@ public class ${entity.name}PersistenceImpl extends BasePersistenceImpl<${entity.
 				}
 			</#if>
 
-			if (${entityCache}.getResult(
-				<#if serviceBuilder.isVersionLTE_7_2_0()>
-					${entityCacheEnabled},
-				</#if>
-				${entity.name}Impl.class, ${entity.variableName}.getPrimaryKey()) == null) {
-				cacheResult(${entity.variableName});
-			}
-			<#if serviceBuilder.isVersionLTE_7_2_0()>
-				else {
-					${entity.variableName}.resetOriginalValues();
+			<#if (cacheFields?size > 0)>
+				${entity.name} cached${entity.name} = (${entity.name})${entityCache}.getResult(
+					<#if serviceBuilder.isVersionLTE_7_2_0()>
+						${entityCacheEnabled},
+					</#if>
+					${entity.name}Impl.class, ${entity.variableName}.getPrimaryKey());
+
+				if (cached${entity.name} == null) {
+					cacheResult(${entity.variableName});
 				}
+				else {
+					${entity.name}ModelImpl ${entity.variableName}ModelImpl = (${entity.name}ModelImpl)${entity.variableName};
+					${entity.name}ModelImpl cached${entity.name}ModelImpl = (${entity.name}ModelImpl)cached${entity.name};
+
+					<#list cacheFields as cacheField>
+						<#assign methodName = serviceBuilder.getCacheFieldMethodName(cacheField) />
+
+						${entity.variableName}ModelImpl.set${methodName}(cached${entity.name}ModelImpl.get${methodName}());
+					</#list>
+				}
+			<#else>
+				if (${entityCache}.getResult(
+					<#if serviceBuilder.isVersionLTE_7_2_0()>
+						${entityCacheEnabled},
+					</#if>
+					${entity.name}Impl.class, ${entity.variableName}.getPrimaryKey()) == null) {
+					cacheResult(${entity.variableName});
+				}
+				<#if serviceBuilder.isVersionLTE_7_2_0()>
+					else {
+						${entity.variableName}.resetOriginalValues();
+					}
+				</#if>
 			</#if>
 		}
 	}

@@ -15,10 +15,12 @@
 package com.liferay.portal.dao.db;
 
 import com.liferay.counter.kernel.service.CounterLocalServiceUtil;
+import com.liferay.petra.function.UnsafeConsumer;
 import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.dao.orm.common.SQLTransformer;
+import com.liferay.portal.db.partition.DBPartitionUtil;
 import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.db.DBInspector;
@@ -159,18 +161,19 @@ public abstract class BaseDB implements DB {
 		String catalog = dbInspector.getCatalog();
 		String schema = dbInspector.getSchema();
 
-		try (ResultSet tableRS = databaseMetaData.getTables(
+		try (ResultSet tableResultSet = databaseMetaData.getTables(
 				catalog, schema, null, new String[] {"TABLE"})) {
 
-			while (tableRS.next()) {
+			while (tableResultSet.next()) {
 				String tableName = dbInspector.normalizeName(
-					tableRS.getString("TABLE_NAME"));
+					tableResultSet.getString("TABLE_NAME"));
 
-				try (ResultSet indexRS = databaseMetaData.getIndexInfo(
+				try (ResultSet indexResultSet = databaseMetaData.getIndexInfo(
 						catalog, schema, tableName, false, false)) {
 
-					while (indexRS.next()) {
-						String indexName = indexRS.getString("INDEX_NAME");
+					while (indexResultSet.next()) {
+						String indexName = indexResultSet.getString(
+							"INDEX_NAME");
 
 						if (indexName == null) {
 							continue;
@@ -185,7 +188,8 @@ public abstract class BaseDB implements DB {
 							continue;
 						}
 
-						boolean unique = !indexRS.getBoolean("NON_UNIQUE");
+						boolean unique = !indexResultSet.getBoolean(
+							"NON_UNIQUE");
 
 						indexes.add(new Index(indexName, tableName, unique));
 					}
@@ -294,6 +298,12 @@ public abstract class BaseDB implements DB {
 	@Override
 	public boolean isSupportsUpdateWithInnerJoin() {
 		return _SUPPORTS_UPDATE_WITH_INNER_JOIN;
+	}
+
+	public void process(UnsafeConsumer<Long, Exception> unsafeConsumer)
+		throws Exception {
+
+		DBPartitionUtil.forEachCompanyId(unsafeConsumer);
 	}
 
 	@Override

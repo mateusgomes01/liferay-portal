@@ -25,6 +25,7 @@ import com.liferay.portal.kernel.model.Image;
 import com.liferay.portal.kernel.portletfilerepository.PortletFileRepository;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.service.ImageLocalService;
+import com.liferay.portal.kernel.upgrade.BaseUpgradeCallable;
 import com.liferay.portal.kernel.upgrade.UpgradeException;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -37,7 +38,6 @@ import java.sql.Statement;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -71,8 +71,8 @@ public class ImageTypeContentUpgradeProcess extends UpgradeProcess {
 		sb.append("JournalArticle.articleId = JournalArticleImage.articleId ");
 		sb.append("and JournalArticle.version = JournalArticleImage.version)");
 
-		List<SaveImageFileEntryCallable> saveImageFileEntryCallables =
-			new ArrayList<>();
+		List<SaveImageFileEntryUpgradeCallable>
+			saveImageFileEntryUpgradeCallables = new ArrayList<>();
 
 		try (LoggingTimer loggingTimer = new LoggingTimer();
 			Statement statement = connection.createStatement();
@@ -90,18 +90,20 @@ public class ImageTypeContentUpgradeProcess extends UpgradeProcess {
 				long folderId = _journalArticleImageUpgradeHelper.getFolderId(
 					userId, groupId, resourcePrimKey);
 
-				SaveImageFileEntryCallable saveImageFileEntryCallable =
-					new SaveImageFileEntryCallable(
-						articleImageId, folderId, groupId, resourcePrimKey,
-						userId);
+				SaveImageFileEntryUpgradeCallable
+					saveImageFileEntryUpgradeCallable =
+						new SaveImageFileEntryUpgradeCallable(
+							articleImageId, folderId, groupId, resourcePrimKey,
+							userId);
 
-				saveImageFileEntryCallables.add(saveImageFileEntryCallable);
+				saveImageFileEntryUpgradeCallables.add(
+					saveImageFileEntryUpgradeCallable);
 			}
 
 			ExecutorService executorService = Executors.newWorkStealingPool();
 
 			List<Future<Boolean>> futures = executorService.invokeAll(
-				saveImageFileEntryCallables);
+				saveImageFileEntryUpgradeCallables);
 
 			executorService.shutdown();
 
@@ -139,9 +141,10 @@ public class ImageTypeContentUpgradeProcess extends UpgradeProcess {
 		_journalArticleImageUpgradeHelper;
 	private final PortletFileRepository _portletFileRepository;
 
-	private class SaveImageFileEntryCallable implements Callable<Boolean> {
+	private class SaveImageFileEntryUpgradeCallable
+		extends BaseUpgradeCallable<Boolean> {
 
-		public SaveImageFileEntryCallable(
+		public SaveImageFileEntryUpgradeCallable(
 			long articleImageId, long folderId, long groupId,
 			long resourcePrimaryKey, long userId) {
 
@@ -153,7 +156,7 @@ public class ImageTypeContentUpgradeProcess extends UpgradeProcess {
 		}
 
 		@Override
-		public Boolean call() throws Exception {
+		protected Boolean doCall() throws Exception {
 			String fileName = String.valueOf(_articleImageId);
 
 			FileEntry fileEntry = _portletFileRepository.fetchPortletFileEntry(

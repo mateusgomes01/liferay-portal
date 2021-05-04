@@ -23,7 +23,7 @@ import sectionAdded from 'dynamic-data-mapping-form-builder/js/components/Layout
 import * as FormSupport from '../../util/FormSupport.es';
 import {PagesVisitor} from '../../util/visitors.es';
 import {EVENT_TYPES} from '../actions/eventTypes.es';
-import {addField, deleteField} from './fieldEditableReducer.es';
+import {deleteField} from './fieldEditableReducer.es';
 
 const FIELD_TYPES = {
 	FIELDSET: 'fieldset',
@@ -165,18 +165,18 @@ export default (state, action, config) => {
 				);
 			}
 
-			const visitor = new PagesVisitor(
-				addField({
-					defaultLanguageId,
-					editingLanguageId,
-					fieldNameGenerator,
-					generateFieldNameUsingFieldLabel,
-					indexes: targetIndexes,
-					newField: sourceField,
-					pages: newPages,
-					parentFieldName: targetParentFieldName,
-				})
-			);
+			const {pages: updatedPages} = FieldSupport.addField({
+				defaultLanguageId,
+				editingLanguageId,
+				fieldNameGenerator,
+				generateFieldNameUsingFieldLabel,
+				indexes: targetIndexes,
+				newField: sourceField,
+				pages: newPages,
+				parentFieldName: targetParentFieldName,
+			});
+
+			const visitor = new PagesVisitor(updatedPages);
 
 			newPages = visitor.mapFields((field) => {
 				if (field.type != 'grid' && field.rows) {

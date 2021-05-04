@@ -14,6 +14,12 @@
 
 package com.liferay.portal.tools.sample.sql.builder;
 
+import com.liferay.account.model.AccountEntry;
+import com.liferay.account.model.AccountEntryModel;
+import com.liferay.account.model.AccountEntryUserRel;
+import com.liferay.account.model.AccountEntryUserRelModel;
+import com.liferay.account.model.impl.AccountEntryModelImpl;
+import com.liferay.account.model.impl.AccountEntryUserRelModelImpl;
 import com.liferay.asset.kernel.model.AssetCategory;
 import com.liferay.asset.kernel.model.AssetCategoryConstants;
 import com.liferay.asset.kernel.model.AssetCategoryModel;
@@ -28,26 +34,70 @@ import com.liferay.blogs.model.BlogsStatsUserModel;
 import com.liferay.blogs.model.impl.BlogsEntryModelImpl;
 import com.liferay.blogs.model.impl.BlogsStatsUserModelImpl;
 import com.liferay.blogs.social.BlogsActivityKeys;
+import com.liferay.commerce.account.constants.CommerceAccountConstants;
+import com.liferay.commerce.account.model.CommerceAccount;
+import com.liferay.commerce.constants.CommerceOrderConstants;
 import com.liferay.commerce.currency.model.CommerceCurrencyModel;
 import com.liferay.commerce.currency.model.impl.CommerceCurrencyModelImpl;
-import com.liferay.commerce.product.constants.CPPortletKeys;
+import com.liferay.commerce.inventory.model.CommerceInventoryWarehouse;
+import com.liferay.commerce.inventory.model.CommerceInventoryWarehouseItemModel;
+import com.liferay.commerce.inventory.model.CommerceInventoryWarehouseModel;
+import com.liferay.commerce.inventory.model.impl.CommerceInventoryWarehouseItemModelImpl;
+import com.liferay.commerce.inventory.model.impl.CommerceInventoryWarehouseModelImpl;
+import com.liferay.commerce.model.CommerceAddress;
+import com.liferay.commerce.model.CommerceAddressModel;
+import com.liferay.commerce.model.CommerceOrder;
+import com.liferay.commerce.model.CommerceOrderItemModel;
+import com.liferay.commerce.model.CommerceOrderModel;
+import com.liferay.commerce.model.CommerceShippingMethod;
+import com.liferay.commerce.model.CommerceShippingMethodModel;
+import com.liferay.commerce.model.impl.CommerceAddressModelImpl;
+import com.liferay.commerce.model.impl.CommerceOrderItemModelImpl;
+import com.liferay.commerce.model.impl.CommerceOrderModelImpl;
+import com.liferay.commerce.model.impl.CommerceShippingMethodModelImpl;
+import com.liferay.commerce.price.list.model.CommercePriceEntryModel;
+import com.liferay.commerce.price.list.model.CommercePriceList;
+import com.liferay.commerce.price.list.model.CommercePriceListModel;
+import com.liferay.commerce.price.list.model.impl.CommercePriceEntryModelImpl;
+import com.liferay.commerce.price.list.model.impl.CommercePriceListModelImpl;
+import com.liferay.commerce.product.model.CPAttachmentFileEntryModel;
 import com.liferay.commerce.product.model.CPDefinition;
 import com.liferay.commerce.product.model.CPDefinitionLocalizationModel;
 import com.liferay.commerce.product.model.CPDefinitionModel;
+import com.liferay.commerce.product.model.CPDefinitionSpecificationOptionValueModel;
 import com.liferay.commerce.product.model.CPInstanceModel;
+import com.liferay.commerce.product.model.CPOption;
+import com.liferay.commerce.product.model.CPOptionCategory;
+import com.liferay.commerce.product.model.CPOptionCategoryModel;
+import com.liferay.commerce.product.model.CPOptionModel;
+import com.liferay.commerce.product.model.CPOptionValueModel;
+import com.liferay.commerce.product.model.CPSpecificationOption;
+import com.liferay.commerce.product.model.CPSpecificationOptionModel;
 import com.liferay.commerce.product.model.CPTaxCategoryModel;
+import com.liferay.commerce.product.model.CProduct;
 import com.liferay.commerce.product.model.CProductModel;
 import com.liferay.commerce.product.model.CommerceCatalog;
 import com.liferay.commerce.product.model.CommerceCatalogModel;
 import com.liferay.commerce.product.model.CommerceChannel;
 import com.liferay.commerce.product.model.CommerceChannelModel;
+import com.liferay.commerce.product.model.CommerceChannelRelModel;
+import com.liferay.commerce.product.model.impl.CPAttachmentFileEntryModelImpl;
 import com.liferay.commerce.product.model.impl.CPDefinitionLocalizationModelImpl;
 import com.liferay.commerce.product.model.impl.CPDefinitionModelImpl;
+import com.liferay.commerce.product.model.impl.CPDefinitionSpecificationOptionValueModelImpl;
 import com.liferay.commerce.product.model.impl.CPInstanceModelImpl;
+import com.liferay.commerce.product.model.impl.CPOptionCategoryModelImpl;
+import com.liferay.commerce.product.model.impl.CPOptionModelImpl;
+import com.liferay.commerce.product.model.impl.CPOptionValueModelImpl;
+import com.liferay.commerce.product.model.impl.CPSpecificationOptionModelImpl;
 import com.liferay.commerce.product.model.impl.CPTaxCategoryModelImpl;
 import com.liferay.commerce.product.model.impl.CProductModelImpl;
 import com.liferay.commerce.product.model.impl.CommerceCatalogModelImpl;
 import com.liferay.commerce.product.model.impl.CommerceChannelModelImpl;
+import com.liferay.commerce.product.model.impl.CommerceChannelRelModelImpl;
+import com.liferay.commerce.shipping.engine.fixed.model.CommerceShippingFixedOption;
+import com.liferay.commerce.shipping.engine.fixed.model.CommerceShippingFixedOptionModel;
+import com.liferay.commerce.shipping.engine.fixed.model.impl.CommerceShippingFixedOptionModelImpl;
 import com.liferay.counter.kernel.model.Counter;
 import com.liferay.counter.kernel.model.CounterModel;
 import com.liferay.counter.model.impl.CounterModelImpl;
@@ -90,6 +140,7 @@ import com.liferay.dynamic.data.mapping.model.DDMTemplate;
 import com.liferay.dynamic.data.mapping.model.DDMTemplateLinkModel;
 import com.liferay.dynamic.data.mapping.model.DDMTemplateModel;
 import com.liferay.dynamic.data.mapping.model.DDMTemplateVersionModel;
+import com.liferay.dynamic.data.mapping.model.impl.DDMFieldAttributeImpl;
 import com.liferay.dynamic.data.mapping.model.impl.DDMFieldAttributeModelImpl;
 import com.liferay.dynamic.data.mapping.model.impl.DDMFieldModelImpl;
 import com.liferay.dynamic.data.mapping.model.impl.DDMStorageLinkModelImpl;
@@ -163,6 +214,9 @@ import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.json.JSONArray;
+import com.liferay.portal.kernel.json.JSONFactoryUtil;
+import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.metadata.RawMetadataProcessor;
@@ -173,6 +227,8 @@ import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.CompanyModel;
 import com.liferay.portal.kernel.model.ContactConstants;
 import com.liferay.portal.kernel.model.ContactModel;
+import com.liferay.portal.kernel.model.Country;
+import com.liferay.portal.kernel.model.CountryModel;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.model.GroupModel;
@@ -205,6 +261,7 @@ import com.liferay.portal.kernel.security.auth.FullNameGenerator;
 import com.liferay.portal.kernel.security.auth.FullNameGeneratorFactory;
 import com.liferay.portal.kernel.service.permission.PortletPermissionUtil;
 import com.liferay.portal.kernel.template.TemplateConstants;
+import com.liferay.portal.kernel.theme.NavItem;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.FastDateFormatFactoryUtil;
@@ -225,6 +282,7 @@ import com.liferay.portal.model.impl.AccountModelImpl;
 import com.liferay.portal.model.impl.ClassNameModelImpl;
 import com.liferay.portal.model.impl.CompanyModelImpl;
 import com.liferay.portal.model.impl.ContactModelImpl;
+import com.liferay.portal.model.impl.CountryModelImpl;
 import com.liferay.portal.model.impl.GroupModelImpl;
 import com.liferay.portal.model.impl.LayoutFriendlyURLModelImpl;
 import com.liferay.portal.model.impl.LayoutModelImpl;
@@ -256,6 +314,7 @@ import com.liferay.portlet.asset.model.impl.AssetCategoryModelImpl;
 import com.liferay.portlet.asset.model.impl.AssetEntryModelImpl;
 import com.liferay.portlet.asset.model.impl.AssetTagModelImpl;
 import com.liferay.portlet.asset.model.impl.AssetVocabularyModelImpl;
+import com.liferay.portlet.display.template.PortletDisplayTemplate;
 import com.liferay.portlet.documentlibrary.model.impl.DLFileEntryMetadataModelImpl;
 import com.liferay.portlet.documentlibrary.model.impl.DLFileEntryModelImpl;
 import com.liferay.portlet.documentlibrary.model.impl.DLFileEntryTypeModelImpl;
@@ -308,8 +367,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TimeZone;
 
 import javax.portlet.PortletPreferences;
@@ -333,6 +394,8 @@ public class DataFactory {
 		List<String> models = ModelHintsUtil.getModels();
 
 		models.add(Layout.class.getName());
+		models.add(NavItem.class.getName());
+		models.add(PortletDisplayTemplate.class.getName());
 		models.add(UserPersonalSite.class.getName());
 
 		models.add(_getMBDiscussionCombinedClassName(BlogsEntry.class));
@@ -489,8 +552,20 @@ public class DataFactory {
 		return _classNameModels.values();
 	}
 
+	public long getCommerceInventoryWarehouseClassNameId() {
+		return getClassNameId(CommerceInventoryWarehouse.class);
+	}
+
 	public long getCounterNext() {
 		return _counter.get();
+	}
+
+	public long getCPDefinitionClassNameId() {
+		return getClassNameId(CPDefinition.class);
+	}
+
+	public long getCProductClassNameId() {
+		return getClassNameId(CProduct.class);
 	}
 
 	public long getDefaultDLDDMStructureId() {
@@ -528,20 +603,23 @@ public class DataFactory {
 		return BenchmarksPropsValues.MAX_BLOGS_ENTRY_COMMENT_COUNT;
 	}
 
-	public int getMaxCommerceProductCount() {
-		return BenchmarksPropsValues.MAX_COMMERCE_PRODUCT_COUNT;
-	}
-
-	public int getMaxCommerceProductDefinitionCount() {
-		return BenchmarksPropsValues.MAX_COMMERCE_PRODUCT_DEFINITION_COUNT;
-	}
-
-	public int getMaxCommerceProductInstanceCount() {
-		return BenchmarksPropsValues.MAX_COMMERCE_PRODUCT_INSTANCE_COUNT;
-	}
-
 	public int getMaxContentLayoutCount() {
 		return BenchmarksPropsValues.MAX_CONTENT_LAYOUT_COUNT;
+	}
+
+	public int getMaxCPDefinitionAttachmentTypeImageCount() {
+		return BenchmarksPropsValues.
+			MAX_CP_DEFINITION_ATTACHMENT_TYPE_IMAGE_COUNT;
+	}
+
+	public int getMaxCPDefinitionAttachmentTypePDFCount() {
+		return BenchmarksPropsValues.
+			MAX_CP_DEFINITION_ATTACHMENT_TYPE_PDF_COUNT;
+	}
+
+	public int getMaxCPDefinitionSpecificationOptionValueCount() {
+		return BenchmarksPropsValues.
+			MAX_CP_DEFINITION_SPECIFICATION_OPTION_VALUE_COUNT;
 	}
 
 	public int getMaxDDLRecordCount() {
@@ -649,13 +727,6 @@ public class DataFactory {
 		int maxJournalArticleSize =
 			BenchmarksPropsValues.MAX_JOURNAL_ARTICLE_SIZE;
 
-		StringBundler sb = new StringBundler(6);
-
-		sb.append("<?xml version=\"1.0\"?><root available-locales=\"en_US\" ");
-		sb.append("default-locale=\"en_US\"><dynamic-element name=\"content");
-		sb.append("\" type=\"text_area\" index-type=\"keyword\" index=\"0\">");
-		sb.append("<dynamic-content language-id=\"en_US\"><![CDATA[");
-
 		if (maxJournalArticleSize <= 0) {
 			maxJournalArticleSize = 1;
 		}
@@ -666,11 +737,7 @@ public class DataFactory {
 			chars[i] = (char)(CharPool.LOWER_CASE_A + (i % 26));
 		}
 
-		sb.append(new String(chars));
-
-		sb.append("]]></dynamic-content></dynamic-element></root>");
-
-		_journalArticleContent = sb.toString();
+		_journalArticleContent = new String(chars);
 	}
 
 	public void initUserNames() throws IOException {
@@ -697,6 +764,61 @@ public class DataFactory {
 		}
 
 		unsyncBufferedReader.close();
+	}
+
+	public AccountEntryModel newAccountEntryModel(String type, int index) {
+		AccountEntryModel accountEntryModel = new AccountEntryModelImpl();
+
+		// PK fields
+
+		accountEntryModel.setAccountEntryId(_counter.get());
+
+		// Audit fields
+
+		accountEntryModel.setCompanyId(_companyId);
+		accountEntryModel.setUserId(_sampleUserId);
+		accountEntryModel.setUserName(_SAMPLE_USER_NAME);
+		accountEntryModel.setCreateDate(new Date());
+		accountEntryModel.setModifiedDate(new Date());
+
+		// Other fields
+
+		accountEntryModel.setDefaultBillingAddressId(0);
+		accountEntryModel.setDefaultShippingAddressId(0);
+		accountEntryModel.setParentAccountEntryId(0);
+		accountEntryModel.setDescription(null);
+		accountEntryModel.setDomains(null);
+		accountEntryModel.setEmailAddress(null);
+		accountEntryModel.setName("Account Entry" + index);
+		accountEntryModel.setTaxExemptionCode(null);
+		accountEntryModel.setTaxIdNumber(null);
+		accountEntryModel.setLogoId(0);
+		accountEntryModel.setType("business");
+		accountEntryModel.setStatus(0);
+
+		return accountEntryModel;
+	}
+
+	public AccountEntryUserRelModel newAccountEntryUserRelModel(
+		UserModel user, long accountEntryId) {
+
+		AccountEntryUserRelModel accountEntryUserRelModel =
+			new AccountEntryUserRelModelImpl();
+
+		// PK fields
+
+		accountEntryUserRelModel.setAccountEntryUserRelId(_counter.get());
+
+		// Audit fields
+
+		accountEntryUserRelModel.setCompanyId(_companyId);
+
+		// Other fields
+
+		accountEntryUserRelModel.setAccountEntryId(accountEntryId);
+		accountEntryUserRelModel.setAccountUserId(user.getUserId());
+
+		return accountEntryUserRelModel;
 	}
 
 	public AccountModel newAccountModel() {
@@ -1077,6 +1199,83 @@ public class DataFactory {
 		return blogsStatsUserModel;
 	}
 
+	public GroupModel newCommerceAccountEntryGroupModel(
+		AccountEntryModel accountEntryModel) {
+
+		return newGroupModel(
+			_counter.get(), getClassNameId(AccountEntry.class),
+			accountEntryModel.getAccountEntryId(), accountEntryModel.getName(),
+			GroupConstants.TYPE_SITE_PRIVATE, false);
+	}
+
+	public List<AccountEntryModel> newCommerceAccountEntryModels() {
+		List<AccountEntryModel> accountEntryModels = new ArrayList<>(
+			BenchmarksPropsValues.MAX_COMMERCE_ACCOUNT_ENTRY_COUNT);
+
+		for (int i = 1;
+			 i <= BenchmarksPropsValues.MAX_COMMERCE_ACCOUNT_ENTRY_COUNT; i++) {
+
+			accountEntryModels.add(newAccountEntryModel("business", i));
+		}
+
+		return accountEntryModels;
+	}
+
+	public CommerceAddressModel newCommerceAddressModel(
+		long accountEntryId, long countryId) {
+
+		CommerceAddressModel commerceAddressModel =
+			new CommerceAddressModelImpl();
+
+		// PK fields
+
+		commerceAddressModel.setCommerceAddressId(_counter.get());
+
+		// Group instance
+
+		commerceAddressModel.setGroupId(0);
+
+		// Audit fields
+
+		commerceAddressModel.setCompanyId(_companyId);
+		commerceAddressModel.setUserId(_sampleUserId);
+		commerceAddressModel.setUserName(_SAMPLE_USER_NAME);
+		commerceAddressModel.setCreateDate(new Date());
+		commerceAddressModel.setModifiedDate(new Date());
+
+		// Other fields
+
+		commerceAddressModel.setClassNameId(
+			getClassNameId(CommerceAccount.class));
+		commerceAddressModel.setClassPK(accountEntryId);
+		commerceAddressModel.setName("Sample Address");
+		commerceAddressModel.setDescription(null);
+		commerceAddressModel.setStreet1("123 Sample Street");
+		commerceAddressModel.setCity("Los Angeles");
+		commerceAddressModel.setZip("1234");
+		commerceAddressModel.setCountryId(countryId);
+		commerceAddressModel.setType(2);
+
+		return commerceAddressModel;
+	}
+
+	public PortletPreferencesModel
+		newCommerceB2BSiteTypePortletPreferencesModel(long ownerId) {
+
+		return newPortletPreferencesModel(
+			ownerId, PortletKeys.PREFS_OWNER_TYPE_GROUP, 0,
+			CommerceAccountConstants.SERVICE_NAME);
+	}
+
+	public PortletPreferenceValueModel
+		newCommerceB2BSiteTypePortletPreferenceValueModel(
+			PortletPreferencesModel portletPreferencesModel) {
+
+		return newPortletPreferenceValueModel(
+			portletPreferencesModel, "commerceSiteType", 0,
+			String.valueOf(CommerceAccountConstants.SITE_TYPE_B2B));
+	}
+
 	public GroupModel newCommerceCatalogGroupModel(
 		CommerceCatalogModel commerceCatalogModel) {
 
@@ -1087,7 +1286,7 @@ public class DataFactory {
 	}
 
 	public CommerceCatalogModel newCommerceCatalogModel(
-		CommerceCurrencyModel commerceCurrencyModel) {
+		CommerceCurrencyModel commerceCurrencyModel, int count) {
 
 		CommerceCatalogModel commerceCatalogModel =
 			new CommerceCatalogModelImpl();
@@ -1099,19 +1298,36 @@ public class DataFactory {
 		// Audit fields
 
 		commerceCatalogModel.setCompanyId(_companyId);
+		commerceCatalogModel.setUserId(_sampleUserId);
 		commerceCatalogModel.setUserName(_SAMPLE_USER_NAME);
 		commerceCatalogModel.setCreateDate(new Date());
 		commerceCatalogModel.setModifiedDate(new Date());
 
 		// Other fields
 
-		commerceCatalogModel.setName("Master");
+		commerceCatalogModel.setName("Master" + count);
 		commerceCatalogModel.setCommerceCurrencyCode(
 			commerceCurrencyModel.getCode());
 		commerceCatalogModel.setCatalogDefaultLanguageId("en_US");
 		commerceCatalogModel.setSystem(true);
 
 		return commerceCatalogModel;
+	}
+
+	public List<CommerceCatalogModel> newCommerceCatalogModels(
+		CommerceCurrencyModel commerceCurrencyModel) {
+
+		List<CommerceCatalogModel> commerceCatalogModels = new ArrayList<>(
+			BenchmarksPropsValues.MAX_COMMERCE_CATALOG_COUNT);
+
+		for (int i = 1; i <= BenchmarksPropsValues.MAX_COMMERCE_CATALOG_COUNT;
+			 i++) {
+
+			commerceCatalogModels.add(
+				newCommerceCatalogModel(commerceCurrencyModel, i));
+		}
+
+		return commerceCatalogModels;
 	}
 
 	public ResourcePermissionModel newCommerceCatalogResourcePermissionModel(
@@ -1132,8 +1348,27 @@ public class DataFactory {
 			commerceChannelModel.getName(), false);
 	}
 
+	public List<GroupModel> newCommerceChannelGroupModels(
+		List<CommerceChannelModel> commerceChannelModels) {
+
+		List<GroupModel> groupModels = new ArrayList<>(
+			commerceChannelModels.size());
+
+		for (CommerceChannelModel commerceChannelModel :
+				commerceChannelModels) {
+
+			groupModels.add(
+				newGroupModel(
+					_counter.get(), getClassNameId(CommerceChannel.class),
+					commerceChannelModel.getCommerceChannelId(),
+					commerceChannelModel.getName(), false));
+		}
+
+		return groupModels;
+	}
+
 	public CommerceChannelModel newCommerceChannelModel(
-		CommerceCurrencyModel commerceCurrencyModel) {
+		long groupId, CommerceCurrencyModel commerceCurrencyModel, int count) {
 
 		CommerceChannelModel commerceChannelModel =
 			new CommerceChannelModelImpl();
@@ -1152,14 +1387,59 @@ public class DataFactory {
 
 		// Other fields
 
-		commerceChannelModel.setSiteGroupId(1);
-		commerceChannelModel.setName(_SAMPLE_USER_NAME + " Channel");
+		commerceChannelModel.setSiteGroupId(groupId);
+		commerceChannelModel.setName(_SAMPLE_USER_NAME + " Channel" + count);
 		commerceChannelModel.setType("site");
 		commerceChannelModel.setTypeSettings(String.valueOf(_guestGroupId));
 		commerceChannelModel.setCommerceCurrencyCode(
 			commerceCurrencyModel.getCode());
 
 		return commerceChannelModel;
+	}
+
+	public List<CommerceChannelModel> newCommerceChannelModels(
+		List<GroupModel> groupModels,
+		CommerceCurrencyModel commerceCurrencyModel) {
+
+		List<CommerceChannelModel> commerceChannelModels = new ArrayList<>(
+			groupModels.size());
+
+		for (int i = 1; i <= groupModels.size(); i++) {
+			GroupModel groupModel = groupModels.get(i - 1);
+
+			commerceChannelModels.add(
+				newCommerceChannelModel(
+					groupModel.getGroupId(), commerceCurrencyModel, i));
+		}
+
+		return commerceChannelModels;
+	}
+
+	public CommerceChannelRelModel newCommerceChannelRelModel(
+		long classNameId, long classPK, long commerceChannelId) {
+
+		CommerceChannelRelModel commerceChannelRelModel =
+			new CommerceChannelRelModelImpl();
+
+		// PK fields
+
+		commerceChannelRelModel.setCommerceChannelRelId(_counter.get());
+
+		// Audit fields
+
+		commerceChannelRelModel.setCompanyId(_companyId);
+		commerceChannelRelModel.setUserId(_sampleUserId);
+		commerceChannelRelModel.setUserName(_SAMPLE_USER_NAME);
+		commerceChannelRelModel.setCreateDate(new Date());
+		commerceChannelRelModel.setModifiedDate(new Date());
+
+		// Other fields
+
+		commerceChannelRelModel.setClassNameId(classNameId);
+		commerceChannelRelModel.setClassPK(classPK);
+		commerceChannelRelModel.setCommerceChannelId(commerceChannelId);
+
+		return commerceChannelRelModel;
 	}
 
 	public CommerceCurrencyModel newCommerceCurrencyModel() {
@@ -1209,6 +1489,673 @@ public class DataFactory {
 		commerceCurrencyModel.setLastPublishDate(new Date());
 
 		return commerceCurrencyModel;
+	}
+
+	public List<GroupModel> newCommerceGroupModels() {
+		List<GroupModel> groupModels = new ArrayList<>(
+			BenchmarksPropsValues.MAX_COMMERCE_GROUP_COUNT);
+
+		for (int i = 1; i <= BenchmarksPropsValues.MAX_COMMERCE_GROUP_COUNT;
+			 i++) {
+
+			long id = _counter.get();
+
+			groupModels.add(
+				newGroupModel(
+					id, getClassNameId(Group.class), id, "Commerce Site " + i,
+					true));
+		}
+
+		return groupModels;
+	}
+
+	public CommerceInventoryWarehouseItemModel
+		newCommerceInventoryWarehouseItemModel(
+			CommerceInventoryWarehouseModel commerceInventoryWarehouseModel,
+			CPInstanceModel cpInstanceModel) {
+
+		CommerceInventoryWarehouseItemModel
+			commerceInventoryWarehouseItemModel =
+				new CommerceInventoryWarehouseItemModelImpl();
+
+		// PK fields
+
+		commerceInventoryWarehouseItemModel.setCommerceInventoryWarehouseItemId(
+			_counter.get());
+
+		// Audit fields
+
+		commerceInventoryWarehouseItemModel.setCompanyId(_companyId);
+		commerceInventoryWarehouseItemModel.setUserId(_sampleUserId);
+		commerceInventoryWarehouseItemModel.setUserName(_SAMPLE_USER_NAME);
+		commerceInventoryWarehouseItemModel.setCreateDate(new Date());
+		commerceInventoryWarehouseItemModel.setModifiedDate(new Date());
+
+		// Other fields
+
+		commerceInventoryWarehouseItemModel.setCommerceInventoryWarehouseId(
+			commerceInventoryWarehouseModel.getCommerceInventoryWarehouseId());
+		commerceInventoryWarehouseItemModel.setSku(cpInstanceModel.getSku());
+		commerceInventoryWarehouseItemModel.setQuantity(
+			BenchmarksPropsValues.MAX_COMMERCE_ORDER_STATUS_OPEN_COUNT);
+		commerceInventoryWarehouseItemModel.setReservedQuantity(0);
+
+		return commerceInventoryWarehouseItemModel;
+	}
+
+	public CommerceInventoryWarehouseModel newCommerceInventoryWarehouseModel(
+		int index) {
+
+		CommerceInventoryWarehouseModel commerceInventoryWarehouseModel =
+			new CommerceInventoryWarehouseModelImpl();
+
+		// PK fields
+
+		long warehouseId = _counter.get();
+
+		commerceInventoryWarehouseModel.setCommerceInventoryWarehouseId(
+			warehouseId);
+
+		// Audit fields
+
+		commerceInventoryWarehouseModel.setCompanyId(_companyId);
+		commerceInventoryWarehouseModel.setUserId(_sampleUserId);
+		commerceInventoryWarehouseModel.setUserName(_SAMPLE_USER_NAME);
+		commerceInventoryWarehouseModel.setCreateDate(new Date());
+		commerceInventoryWarehouseModel.setModifiedDate(new Date());
+
+		// Other fields
+
+		commerceInventoryWarehouseModel.setName("Warehouse " + index);
+		commerceInventoryWarehouseModel.setDescription(
+			"Description for warehouse with ID " + warehouseId);
+		commerceInventoryWarehouseModel.setActive(true);
+		commerceInventoryWarehouseModel.setStreet1("Street1");
+		commerceInventoryWarehouseModel.setStreet2("Street2");
+		commerceInventoryWarehouseModel.setStreet3("Street3");
+		commerceInventoryWarehouseModel.setCity("City");
+		commerceInventoryWarehouseModel.setZip("Zip");
+		commerceInventoryWarehouseModel.setCommerceRegionCode("CA");
+		commerceInventoryWarehouseModel.setCountryTwoLettersISOCode("US");
+		commerceInventoryWarehouseModel.setLatitude(0);
+		commerceInventoryWarehouseModel.setLongitude(0);
+		commerceInventoryWarehouseModel.setType(null);
+
+		return commerceInventoryWarehouseModel;
+	}
+
+	public List<CommerceInventoryWarehouseModel>
+		newCommerceInventoryWarehouseModels() {
+
+		List<CommerceInventoryWarehouseModel> commerceInventoryWarehouseModels =
+			new ArrayList<>(
+				BenchmarksPropsValues.MAX_COMMERCE_INVENTORY_WAREHOUSE_COUNT);
+
+		for (int i = 1;
+			 i <= BenchmarksPropsValues.MAX_COMMERCE_INVENTORY_WAREHOUSE_COUNT;
+			 i++) {
+
+			commerceInventoryWarehouseModels.add(
+				newCommerceInventoryWarehouseModel(i));
+		}
+
+		return commerceInventoryWarehouseModels;
+	}
+
+	public List<LayoutModel> newCommerceLayoutModels(long groupId)
+		throws Exception {
+
+		List<LayoutModel> layoutModels = new ArrayList<>();
+
+		JSONArray jsonArray = JSONFactoryUtil.createJSONArray(
+			StringUtil.read(getResourceInputStream("commerce_layouts.json")));
+
+		for (int i = 0; i < jsonArray.length(); i++) {
+			JSONObject jsonObject = jsonArray.getJSONObject(i);
+
+			LayoutModel layoutModel = newLayoutModel(
+				groupId,
+				StringUtil.replace(
+					StringUtil.toLowerCase(jsonObject.getString("name")),
+					CharPool.SPACE, CharPool.DASH),
+				jsonObject.getBoolean("privateLayout"),
+				jsonObject.getString("layoutTemplateId"),
+				getPortletNames(jsonObject.getJSONArray("portlets")));
+
+			layoutModels.add(layoutModel);
+
+			JSONArray subLayoutsJSONArray = jsonObject.getJSONArray(
+				"subLayouts");
+
+			if ((subLayoutsJSONArray != null) &&
+				(subLayoutsJSONArray.length() > 0)) {
+
+				for (int k = 0; k < subLayoutsJSONArray.length(); k++) {
+					JSONObject sublayoutJSONObject =
+						subLayoutsJSONArray.getJSONObject(k);
+
+					layoutModels.add(
+						newLayoutModel(
+							groupId, layoutModel.getLayoutId(),
+							StringUtil.replace(
+								StringUtil.toLowerCase(
+									sublayoutJSONObject.getString("name")),
+								CharPool.SPACE, CharPool.DASH),
+							sublayoutJSONObject.getBoolean("privateLayout"),
+							sublayoutJSONObject.getBoolean("hidden"),
+							sublayoutJSONObject.getString("layoutTemplateId"),
+							getPortletNames(
+								sublayoutJSONObject.getJSONArray("portlets"))));
+				}
+			}
+		}
+
+		return layoutModels;
+	}
+
+	public List<PortletPreferenceValueModel>
+			newCommerceLayoutPortletPreferenceValueModels(
+				List<PortletPreferencesModel> portletPreferencesModels)
+		throws Exception {
+
+		List<PortletPreferenceValueModel> portletPreferenceValueModels =
+			new ArrayList<>();
+
+		JSONArray jsonArray = JSONFactoryUtil.createJSONArray(
+			StringUtil.read(getResourceInputStream("commerce_layouts.json")));
+
+		for (int i = 0; i < jsonArray.length(); i++) {
+			JSONObject jsonObject = jsonArray.getJSONObject(i);
+
+			portletPreferenceValueModels.addAll(
+				newCommercePortletPreferenceValueModels(
+					portletPreferencesModels,
+					jsonObject.getJSONArray("portlets")));
+
+			JSONArray sublayoutsJSONArray = jsonObject.getJSONArray(
+				"subLayouts");
+
+			if (sublayoutsJSONArray != null) {
+				for (int j = 0; j < sublayoutsJSONArray.length(); j++) {
+					JSONObject sublayoutJSONObject =
+						sublayoutsJSONArray.getJSONObject(j);
+
+					portletPreferenceValueModels.addAll(
+						newCommercePortletPreferenceValueModels(
+							portletPreferencesModels,
+							sublayoutJSONObject.getJSONArray("portlets")));
+				}
+			}
+		}
+
+		portletPreferenceValueModels.addAll(
+			newCommercePortletPreferenceValueModels(
+				portletPreferencesModels,
+				JSONFactoryUtil.createJSONArray(
+					StringUtil.read(
+						getResourceInputStream(
+							"commerce_portlet_settings.json")))));
+
+		return portletPreferenceValueModels;
+	}
+
+	public CommerceOrderItemModel newCommerceOrderItemModel(
+		CommerceOrderModel commerceOrderModel, long commercePriceListId,
+		long cProductId, CPInstanceModel cpInstanceModel) {
+
+		CommerceOrderItemModel commerceOrderItemModel =
+			new CommerceOrderItemModelImpl();
+
+		// PK fields
+
+		commerceOrderItemModel.setCommerceOrderItemId(_counter.get());
+
+		// Group instance
+
+		commerceOrderItemModel.setGroupId(commerceOrderModel.getGroupId());
+
+		// Audit fields
+
+		commerceOrderItemModel.setCompanyId(_companyId);
+		commerceOrderItemModel.setUserId(_sampleUserId);
+		commerceOrderItemModel.setUserName(_SAMPLE_USER_NAME);
+		commerceOrderItemModel.setCreateDate(new Date());
+		commerceOrderItemModel.setModifiedDate(new Date());
+
+		// Other fields
+
+		commerceOrderItemModel.setBookedQuantityId(0);
+		commerceOrderItemModel.setCommerceOrderId(
+			commerceOrderModel.getCommerceOrderId());
+		commerceOrderItemModel.setCommercePriceListId(commercePriceListId);
+		commerceOrderItemModel.setCProductId(cProductId);
+		commerceOrderItemModel.setCPInstanceId(
+			cpInstanceModel.getCPInstanceId());
+		commerceOrderItemModel.setParentCommerceOrderItemId(0);
+		commerceOrderItemModel.setName("Commerce Order Item Name");
+		commerceOrderItemModel.setQuantity(1);
+		commerceOrderItemModel.setShippedQuantity(0);
+		commerceOrderItemModel.setShipSeparately(true);
+		commerceOrderItemModel.setShippable(true);
+		commerceOrderItemModel.setDiscountAmount(BigDecimal.valueOf(0));
+		commerceOrderItemModel.setDiscountPercentageLevel1(
+			BigDecimal.valueOf(0));
+		commerceOrderItemModel.setDiscountPercentageLevel2(
+			BigDecimal.valueOf(0));
+		commerceOrderItemModel.setDiscountPercentageLevel3(
+			BigDecimal.valueOf(0));
+		commerceOrderItemModel.setDiscountPercentageLevel4(
+			BigDecimal.valueOf(0));
+		commerceOrderItemModel.setDiscountPercentageLevel1WithTaxAmount(
+			BigDecimal.valueOf(0));
+		commerceOrderItemModel.setDiscountPercentageLevel2WithTaxAmount(
+			BigDecimal.valueOf(0));
+		commerceOrderItemModel.setDiscountPercentageLevel3WithTaxAmount(
+			BigDecimal.valueOf(0));
+		commerceOrderItemModel.setDiscountPercentageLevel4WithTaxAmount(
+			BigDecimal.valueOf(0));
+		commerceOrderItemModel.setDiscountWithTaxAmount(BigDecimal.valueOf(0));
+		commerceOrderItemModel.setFinalPrice(BigDecimal.valueOf(0));
+		commerceOrderItemModel.setFinalPriceWithTaxAmount(
+			BigDecimal.valueOf(0));
+		commerceOrderItemModel.setJson("[]");
+		commerceOrderItemModel.setPromoPrice(BigDecimal.valueOf(0));
+		commerceOrderItemModel.setPromoPriceWithTaxAmount(
+			BigDecimal.valueOf(0));
+		commerceOrderItemModel.setUnitPrice(BigDecimal.valueOf(0));
+		commerceOrderItemModel.setUnitPriceWithTaxAmount(BigDecimal.valueOf(0));
+		commerceOrderItemModel.setSku(cpInstanceModel.getSku());
+		commerceOrderItemModel.setDeliveryGroup(null);
+		commerceOrderItemModel.setShippingAddressId(0);
+		commerceOrderItemModel.setPrintedNote(null);
+		commerceOrderItemModel.setRequestedDeliveryDate(null);
+		commerceOrderItemModel.setManuallyAdjusted(false);
+
+		return commerceOrderItemModel;
+	}
+
+	public CommerceOrderModel newCommerceOrderModel(
+		long groupId, long commerceAccountId, long commerceCurrencyId,
+		long billingAddressId, long shippingAddressId,
+		long commerceShippingMethodId, String shippingOptionName,
+		int orderStatus) {
+
+		CommerceOrderModel commerceOrderModel = new CommerceOrderModelImpl();
+
+		// UUID
+
+		commerceOrderModel.setUuid(SequentialUUID.generate());
+
+		// PK fields
+
+		commerceOrderModel.setCommerceOrderId(_counter.get());
+
+		// Group instance
+
+		commerceOrderModel.setGroupId(groupId);
+
+		// Audit fields
+
+		commerceOrderModel.setCompanyId(_companyId);
+		commerceOrderModel.setUserId(_sampleUserId);
+		commerceOrderModel.setUserName(_SAMPLE_USER_NAME);
+		commerceOrderModel.setCreateDate(new Date());
+		commerceOrderModel.setModifiedDate(new Date());
+
+		// Other fields
+
+		commerceOrderModel.setCommerceAccountId(commerceAccountId);
+		commerceOrderModel.setCommerceCurrencyId(commerceCurrencyId);
+		commerceOrderModel.setBillingAddressId(billingAddressId);
+		commerceOrderModel.setShippingAddressId(shippingAddressId);
+		commerceOrderModel.setCommerceShippingMethodId(
+			commerceShippingMethodId);
+		commerceOrderModel.setShippingOptionName(shippingOptionName);
+		commerceOrderModel.setShippingAddressId(shippingAddressId);
+		commerceOrderModel.setSubtotal(BigDecimal.valueOf(0));
+		commerceOrderModel.setShippingAmount(BigDecimal.valueOf(0));
+		commerceOrderModel.setTotal(BigDecimal.valueOf(0));
+		commerceOrderModel.setSubtotalWithTaxAmount(BigDecimal.valueOf(0));
+		commerceOrderModel.setShippingWithTaxAmount(BigDecimal.valueOf(0));
+		commerceOrderModel.setTotalWithTaxAmount(BigDecimal.valueOf(0));
+		commerceOrderModel.setPaymentStatus(1);
+		commerceOrderModel.setOrderDate(null);
+		commerceOrderModel.setOrderStatus(orderStatus);
+		commerceOrderModel.setPrintedNote(null);
+		commerceOrderModel.setRequestedDeliveryDate(null);
+		commerceOrderModel.setStatus(0);
+		commerceOrderModel.setStatusByUserId(_sampleUserId);
+		commerceOrderModel.setStatusByUserName(_SAMPLE_USER_NAME);
+		commerceOrderModel.setStatusDate(new Date());
+
+		return commerceOrderModel;
+	}
+
+	public List<CommerceOrderModel> newCommerceOrderModels(
+		long groupId, long commerceAccountId, long commerceCurrencyId,
+		long billingAddressId, long shippingAddressId,
+		long commerceShippingMethodId, String commerceShippingOptionName,
+		int orderStatus) {
+
+		int maxCommerceOrderCount = 0;
+
+		if (orderStatus == CommerceOrderConstants.ORDER_STATUS_CANCELLED) {
+			maxCommerceOrderCount =
+				BenchmarksPropsValues.MAX_COMMERCE_ORDER_STATUS_CANCELLED_COUNT;
+
+			if (BenchmarksPropsValues.MAX_COMMERCE_GROUP_COUNT > 1) {
+				maxCommerceOrderCount =
+					maxCommerceOrderCount /
+						BenchmarksPropsValues.MAX_COMMERCE_GROUP_COUNT;
+			}
+		}
+		else if (orderStatus == CommerceOrderConstants.ORDER_STATUS_PENDING) {
+			maxCommerceOrderCount =
+				BenchmarksPropsValues.MAX_COMMERCE_ORDER_STATUS_PENDING_COUNT;
+
+			if (BenchmarksPropsValues.MAX_COMMERCE_GROUP_COUNT > 1) {
+				maxCommerceOrderCount =
+					maxCommerceOrderCount /
+						BenchmarksPropsValues.MAX_COMMERCE_GROUP_COUNT;
+			}
+		}
+		else if (orderStatus == CommerceOrderConstants.ORDER_STATUS_OPEN) {
+			maxCommerceOrderCount =
+				BenchmarksPropsValues.MAX_COMMERCE_ORDER_STATUS_OPEN_COUNT;
+		}
+
+		List<CommerceOrderModel> commerceOrderModels = new ArrayList<>(
+			maxCommerceOrderCount);
+
+		for (int i = 1; i <= maxCommerceOrderCount; i++) {
+			commerceOrderModels.add(
+				newCommerceOrderModel(
+					groupId, commerceAccountId, commerceCurrencyId,
+					billingAddressId, shippingAddressId,
+					commerceShippingMethodId, commerceShippingOptionName,
+					orderStatus));
+		}
+
+		return commerceOrderModels;
+	}
+
+	public List<PortletPreferencesModel> newCommercePortletPreferencesModels(
+			LayoutModel layoutModel)
+		throws IOException {
+
+		List<PortletPreferencesModel> portletPreferencesModels =
+			new ArrayList<>();
+
+		UnicodeProperties typeSettingsUnicodeProperties = new UnicodeProperties(
+			true);
+
+		typeSettingsUnicodeProperties.load(
+			StringUtil.replace(
+				layoutModel.getTypeSettings(), "\\n", StringPool.NEW_LINE));
+
+		Set<String> typeSettingPropertiesKeys =
+			typeSettingsUnicodeProperties.keySet();
+
+		for (String typeSettingPropertiesKey : typeSettingPropertiesKeys) {
+			if (typeSettingPropertiesKey.startsWith("column-")) {
+				String[] portletIds = StringUtil.split(
+					typeSettingsUnicodeProperties.getProperty(
+						typeSettingPropertiesKey));
+
+				for (String portletId : portletIds) {
+					portletPreferencesModels.add(
+						newPortletPreferencesModel(
+							layoutModel.getPlid(), portletId));
+				}
+			}
+		}
+
+		return portletPreferencesModels;
+	}
+
+	public CommercePriceEntryModel newCommercePriceEntryModel(
+		long commercePriceListId, String cpInstanceUuid, long cProductId) {
+
+		CommercePriceEntryModel commercePriceEntryModel =
+			new CommercePriceEntryModelImpl();
+
+		// UUID
+
+		commercePriceEntryModel.setUuid(SequentialUUID.generate());
+
+		// PK fields
+
+		commercePriceEntryModel.setCommercePriceEntryId(_counter.get());
+
+		// Audit fields
+
+		commercePriceEntryModel.setCompanyId(_companyId);
+		commercePriceEntryModel.setUserId(_sampleUserId);
+		commercePriceEntryModel.setUserName(_SAMPLE_USER_NAME);
+		commercePriceEntryModel.setCreateDate(new Date());
+		commercePriceEntryModel.setModifiedDate(new Date());
+
+		// Other fields
+
+		commercePriceEntryModel.setCommercePriceListId(commercePriceListId);
+		commercePriceEntryModel.setCPInstanceUuid(cpInstanceUuid);
+		commercePriceEntryModel.setCProductId(cProductId);
+		commercePriceEntryModel.setPrice(BigDecimal.valueOf(0));
+		commercePriceEntryModel.setPromoPrice(BigDecimal.valueOf(0));
+		commercePriceEntryModel.setDiscountDiscovery(true);
+		commercePriceEntryModel.setDisplayDate(new Date());
+		commercePriceEntryModel.setStatus(0);
+		commercePriceEntryModel.setStatusByUserId(_sampleUserId);
+		commercePriceEntryModel.setStatusByUserName(_SAMPLE_USER_NAME);
+		commercePriceEntryModel.setStatusDate(new Date());
+
+		return commercePriceEntryModel;
+	}
+
+	public CommercePriceListModel newCommercePriceListModel(
+		long groupId, long commerceCurrencyId, boolean catalogBasePriceList,
+		boolean netPrice, String type) {
+
+		CommercePriceListModel commercePriceListModel =
+			new CommercePriceListModelImpl();
+
+		// UUID
+
+		commercePriceListModel.setUuid(SequentialUUID.generate());
+
+		// PK fields
+
+		commercePriceListModel.setCommercePriceListId(_counter.get());
+
+		// Group instance
+
+		commercePriceListModel.setGroupId(groupId);
+
+		// Audit fields
+
+		commercePriceListModel.setCompanyId(_companyId);
+		commercePriceListModel.setUserId(_sampleUserId);
+		commercePriceListModel.setUserName(_SAMPLE_USER_NAME);
+		commercePriceListModel.setCreateDate(new Date());
+		commercePriceListModel.setModifiedDate(new Date());
+
+		// Other fields
+
+		commercePriceListModel.setCommerceCurrencyId(commerceCurrencyId);
+		commercePriceListModel.setParentCommercePriceListId(0);
+		commercePriceListModel.setCatalogBasePriceList(catalogBasePriceList);
+		commercePriceListModel.setNetPrice(netPrice);
+		commercePriceListModel.setType(type);
+		commercePriceListModel.setName("Price List");
+		commercePriceListModel.setPriority(0);
+		commercePriceListModel.setDisplayDate(new Date());
+		commercePriceListModel.setExpirationDate(null);
+		commercePriceListModel.setLastPublishDate(new Date());
+		commercePriceListModel.setStatus(0);
+		commercePriceListModel.setStatusByUserId(_sampleUserId);
+		commercePriceListModel.setStatusByUserName(_SAMPLE_USER_NAME);
+		commercePriceListModel.setStatusDate(new Date());
+
+		return commercePriceListModel;
+	}
+
+	public CommerceShippingFixedOptionModel newCommerceShippingFixedOptionModel(
+		long groupId, long commerceShippingMethodId) {
+
+		CommerceShippingFixedOptionModel commerceShippingFixedOptionModel =
+			new CommerceShippingFixedOptionModelImpl();
+
+		// PK fields
+
+		commerceShippingFixedOptionModel.setCommerceShippingFixedOptionId(
+			_counter.get());
+
+		// Group instance
+
+		commerceShippingFixedOptionModel.setGroupId(groupId);
+
+		// Audit fields
+
+		commerceShippingFixedOptionModel.setCompanyId(_companyId);
+		commerceShippingFixedOptionModel.setUserId(_sampleUserId);
+		commerceShippingFixedOptionModel.setUserName(_SAMPLE_USER_NAME);
+		commerceShippingFixedOptionModel.setCreateDate(new Date());
+		commerceShippingFixedOptionModel.setModifiedDate(new Date());
+
+		// Other fields
+
+		commerceShippingFixedOptionModel.setCommerceShippingMethodId(
+			commerceShippingMethodId);
+		commerceShippingFixedOptionModel.setName(
+			StringBundler.concat(
+				"<?xml version=\"1.0\" encoding=\"UTF-8\"?><root ",
+				"available-locales=\"en_US\" default-locale=\"en_US\"><Name ",
+				"language-id=\"en_US\">Standard Delivery</Name></root>"));
+		commerceShippingFixedOptionModel.setDescription(null);
+		commerceShippingFixedOptionModel.setAmount(BigDecimal.valueOf(15));
+		commerceShippingFixedOptionModel.setPriority(0);
+
+		return commerceShippingFixedOptionModel;
+	}
+
+	public CommerceShippingMethodModel newCommerceShippingMethodModel(
+		long groupId) {
+
+		CommerceShippingMethodModel commerceShippingMethodModel =
+			new CommerceShippingMethodModelImpl();
+
+		// PK fields
+
+		commerceShippingMethodModel.setCommerceShippingMethodId(_counter.get());
+
+		// Group instance
+
+		commerceShippingMethodModel.setGroupId(groupId);
+
+		// Audit fields
+
+		commerceShippingMethodModel.setCompanyId(_companyId);
+		commerceShippingMethodModel.setUserId(_sampleUserId);
+		commerceShippingMethodModel.setUserName(_SAMPLE_USER_NAME);
+		commerceShippingMethodModel.setCreateDate(new Date());
+		commerceShippingMethodModel.setModifiedDate(new Date());
+
+		// Other fields
+
+		commerceShippingMethodModel.setName(
+			StringBundler.concat(
+				"<?xml version=\"1.0\" encoding=\"UTF-8\"?><root ",
+				"available-locales=\"en_US\" default-locale=\"en_US\"><Name ",
+				"language-id=\"en_US\">Flat Rate</Name></root>"));
+		commerceShippingMethodModel.setDescription(
+			StringBundler.concat(
+				"<?xml version=\"1.0\" encoding=\"UTF-8\"?><root ",
+				"available-locales=\"en_US\" default-locale=\"en_US\">",
+				"<Description language-id=\"en_US\">Ship for a fixed price",
+				"</Description></root>"));
+		commerceShippingMethodModel.setImageId(0);
+		commerceShippingMethodModel.setEngineKey("fixed");
+		commerceShippingMethodModel.setPriority(0);
+		commerceShippingMethodModel.setActive(true);
+
+		return commerceShippingMethodModel;
+	}
+
+	public List<DDMTemplateModel>
+			newCommerceSiteNavigationPortletDDMTemplateModels(long groupId)
+		throws Exception {
+
+		List<DDMTemplateModel> ddmTemplateModels = new ArrayList<>();
+
+		JSONArray jsonArray = JSONFactoryUtil.createJSONArray(
+			StringUtil.read(
+				getResourceInputStream(
+					"commerce_theme_portlet_settings.json")));
+
+		for (int i = 0; i < jsonArray.length(); i++) {
+			JSONObject jsonObject = jsonArray.getJSONObject(i);
+
+			JSONObject portletPreferencesJSONObject = jsonObject.getJSONObject(
+				"portletPreferences");
+
+			JSONObject displayStyleJSONObject =
+				portletPreferencesJSONObject.getJSONObject("displayStyle");
+
+			String fileName = displayStyleJSONObject.getString("FileName");
+
+			ddmTemplateModels.add(
+				newDDMTemplateModel(
+					groupId, _sampleUserId,
+					DDMTemplateConstants.TEMPLATE_MODE_CREATE,
+					displayStyleJSONObject.getString("Name"),
+					StringUtil.read(getResourceInputStream(fileName)),
+					getClassNameId(NavItem.class), 0,
+					getClassNameId(PortletDisplayTemplate.class),
+					_counter.get(),
+					StringUtil.removeSubstring(fileName, ".ftl")));
+		}
+
+		return ddmTemplateModels;
+	}
+
+	public List<PortletPreferencesModel>
+			newCommerceSiteNavigationPortletPreferencesModels(
+				GroupModel groupModel)
+		throws Exception {
+
+		List<PortletPreferencesModel> portletPreferencesModels =
+			new ArrayList<>();
+
+		JSONArray jsonArray = JSONFactoryUtil.createJSONArray(
+			StringUtil.read(
+				getResourceInputStream(
+					"commerce_theme_portlet_settings.json")));
+
+		for (int i = 0; i < jsonArray.length(); i++) {
+			JSONObject jsonObject = jsonArray.getJSONObject(i);
+
+			portletPreferencesModels.add(
+				newPortletPreferencesModel(
+					groupModel.getGroupId(),
+					PortletKeys.PREFS_OWNER_TYPE_LAYOUT, 0,
+					jsonObject.getString("portletName") + "_INSTANCE_" +
+						jsonObject.getString("instanceId")));
+		}
+
+		return portletPreferencesModels;
+	}
+
+	public List<PortletPreferenceValueModel>
+			newCommerceSiteNavigationPortletPreferenceValueModels(
+				List<PortletPreferencesModel> portletPreferencesModels)
+		throws Exception {
+
+		return newCommercePortletPreferenceValueModels(
+			portletPreferencesModels,
+			JSONFactoryUtil.createJSONArray(
+				StringUtil.read(
+					getResourceInputStream(
+						"commerce_theme_portlet_settings.json"))));
 	}
 
 	public CompanyModel newCompanyModel() {
@@ -1348,6 +2295,92 @@ public class DataFactory {
 			_newCounterModel(SocialActivity.class.getName()));
 	}
 
+	public CountryModel newCountryModel() {
+		CountryModel countryModel = new CountryModelImpl();
+
+		// UUID
+
+		countryModel.setUuid(SequentialUUID.generate());
+
+		// PK fields
+
+		countryModel.setCountryId(_counter.get());
+
+		// Audit fields
+
+		countryModel.setCompanyId(_companyId);
+		countryModel.setUserId(_sampleUserId);
+		countryModel.setUserName(_SAMPLE_USER_NAME);
+		countryModel.setCreateDate(new Date());
+		countryModel.setModifiedDate(new Date());
+
+		// Other fields
+
+		countryModel.setA2("SP");
+		countryModel.setA3("SAM");
+		countryModel.setActive(true);
+		countryModel.setBillingAllowed(true);
+		countryModel.setIdd("0");
+		countryModel.setName("sample-country");
+		countryModel.setNumber("0");
+		countryModel.setShippingAllowed(true);
+
+		return countryModel;
+	}
+
+	public CPAttachmentFileEntryModel newCPAttachmentFileEntryModel(
+		long groupId, long cpDefinitionId, int index, int type) {
+
+		CPAttachmentFileEntryModel cpAttachmentFileEntryModel =
+			new CPAttachmentFileEntryModelImpl();
+
+		// UUID
+
+		cpAttachmentFileEntryModel.setUuid(SequentialUUID.generate());
+
+		// PK fields
+
+		cpAttachmentFileEntryModel.setCPAttachmentFileEntryId(_counter.get());
+
+		// Group instance
+
+		cpAttachmentFileEntryModel.setGroupId(groupId);
+
+		// Audit fields
+
+		cpAttachmentFileEntryModel.setCompanyId(_companyId);
+		cpAttachmentFileEntryModel.setUserId(_sampleUserId);
+		cpAttachmentFileEntryModel.setUserName(_SAMPLE_USER_NAME);
+		cpAttachmentFileEntryModel.setCreateDate(new Date());
+		cpAttachmentFileEntryModel.setModifiedDate(new Date());
+
+		// Other fields
+
+		cpAttachmentFileEntryModel.setClassNameId(
+			getClassNameId(CPDefinition.class));
+		cpAttachmentFileEntryModel.setClassPK(cpDefinitionId);
+		cpAttachmentFileEntryModel.setFileEntryId(_counter.get());
+		cpAttachmentFileEntryModel.setDisplayDate(null);
+		cpAttachmentFileEntryModel.setExpirationDate(null);
+
+		String title = StringBundler.concat(
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?><root available-locales",
+			"=\"en_US\" default-locale=\"en_US\"><Title language-id=\"en_US\">",
+			"Attachment file Entry  ", index, "</Title></root>");
+
+		cpAttachmentFileEntryModel.setTitle(title);
+
+		cpAttachmentFileEntryModel.setPriority(0);
+		cpAttachmentFileEntryModel.setType(type);
+		cpAttachmentFileEntryModel.setLastPublishDate(new Date());
+		cpAttachmentFileEntryModel.setStatus(0);
+		cpAttachmentFileEntryModel.setStatusByUserId(_sampleUserId);
+		cpAttachmentFileEntryModel.setStatusByUserName(_SAMPLE_USER_NAME);
+		cpAttachmentFileEntryModel.setStatusDate(new Date());
+
+		return cpAttachmentFileEntryModel;
+	}
+
 	public CPDefinitionLocalizationModel newCPDefinitionLocalizationModel(
 		CPDefinitionModel cpDefinitionModel) {
 
@@ -1384,7 +2417,7 @@ public class DataFactory {
 
 	public CPDefinitionModel newCPDefinitionModel(
 		CPTaxCategoryModel cpTaxCategoryModel, CProductModel cProductModel,
-		GroupModel commerceCatalogGroupModel, int version) {
+		int version) {
 
 		CPDefinitionModel cpDefinitionModel = new CPDefinitionModelImpl();
 
@@ -1394,13 +2427,11 @@ public class DataFactory {
 
 		// PK fields
 
-		long cpDefinitionId = _counter.get();
-
-		cpDefinitionModel.setCPDefinitionId(cpDefinitionId);
+		cpDefinitionModel.setCPDefinitionId(_counter.get());
 
 		// Group instance
 
-		cpDefinitionModel.setGroupId(commerceCatalogGroupModel.getGroupId());
+		cpDefinitionModel.setGroupId(cProductModel.getGroupId());
 
 		// Audit fields
 
@@ -1438,37 +2469,118 @@ public class DataFactory {
 		cpDefinitionModel.setSubscriptionType(null);
 		cpDefinitionModel.setSubscriptionTypeSettings(null);
 		cpDefinitionModel.setMaxSubscriptionCycles(0);
+		cpDefinitionModel.setChannelFilterEnabled(true);
 		cpDefinitionModel.setVersion(version);
 		cpDefinitionModel.setStatus(WorkflowConstants.STATUS_APPROVED);
 		cpDefinitionModel.setStatusByUserId(_sampleUserId);
 		cpDefinitionModel.setStatusByUserName(_SAMPLE_USER_NAME);
 		cpDefinitionModel.setStatusDate(new Date());
 
-		if (version ==
-				(BenchmarksPropsValues.MAX_COMMERCE_PRODUCT_DEFINITION_COUNT -
-					1)) {
-
-			cProductModel.setPublishedCPDefinitionId(cpDefinitionId);
-		}
-
 		return cpDefinitionModel;
 	}
 
 	public AssetEntryModel newCPDefinitionModelAssetEntryModel(
-		CPDefinitionModel cpDefinitionModel,
-		GroupModel commerceCatalogGroupModel) {
+		CPDefinitionModel cpDefinitionModel, long groupId) {
 
 		return newAssetEntryModel(
-			commerceCatalogGroupModel.getGroupId(), new Date(), new Date(),
-			getClassNameId(CPDefinition.class),
+			groupId, new Date(), new Date(), getClassNameId(CPDefinition.class),
 			cpDefinitionModel.getCPDefinitionId(), SequentialUUID.generate(), 0,
 			true, true, "text/plain",
 			"Definition " + cpDefinitionModel.getCPDefinitionId());
 	}
 
+	public List<CPDefinitionModel> newCPDefinitionModels(
+		CPTaxCategoryModel cpTaxCategoryModel, CProductModel cProductModel) {
+
+		List<CPDefinitionModel> cPDefinitionModels = new ArrayList<>(
+			BenchmarksPropsValues.MAX_COMMERCE_PRODUCT_DEFINITION_COUNT);
+
+		for (int i = 1;
+			 i <= BenchmarksPropsValues.MAX_COMMERCE_PRODUCT_DEFINITION_COUNT;
+			 i++) {
+
+			cPDefinitionModels.add(
+				newCPDefinitionModel(cpTaxCategoryModel, cProductModel, i));
+		}
+
+		return cPDefinitionModels;
+	}
+
+	public CPDefinitionSpecificationOptionValueModel
+		newCPDefinitionSpecificationOptionValueModel(
+			long cpDefinitionId, long cpSpecificationOptionId,
+			long cpOptionCategoryId, int index) {
+
+		CPDefinitionSpecificationOptionValueModel
+			cpDefinitionSpecificationOptionValueModel =
+				new CPDefinitionSpecificationOptionValueModelImpl();
+
+		// UUID
+
+		cpDefinitionSpecificationOptionValueModel.setUuid(
+			SequentialUUID.generate());
+
+		// PK fields
+
+		cpDefinitionSpecificationOptionValueModel.
+			setCPDefinitionSpecificationOptionValueId(_counter.get());
+
+		// Audit fields
+
+		cpDefinitionSpecificationOptionValueModel.setCompanyId(_companyId);
+		cpDefinitionSpecificationOptionValueModel.setUserId(_sampleUserId);
+		cpDefinitionSpecificationOptionValueModel.setUserName(
+			_SAMPLE_USER_NAME);
+		cpDefinitionSpecificationOptionValueModel.setCreateDate(new Date());
+		cpDefinitionSpecificationOptionValueModel.setModifiedDate(new Date());
+
+		// Other fields
+
+		cpDefinitionSpecificationOptionValueModel.setCPDefinitionId(
+			cpDefinitionId);
+		cpDefinitionSpecificationOptionValueModel.setCPSpecificationOptionId(
+			cpSpecificationOptionId);
+		cpDefinitionSpecificationOptionValueModel.setCPOptionCategoryId(
+			cpOptionCategoryId);
+		cpDefinitionSpecificationOptionValueModel.setValue(
+			StringBundler.concat(
+				"<?xml version=\"1.0\" encoding=\"UTF-8\"?><root ",
+				"available-locales=\"en_US\" default-locale=\"en_US\"><Value ",
+				"language-id=\"en_US\">Specification Option Value ", index,
+				"</Value></root>"));
+		cpDefinitionSpecificationOptionValueModel.setPriority(index - 1);
+		cpDefinitionSpecificationOptionValueModel.setLastPublishDate(null);
+
+		return cpDefinitionSpecificationOptionValueModel;
+	}
+
+	public List<CPDefinitionSpecificationOptionValueModel>
+		newCPDefinitionSpecificationOptionValueModels(
+			long cpDefinitionId, long cpSpecificationOptionId,
+			long cpOptionCategoryId, int index) {
+
+		List<CPDefinitionSpecificationOptionValueModel>
+			cpDefinitionSpecificationOptionValueModels = new ArrayList<>(
+				BenchmarksPropsValues.
+					MAX_CP_DEFINITION_SPECIFICATION_OPTION_VALUE_COUNT);
+
+		for (int i = 1;
+			 i <=
+				 BenchmarksPropsValues.
+					 MAX_CP_DEFINITION_SPECIFICATION_OPTION_VALUE_COUNT;
+			 i++) {
+
+			cpDefinitionSpecificationOptionValueModels.add(
+				newCPDefinitionSpecificationOptionValueModel(
+					cpDefinitionId, cpSpecificationOptionId, cpOptionCategoryId,
+					i));
+		}
+
+		return cpDefinitionSpecificationOptionValueModels;
+	}
+
 	public CPInstanceModel newCPInstanceModel(
-		CPDefinitionModel cpDefinitionModel,
-		GroupModel commerceCatalogGroupModel, int index) {
+		CPDefinitionModel cpDefinitionModel, int index) {
 
 		CPInstanceModel cpInstanceModel = new CPInstanceModelImpl();
 
@@ -1482,7 +2594,7 @@ public class DataFactory {
 
 		// Group instance
 
-		cpInstanceModel.setGroupId(commerceCatalogGroupModel.getGroupId());
+		cpInstanceModel.setGroupId(cpDefinitionModel.getGroupId());
 
 		// Audit fields
 
@@ -1532,9 +2644,143 @@ public class DataFactory {
 		return cpInstanceModel;
 	}
 
-	public CProductModel newCProductModel(
-		GroupModel commerceCatalogGroupModel) {
+	public List<CPInstanceModel> newCPInstanceModels(
+		CPDefinitionModel cpDefinitionModel) {
 
+		List<CPInstanceModel> cPInstanceModels = new ArrayList<>(
+			BenchmarksPropsValues.MAX_COMMERCE_PRODUCT_INSTANCE_COUNT);
+
+		for (int i = 1;
+			 i <= BenchmarksPropsValues.MAX_COMMERCE_PRODUCT_INSTANCE_COUNT;
+			 i++) {
+
+			cPInstanceModels.add(newCPInstanceModel(cpDefinitionModel, i));
+		}
+
+		return cPInstanceModels;
+	}
+
+	public CPOptionCategoryModel newCPOptionCategoryModel(int index) {
+		CPOptionCategoryModel cpOptionCategoryModel =
+			new CPOptionCategoryModelImpl();
+
+		// PK fields
+
+		long cpOptionCategoryId = _counter.get();
+
+		cpOptionCategoryModel.setCPOptionCategoryId(cpOptionCategoryId);
+
+		// Audit fields
+
+		cpOptionCategoryModel.setCompanyId(_companyId);
+		cpOptionCategoryModel.setUserId(_sampleUserId);
+		cpOptionCategoryModel.setUserName(_SAMPLE_USER_NAME);
+		cpOptionCategoryModel.setCreateDate(new Date());
+		cpOptionCategoryModel.setModifiedDate(new Date());
+
+		// Other fields
+
+		cpOptionCategoryModel.setTitle("Option Category" + index);
+		cpOptionCategoryModel.setDescription(
+			"Description for option category with ID " + cpOptionCategoryId);
+		cpOptionCategoryModel.setPriority(index - 1);
+		cpOptionCategoryModel.setKey("key" + index);
+		cpOptionCategoryModel.setLastPublishDate(null);
+
+		return cpOptionCategoryModel;
+	}
+
+	public List<CPOptionCategoryModel> newCPOptionCategoryModels() {
+		List<CPOptionCategoryModel> cpOptionCategoryModels = new ArrayList<>(
+			BenchmarksPropsValues.MAX_COMMERCE_PRODUCT_OPTION_CATEGORY_COUNT);
+
+		for (int i = 1;
+			 i <=
+				 BenchmarksPropsValues.
+					 MAX_COMMERCE_PRODUCT_OPTION_CATEGORY_COUNT;
+			 i++) {
+
+			cpOptionCategoryModels.add(newCPOptionCategoryModel(i));
+		}
+
+		return cpOptionCategoryModels;
+	}
+
+	public CPOptionModel newCPOptionModel(
+		String ddmFormFieldTypeName, int index) {
+
+		CPOptionModel cpOptionModel = new CPOptionModelImpl();
+
+		// UUID
+
+		cpOptionModel.setUuid(SequentialUUID.generate());
+
+		// PK fields
+
+		cpOptionModel.setCPOptionId(_counter.get());
+
+		// Audit fields
+
+		cpOptionModel.setCompanyId(_companyId);
+		cpOptionModel.setUserId(_sampleUserId);
+		cpOptionModel.setUserName(_SAMPLE_USER_NAME);
+		cpOptionModel.setCreateDate(new Date());
+		cpOptionModel.setModifiedDate(new Date());
+
+		// Other fields
+
+		cpOptionModel.setName(
+			StringBundler.concat(
+				"<?xml version=\"1.0\" encoding=\"UTF-8\"?><root",
+				"available-locales=\"en_US\" default-locale=\"en_US\">",
+				"<Title language-id=\"en_US\">Option Name ", index,
+				"</Title></root>"));
+		cpOptionModel.setDescription("Option Description");
+		cpOptionModel.setDDMFormFieldTypeName(ddmFormFieldTypeName);
+		cpOptionModel.setFacetable(true);
+		cpOptionModel.setRequired(true);
+		cpOptionModel.setSkuContributor(true);
+		cpOptionModel.setKey("key" + index);
+
+		return cpOptionModel;
+	}
+
+	public CPOptionValueModel newCPOptionValueModel(
+		long cpOptionId, int index) {
+
+		CPOptionValueModel cpOptionValueModel = new CPOptionValueModelImpl();
+
+		// UUID
+
+		cpOptionValueModel.setUuid(SequentialUUID.generate());
+
+		// PK fields
+
+		cpOptionValueModel.setCPOptionId(_counter.get());
+
+		// Audit fields
+
+		cpOptionValueModel.setCompanyId(_companyId);
+		cpOptionValueModel.setUserId(_sampleUserId);
+		cpOptionValueModel.setUserName(_SAMPLE_USER_NAME);
+		cpOptionValueModel.setCreateDate(new Date());
+		cpOptionValueModel.setModifiedDate(new Date());
+
+		// Other fields
+
+		cpOptionValueModel.setCPOptionId(cpOptionId);
+		cpOptionValueModel.setName(
+			StringBundler.concat(
+				"<?xml version=\"1.0\" encoding=\"UTF-8\"?><root available-",
+				"locales=\"en_US\" default-locale=\"en_US\"><Name language-id",
+				"=\"en_US\">Option Value Name ", index, "</Name></root>"));
+		cpOptionValueModel.setPriority(index - 1);
+		cpOptionValueModel.setKey("key" + index);
+
+		return cpOptionValueModel;
+	}
+
+	public CProductModel newCProductModel(long groupId) {
 		CProductModel cProductModel = new CProductModelImpl();
 
 		// UUID
@@ -1547,7 +2793,7 @@ public class DataFactory {
 
 		// Group instance
 
-		cProductModel.setGroupId(commerceCatalogGroupModel.getGroupId());
+		cProductModel.setGroupId(groupId);
 
 		// Audit fields
 
@@ -1563,6 +2809,87 @@ public class DataFactory {
 			BenchmarksPropsValues.MAX_COMMERCE_PRODUCT_DEFINITION_COUNT);
 
 		return cProductModel;
+	}
+
+	public List<CProductModel> newCProductModels(long groupId) {
+		List<CProductModel> cProductModels = new ArrayList<>(
+			BenchmarksPropsValues.MAX_COMMERCE_PRODUCT_COUNT);
+
+		int count = (int)Math.ceil(
+			BenchmarksPropsValues.MAX_COMMERCE_PRODUCT_COUNT /
+				BenchmarksPropsValues.MAX_COMMERCE_CATALOG_COUNT);
+
+		if (BenchmarksPropsValues.MAX_COMMERCE_CATALOG_COUNT >
+				BenchmarksPropsValues.MAX_COMMERCE_PRODUCT_COUNT) {
+
+			count = BenchmarksPropsValues.MAX_COMMERCE_CATALOG_COUNT;
+		}
+
+		for (int i = 1; i <= count; i++) {
+			cProductModels.add(newCProductModel(groupId));
+		}
+
+		return cProductModels;
+	}
+
+	public CPSpecificationOptionModel newCPSpecificationOptionModel(
+		long cpOptionCategoryId, int index) {
+
+		CPSpecificationOptionModel cpSpecificationOptionModel =
+			new CPSpecificationOptionModelImpl();
+
+		// PK fields
+
+		long cpSpecificationOptionId = _counter.get();
+
+		cpSpecificationOptionModel.setCPSpecificationOptionId(
+			cpSpecificationOptionId);
+
+		// Audit fields
+
+		cpSpecificationOptionModel.setCompanyId(_companyId);
+		cpSpecificationOptionModel.setUserId(_sampleUserId);
+		cpSpecificationOptionModel.setUserName(_SAMPLE_USER_NAME);
+		cpSpecificationOptionModel.setCreateDate(new Date());
+		cpSpecificationOptionModel.setModifiedDate(new Date());
+
+		// Other fields
+
+		cpSpecificationOptionModel.setCPOptionCategoryId(cpOptionCategoryId);
+		cpSpecificationOptionModel.setTitle("Specification Option " + index);
+		cpSpecificationOptionModel.setDescription(
+			"Description for specification option with ID " +
+				cpSpecificationOptionId);
+		cpSpecificationOptionModel.setFacetable(false);
+		cpSpecificationOptionModel.setKey("key" + index);
+		cpSpecificationOptionModel.setLastPublishDate(null);
+
+		return cpSpecificationOptionModel;
+	}
+
+	public List<CPSpecificationOptionModel> newCPSpecificationOptionModels(
+		List<CPOptionCategoryModel> cpOptionCategoryModels) {
+
+		List<CPSpecificationOptionModel> cpSpecificationOptionModels =
+			new ArrayList<>(
+				BenchmarksPropsValues.MAX_CP_SPECIFICATION_OPTION_COUNT);
+
+		CPOptionCategoryModel cpOptionCategoryModel = null;
+
+		for (int i = 1;
+			 i <= BenchmarksPropsValues.MAX_CP_SPECIFICATION_OPTION_COUNT;
+			 i++) {
+
+			if (cpOptionCategoryModels.size() >= i) {
+				cpOptionCategoryModel = cpOptionCategoryModels.get(i - 1);
+			}
+
+			cpSpecificationOptionModels.add(
+				newCPSpecificationOptionModel(
+					cpOptionCategoryModel.getCPOptionCategoryId(), i));
+		}
+
+		return cpSpecificationOptionModels;
 	}
 
 	public CPTaxCategoryModel newCPTaxCategoryModel() {
@@ -1760,10 +3087,10 @@ public class DataFactory {
 		StringBundler sb = new StringBundler(5);
 
 		sb.append("<?xml version=\"1.0\"?><root available-locales=\"en_US\" ");
-		sb.append("default-locale=\"en_US\"><name language-id=\"en_US\">");
+		sb.append("default-locale=\"en_US\"><Name language-id=\"en_US\">");
 		sb.append("Test DDL Record Set ");
 		sb.append(currentIndex);
-		sb.append("</name></root>");
+		sb.append("</Name></root>");
 
 		ddlRecordSetModel.setName(sb.toString());
 
@@ -1915,6 +3242,62 @@ public class DataFactory {
 		return ddmFieldAttributeModels;
 	}
 
+	public List<DDMFieldAttributeModel> newDDMFieldAttributeModels(
+		JournalArticleModel journalArticleModel,
+		List<DDMFieldModel> ddmFieldModels) {
+
+		DDMFieldModel ddmFieldModel = ddmFieldModels.get(0);
+
+		DDMFieldAttributeModel ddmFieldAttributeModel1 =
+			new DDMFieldAttributeModelImpl();
+
+		ddmFieldAttributeModel1.setFieldAttributeId(_counter.get());
+		ddmFieldAttributeModel1.setCompanyId(_companyId);
+		ddmFieldAttributeModel1.setFieldId(ddmFieldModel.getFieldId());
+		ddmFieldAttributeModel1.setStorageId(journalArticleModel.getId());
+		ddmFieldAttributeModel1.setAttributeName("availableLanguageIds");
+		ddmFieldAttributeModel1.setLanguageId(StringPool.BLANK);
+		ddmFieldAttributeModel1.setSmallAttributeValue("en_US");
+
+		DDMFieldAttributeModel ddmFieldAttributeModel2 =
+			new DDMFieldAttributeModelImpl();
+
+		ddmFieldAttributeModel2.setFieldAttributeId(_counter.get());
+		ddmFieldAttributeModel2.setCompanyId(_companyId);
+		ddmFieldAttributeModel2.setFieldId(ddmFieldModel.getFieldId());
+		ddmFieldAttributeModel2.setStorageId(journalArticleModel.getId());
+		ddmFieldAttributeModel2.setAttributeName("defaultLanguageId");
+		ddmFieldAttributeModel2.setLanguageId(StringPool.BLANK);
+		ddmFieldAttributeModel2.setSmallAttributeValue("en_US");
+
+		ddmFieldModel = ddmFieldModels.get(1);
+
+		DDMFieldAttributeModel ddmFieldAttributeModel3 =
+			new DDMFieldAttributeModelImpl();
+
+		ddmFieldAttributeModel3.setFieldAttributeId(_counter.get());
+		ddmFieldAttributeModel3.setCompanyId(_companyId);
+		ddmFieldAttributeModel3.setFieldId(ddmFieldModel.getFieldId());
+		ddmFieldAttributeModel3.setStorageId(journalArticleModel.getId());
+		ddmFieldAttributeModel3.setAttributeName(StringPool.BLANK);
+		ddmFieldAttributeModel3.setLanguageId("en_US");
+
+		if (_journalArticleContent.length() >
+				DDMFieldAttributeImpl.SMALL_ATTRIBUTE_VALUE_MAX_LENGTH) {
+
+			ddmFieldAttributeModel3.setLargeAttributeValue(
+				_journalArticleContent);
+		}
+		else {
+			ddmFieldAttributeModel3.setSmallAttributeValue(
+				_journalArticleContent);
+		}
+
+		return Arrays.asList(
+			ddmFieldAttributeModel1, ddmFieldAttributeModel2,
+			ddmFieldAttributeModel3);
+	}
+
 	public List<DDMFieldModel> newDDMFieldModels(
 		DLFileEntryModel dlFileEntryModel,
 		DDMStorageLinkModel ddmStorageLinkModel) {
@@ -1995,6 +3378,40 @@ public class DataFactory {
 		}
 
 		return ddmFieldModels;
+	}
+
+	public List<DDMFieldModel> newDDMFieldModels(
+		JournalArticleModel journalArticleModel) {
+
+		DDMFieldModel ddmFieldModel1 = new DDMFieldModelImpl();
+
+		ddmFieldModel1.setFieldId(_counter.get());
+		ddmFieldModel1.setCompanyId(_companyId);
+		ddmFieldModel1.setParentFieldId(0);
+		ddmFieldModel1.setStorageId(journalArticleModel.getId());
+		ddmFieldModel1.setStructureVersionId(
+			_defaultJournalDDMStructureVersionId);
+		ddmFieldModel1.setFieldName(StringPool.BLANK);
+		ddmFieldModel1.setFieldType(StringPool.BLANK);
+		ddmFieldModel1.setInstanceId(StringPool.BLANK);
+		ddmFieldModel1.setLocalizable(false);
+		ddmFieldModel1.setPriority(0);
+
+		DDMFieldModel ddmFieldModel2 = new DDMFieldModelImpl();
+
+		ddmFieldModel2.setFieldId(_counter.get());
+		ddmFieldModel2.setCompanyId(_companyId);
+		ddmFieldModel2.setParentFieldId(0);
+		ddmFieldModel2.setStorageId(journalArticleModel.getClassPK());
+		ddmFieldModel2.setStructureVersionId(
+			_defaultJournalDDMStructureVersionId);
+		ddmFieldModel2.setFieldName("content");
+		ddmFieldModel2.setFieldType("rich_text");
+		ddmFieldModel2.setInstanceId(StringUtil.randomId());
+		ddmFieldModel2.setLocalizable(true);
+		ddmFieldModel2.setPriority(1);
+
+		return Arrays.asList(ddmFieldModel1, ddmFieldModel2);
 	}
 
 	public DDMStorageLinkModel newDDMStorageLinkModel(
@@ -2265,6 +3682,58 @@ public class DataFactory {
 		return dlFileEntryMetadataModel;
 	}
 
+	public DLFileEntryModel newDlFileEntryModel(
+		DLFolderModel dlFolderModel, String name, String extension,
+		String mimeType) {
+
+		return newDlFileEntryModel(
+			dlFolderModel, name, extension, mimeType, _counter.get());
+	}
+
+	public DLFileEntryModel newDlFileEntryModel(
+		DLFolderModel dlFolderModel, String name, String extension,
+		String mimeType, long fileEntryId) {
+
+		DLFileEntryModel dlFileEntryModel = new DLFileEntryModelImpl();
+
+		// UUID
+
+		dlFileEntryModel.setUuid(SequentialUUID.generate());
+
+		// PK fields
+
+		dlFileEntryModel.setFileEntryId(fileEntryId);
+
+		// Group instance
+
+		dlFileEntryModel.setGroupId(dlFolderModel.getGroupId());
+
+		// Audit fields
+
+		dlFileEntryModel.setCompanyId(_companyId);
+		dlFileEntryModel.setUserId(_sampleUserId);
+		dlFileEntryModel.setUserName(_SAMPLE_USER_NAME);
+		dlFileEntryModel.setCreateDate(nextFutureDate());
+		dlFileEntryModel.setModifiedDate(nextFutureDate());
+
+		// Other fields
+
+		dlFileEntryModel.setRepositoryId(dlFolderModel.getRepositoryId());
+		dlFileEntryModel.setFolderId(dlFolderModel.getFolderId());
+		dlFileEntryModel.setName(name);
+		dlFileEntryModel.setFileName(name + "." + extension);
+		dlFileEntryModel.setExtension(extension);
+		dlFileEntryModel.setMimeType(mimeType);
+		dlFileEntryModel.setTitle(name + "." + extension);
+		dlFileEntryModel.setFileEntryTypeId(
+			DLFileEntryTypeConstants.FILE_ENTRY_TYPE_ID_BASIC_DOCUMENT);
+		dlFileEntryModel.setVersion(DLFileEntryConstants.VERSION_DEFAULT);
+		dlFileEntryModel.setSize(BenchmarksPropsValues.MAX_DL_FILE_ENTRY_SIZE);
+		dlFileEntryModel.setLastPublishDate(nextFutureDate());
+
+		return dlFileEntryModel;
+	}
+
 	public List<DLFileEntryModel> newDlFileEntryModels(
 		DLFolderModel dlFolderModel) {
 
@@ -2361,6 +3830,44 @@ public class DataFactory {
 		return dlFileVersionModel;
 	}
 
+	public DLFolderModel newDLFolderModel(
+		long groupId, long parentFolderId, String name) {
+
+		DLFolderModel dlFolderModel = new DLFolderModelImpl();
+
+		// UUID
+
+		dlFolderModel.setUuid(SequentialUUID.generate());
+
+		// PK fields
+
+		dlFolderModel.setFolderId(_counter.get());
+
+		// Group instance
+
+		dlFolderModel.setGroupId(groupId);
+
+		// Audit fields
+
+		dlFolderModel.setCompanyId(_companyId);
+		dlFolderModel.setUserId(_sampleUserId);
+		dlFolderModel.setUserName(_SAMPLE_USER_NAME);
+		dlFolderModel.setCreateDate(nextFutureDate());
+		dlFolderModel.setModifiedDate(nextFutureDate());
+
+		// Other fields
+
+		dlFolderModel.setRepositoryId(groupId);
+		dlFolderModel.setParentFolderId(parentFolderId);
+		dlFolderModel.setName(name);
+		dlFolderModel.setLastPostDate(nextFutureDate());
+		dlFolderModel.setDefaultFileEntryTypeId(_DEFAULT_DL_FILE_ENTRY_TYPE_ID);
+		dlFolderModel.setLastPublishDate(nextFutureDate());
+		dlFolderModel.setStatusDate(nextFutureDate());
+
+		return dlFolderModel;
+	}
+
 	public List<DLFolderModel> newDLFolderModels(
 		long groupId, long parentFolderId) {
 
@@ -2368,7 +3875,8 @@ public class DataFactory {
 			BenchmarksPropsValues.MAX_DL_FOLDER_COUNT);
 
 		for (int i = 1; i <= BenchmarksPropsValues.MAX_DL_FOLDER_COUNT; i++) {
-			dlFolderModels.add(newDLFolderModel(groupId, parentFolderId, i));
+			dlFolderModels.add(
+				newDLFolderModel(groupId, parentFolderId, "Test Folder " + i));
 		}
 
 		return dlFolderModels;
@@ -2494,8 +4002,7 @@ public class DataFactory {
 
 	public FriendlyURLEntryLocalizationModel
 		newFriendlyURLEntryLocalizationModel(
-			FriendlyURLEntryModel friendlyURLEntryModel,
-			BlogsEntryModel blogsEntryModel) {
+			FriendlyURLEntryModel friendlyURLEntryModel, String urlTitle) {
 
 		FriendlyURLEntryLocalizationModel friendlyURLEntryLocalizationModel =
 			new FriendlyURLEntryLocalizationModelImpl();
@@ -2521,8 +4028,7 @@ public class DataFactory {
 			friendlyURLEntryModel.getClassNameId());
 		friendlyURLEntryLocalizationModel.setClassPK(
 			friendlyURLEntryModel.getClassPK());
-		friendlyURLEntryLocalizationModel.setUrlTitle(
-			blogsEntryModel.getUrlTitle());
+		friendlyURLEntryLocalizationModel.setUrlTitle(urlTitle);
 
 		// Autogenerated fields
 
@@ -2558,7 +4064,7 @@ public class DataFactory {
 	}
 
 	public FriendlyURLEntryModel newFriendlyURLEntryModel(
-		BlogsEntryModel blogsEntryModel) {
+		long groupId, long classNameId, long classPK) {
 
 		FriendlyURLEntryModel friendlyURLEntryModel =
 			new FriendlyURLEntryModelImpl();
@@ -2573,7 +4079,7 @@ public class DataFactory {
 
 		// Group instance
 
-		friendlyURLEntryModel.setGroupId(blogsEntryModel.getGroupId());
+		friendlyURLEntryModel.setGroupId(groupId);
 
 		// Audit fields
 
@@ -2583,8 +4089,8 @@ public class DataFactory {
 
 		// Other fields
 
-		friendlyURLEntryModel.setClassNameId(getClassNameId(BlogsEntry.class));
-		friendlyURLEntryModel.setClassPK(blogsEntryModel.getEntryId());
+		friendlyURLEntryModel.setClassNameId(classNameId);
+		friendlyURLEntryModel.setClassPK(classPK);
 
 		// Autogenerated fields
 
@@ -2604,10 +4110,6 @@ public class DataFactory {
 
 		layoutModels.add(
 			newLayoutModel(groupId, "blogs", "", BlogsPortletKeys.BLOGS + ","));
-		layoutModels.add(
-			newLayoutModel(
-				groupId, "commerce_product", "",
-				CPPortletKeys.CP_CONTENT_WEB + ","));
 		layoutModels.add(
 			newLayoutModel(
 				groupId, "document_library", "",
@@ -2757,7 +4259,6 @@ public class DataFactory {
 
 		journalArticleModel.setUrlTitle(sb.toString());
 
-		journalArticleModel.setContent(_journalArticleContent);
 		journalArticleModel.setDDMStructureKey(_JOURNAL_STRUCTURE_KEY);
 		journalArticleModel.setDDMTemplateKey(_JOURNAL_STRUCTURE_KEY);
 		journalArticleModel.setDefaultLanguageId("en_US");
@@ -3055,10 +4556,16 @@ public class DataFactory {
 	}
 
 	public List<LayoutSetModel> newLayoutSetModels(long groupId) {
+		return newLayoutSetModels(groupId, "classic_WAR_classictheme");
+	}
+
+	public List<LayoutSetModel> newLayoutSetModels(
+		long groupId, String themeId) {
+
 		List<LayoutSetModel> layoutSetModels = new ArrayList<>(2);
 
-		layoutSetModels.add(newLayoutSetModel(groupId, true));
-		layoutSetModels.add(newLayoutSetModel(groupId, false));
+		layoutSetModels.add(newLayoutSetModel(groupId, true, themeId));
+		layoutSetModels.add(newLayoutSetModel(groupId, false, themeId));
 
 		return layoutSetModels;
 	}
@@ -3333,6 +4840,30 @@ public class DataFactory {
 	}
 
 	public PortletPreferencesModel newPortletPreferencesModel(
+		long ownerId, int ownerType, long plid, String portletId) {
+
+		PortletPreferencesModel portletPreferencesModel =
+			new PortletPreferencesModelImpl();
+
+		// PK fields
+
+		portletPreferencesModel.setPortletPreferencesId(_counter.get());
+
+		// Audit fields
+
+		portletPreferencesModel.setCompanyId(_companyId);
+
+		// Other fields
+
+		portletPreferencesModel.setOwnerId(ownerId);
+		portletPreferencesModel.setOwnerType(ownerType);
+		portletPreferencesModel.setPlid(plid);
+		portletPreferencesModel.setPortletId(portletId);
+
+		return portletPreferencesModel;
+	}
+
+	public PortletPreferencesModel newPortletPreferencesModel(
 		long plid, long groupId, String portletId, int currentIndex) {
 
 		if (currentIndex == 1) {
@@ -3393,26 +4924,9 @@ public class DataFactory {
 	public PortletPreferencesModel newPortletPreferencesModel(
 		long plid, String portletId) {
 
-		PortletPreferencesModel portletPreferencesModel =
-			new PortletPreferencesModelImpl();
-
-		// PK fields
-
-		portletPreferencesModel.setPortletPreferencesId(_counter.get());
-
-		// Audit fields
-
-		portletPreferencesModel.setCompanyId(_companyId);
-
-		// Other fields
-
-		portletPreferencesModel.setOwnerId(PortletKeys.PREFS_OWNER_ID_DEFAULT);
-		portletPreferencesModel.setOwnerType(
-			PortletKeys.PREFS_OWNER_TYPE_LAYOUT);
-		portletPreferencesModel.setPlid(plid);
-		portletPreferencesModel.setPortletId(portletId);
-
-		return portletPreferencesModel;
+		return newPortletPreferencesModel(
+			PortletKeys.PREFS_OWNER_ID_DEFAULT,
+			PortletKeys.PREFS_OWNER_TYPE_LAYOUT, plid, portletId);
 	}
 
 	public PortletPreferenceValueModel newPortletPreferenceValueModel(
@@ -3453,9 +4967,9 @@ public class DataFactory {
 				latestSchemaVersion.toString(), ReleaseInfo.getBuildNumber(),
 				false, ReleaseConstants.TEST_STRING));
 
-		try (InputStream is = DataFactory.class.getResourceAsStream(
+		try (InputStream inputStream = DataFactory.class.getResourceAsStream(
 				"dependencies/releases.txt");
-			Reader reader = new InputStreamReader(is);
+			Reader reader = new InputStreamReader(inputStream);
 			UnsyncBufferedReader unsyncBufferedReader =
 				new UnsyncBufferedReader(reader)) {
 
@@ -3477,6 +4991,24 @@ public class DataFactory {
 		}
 
 		return releases;
+	}
+
+	public List<ResourcePermissionModel> newResourcePermissionModels(
+		AccountEntryModel accountEntryModel) {
+
+		return newResourcePermissionModels(
+			AccountEntry.class.getName(),
+			String.valueOf(accountEntryModel.getAccountEntryId()),
+			_sampleUserId);
+	}
+
+	public List<ResourcePermissionModel> newResourcePermissionModels(
+		AccountEntryUserRelModel accountEntryUserRelModel) {
+
+		return newResourcePermissionModels(
+			AccountEntryUserRel.class.getName(),
+			String.valueOf(accountEntryUserRelModel.getAccountEntryUserRelId()),
+			_sampleUserId);
 	}
 
 	public List<ResourcePermissionModel> newResourcePermissionModels(
@@ -3513,6 +5045,100 @@ public class DataFactory {
 	}
 
 	public List<ResourcePermissionModel> newResourcePermissionModels(
+		CommerceAddressModel commerceAddressModel) {
+
+		return newResourcePermissionModels(
+			CommerceAddress.class.getName(),
+			String.valueOf(commerceAddressModel.getCommerceAddressId()),
+			_sampleUserId);
+	}
+
+	public List<ResourcePermissionModel> newResourcePermissionModels(
+		CommerceInventoryWarehouseModel commerceInventoryWarehouseModel) {
+
+		return newResourcePermissionModels(
+			CommerceInventoryWarehouse.class.getName(),
+			String.valueOf(
+				commerceInventoryWarehouseModel.
+					getCommerceInventoryWarehouseId()),
+			_sampleUserId);
+	}
+
+	public List<ResourcePermissionModel> newResourcePermissionModels(
+		CommerceOrderModel commerceOrderModel) {
+
+		return newResourcePermissionModels(
+			CommerceOrder.class.getName(),
+			String.valueOf(commerceOrderModel.getCommerceOrderId()),
+			_sampleUserId);
+	}
+
+	public List<ResourcePermissionModel> newResourcePermissionModels(
+		CommercePriceListModel commercePriceListModel) {
+
+		return newResourcePermissionModels(
+			CommercePriceList.class.getName(),
+			String.valueOf(commercePriceListModel.getCommercePriceListId()),
+			_sampleUserId);
+	}
+
+	public List<ResourcePermissionModel> newResourcePermissionModels(
+		CommerceShippingFixedOptionModel commerceShippingFixedOptionModel) {
+
+		return newResourcePermissionModels(
+			CommerceShippingFixedOption.class.getName(),
+			String.valueOf(
+				commerceShippingFixedOptionModel.
+					getCommerceShippingFixedOptionId()),
+			_sampleUserId);
+	}
+
+	public List<ResourcePermissionModel> newResourcePermissionModels(
+		CommerceShippingMethodModel commerceShippingMethodModel) {
+
+		return newResourcePermissionModels(
+			CommerceShippingMethod.class.getName(),
+			String.valueOf(
+				commerceShippingMethodModel.getCommerceShippingMethodId()),
+			_sampleUserId);
+	}
+
+	public List<ResourcePermissionModel> newResourcePermissionModels(
+		CountryModel countryModel) {
+
+		return newResourcePermissionModels(
+			Country.class.getName(),
+			String.valueOf(countryModel.getCountryId()), _sampleUserId);
+	}
+
+	public List<ResourcePermissionModel> newResourcePermissionModels(
+		CPOptionCategoryModel cpOptionCategoryModel) {
+
+		return newResourcePermissionModels(
+			CPOptionCategory.class.getName(),
+			String.valueOf(cpOptionCategoryModel.getCPOptionCategoryId()),
+			_sampleUserId);
+	}
+
+	public List<ResourcePermissionModel> newResourcePermissionModels(
+		CPOptionModel cpOptionModel) {
+
+		return newResourcePermissionModels(
+			CPOption.class.getName(),
+			String.valueOf(cpOptionModel.getCPOptionId()), _sampleUserId);
+	}
+
+	public List<ResourcePermissionModel> newResourcePermissionModels(
+		CPSpecificationOptionModel cpSpecificationOptionModel) {
+
+		return newResourcePermissionModels(
+			CPSpecificationOption.class.getName(),
+			String.valueOf(
+				cpSpecificationOptionModel.getCPSpecificationOptionId()),
+			_sampleUserId);
+	}
+
+	public List<ResourcePermissionModel> newResourcePermissionModels(
 		DDLRecordSetModel ddlRecordSetModel) {
 
 		return newResourcePermissionModels(
@@ -3534,9 +5160,16 @@ public class DataFactory {
 	public List<ResourcePermissionModel> newResourcePermissionModels(
 		DDMTemplateModel ddmTemplateModel) {
 
+		String className = getClassName(
+			ddmTemplateModel.getResourceClassNameId());
+
 		String name = _getResourcePermissionModelName(
-			DDMTemplate.class.getName(),
-			getClassName(ddmTemplateModel.getResourceClassNameId()));
+			DDMTemplate.class.getName(), className);
+
+		if (className.equals(PortletDisplayTemplate.class.getName())) {
+			name = DDMTemplate.class.getName();
+		}
+
 		String primKey = String.valueOf(ddmTemplateModel.getTemplateId());
 
 		return newResourcePermissionModels(name, primKey, _sampleUserId);
@@ -3606,14 +5239,12 @@ public class DataFactory {
 
 		String name = portletId;
 
-		int index = portletId.indexOf(StringPool.UNDERLINE);
-
-		if (index > 0) {
-			name = portletId.substring(0, index);
-		}
-
 		String primKey = PortletPermissionUtil.getPrimaryKey(
 			portletPreferencesModel.getPlid(), portletId);
+
+		if (portletPreferencesModel.getPlid() <= 0) {
+			primKey = String.valueOf(portletPreferencesModel.getOwnerId());
+		}
 
 		return newResourcePermissionModels(name, primKey, 0);
 	}
@@ -4002,6 +5633,31 @@ public class DataFactory {
 		return userName;
 	}
 
+	public CProductModel setCProductModelPublishedCPDefinitionId(
+		CProductModel cProductModel,
+		List<CPDefinitionModel> cpDefinitionModels) {
+
+		for (CPDefinitionModel cpDefinitionModel : cpDefinitionModels) {
+			if (cProductModel.getCProductId() !=
+					cpDefinitionModel.getCProductId()) {
+
+				continue;
+			}
+
+			if (cpDefinitionModel.getVersion() ==
+					BenchmarksPropsValues.
+						MAX_COMMERCE_PRODUCT_DEFINITION_COUNT) {
+
+				cProductModel.setPublishedCPDefinitionId(
+					cpDefinitionModel.getCPDefinitionId());
+
+				break;
+			}
+		}
+
+		return cProductModel;
+	}
+
 	public String toInsertSQL(BaseModel<?> baseModel) {
 		try {
 			StringBundler sb = new StringBundler();
@@ -4115,6 +5771,28 @@ public class DataFactory {
 
 		throw new RuntimeException(
 			"Unable to find class name for id " + classNameId);
+	}
+
+	protected String[] getPortletNames(JSONArray jsonArray) {
+		Map<String, String> portletNames = new LinkedHashMap<>();
+
+		for (int i = 0; i < jsonArray.length(); i++) {
+			JSONObject jsonObject = jsonArray.getJSONObject(i);
+
+			String key = jsonObject.getString("layoutColumnId");
+
+			if (portletNames.containsKey(key)) {
+				portletNames.put(
+					key,
+					portletNames.get(key) + StringPool.COMMA +
+						jsonObject.getString("portletName"));
+			}
+			else {
+				portletNames.put(key, jsonObject.getString("portletName"));
+			}
+		}
+
+		return ArrayUtil.toStringArray(portletNames.values());
 	}
 
 	protected InputStream getResourceInputStream(String resourceName) {
@@ -4322,6 +6000,65 @@ public class DataFactory {
 		return blogsEntryModel;
 	}
 
+	protected List<PortletPreferenceValueModel>
+			newCommercePortletPreferenceValueModels(
+				List<PortletPreferencesModel> portletPreferencesModels,
+				JSONArray jsonArray)
+		throws Exception {
+
+		List<PortletPreferenceValueModel> portletPreferenceValueModels =
+			new ArrayList<>();
+
+		for (PortletPreferencesModel portletPreferencesModel :
+				portletPreferencesModels) {
+
+			for (int i = 0; i < jsonArray.length(); i++) {
+				JSONObject jsonObject = jsonArray.getJSONObject(i);
+
+				String portletId = jsonObject.getString("portletName");
+
+				if (jsonObject.getString("instanceId") != null) {
+					portletId =
+						portletId + "_INSTANCE_" +
+							jsonObject.getString("instanceId");
+				}
+
+				if (portletId.equals(portletPreferencesModel.getPortletId())) {
+					JSONObject portletPreferencesJSONObject =
+						jsonObject.getJSONObject("portletPreferences");
+
+					if (portletPreferencesJSONObject == null) {
+						continue;
+					}
+
+					for (String key : portletPreferencesJSONObject.keySet()) {
+						String value = portletPreferencesJSONObject.getString(
+							key);
+
+						if (key.equals("displayStyle")) {
+							JSONObject displayStyleJSONObject =
+								portletPreferencesJSONObject.getJSONObject(key);
+
+							String name = StringUtil.removeSubstring(
+								displayStyleJSONObject.getString("FileName"),
+								".ftl");
+
+							value = "ddmTemplate_" + name;
+						}
+
+						portletPreferenceValueModels.add(
+							newPortletPreferenceValueModel(
+								portletPreferencesModel, key, 0, value));
+					}
+
+					break;
+				}
+			}
+		}
+
+		return portletPreferenceValueModels;
+	}
+
 	protected DDMStorageLinkModel newDDMStorageLinkModel(
 		long ddmStorageLinkId, long classPK, long structureId, long versionId) {
 
@@ -4471,6 +6208,18 @@ public class DataFactory {
 		long groupId, long userId, long structureId, long sourceClassNameId,
 		long templateId) {
 
+		return newDDMTemplateModel(
+			groupId, userId, DDMTemplateConstants.TEMPLATE_MODE_CREATE,
+			"Basic Web Content", "${content.getData()}",
+			getClassNameId(DDMStructure.class), structureId, sourceClassNameId,
+			templateId, _JOURNAL_STRUCTURE_KEY);
+	}
+
+	protected DDMTemplateModel newDDMTemplateModel(
+		long groupId, long userId, String mode, String name, String script,
+		long classNameId, long classPK, long resourceClassNameId,
+		long templateId, String templateKey) {
+
 		DDMTemplateModel ddmTemplateModel = new DDMTemplateModelImpl();
 
 		// UUID
@@ -4496,24 +6245,25 @@ public class DataFactory {
 
 		// Other fields
 
-		ddmTemplateModel.setClassNameId(getClassNameId(DDMStructure.class));
-		ddmTemplateModel.setClassPK(structureId);
-		ddmTemplateModel.setResourceClassNameId(sourceClassNameId);
-		ddmTemplateModel.setTemplateKey(_JOURNAL_STRUCTURE_KEY);
+		ddmTemplateModel.setClassNameId(classNameId);
+		ddmTemplateModel.setClassPK(classPK);
+		ddmTemplateModel.setResourceClassNameId(resourceClassNameId);
+		ddmTemplateModel.setTemplateKey(templateKey);
 		ddmTemplateModel.setVersion(DDMTemplateConstants.VERSION_DEFAULT);
 
-		StringBundler sb = new StringBundler(3);
+		StringBundler sb = new StringBundler(4);
 
 		sb.append("<?xml version=\"1.0\"?><root available-locales=\"en_US\" ");
 		sb.append("default-locale=\"en_US\"><name language-id=\"en_US\">");
-		sb.append("Basic Web Content</name></root>");
+		sb.append(name);
+		sb.append("</name></root>");
 
 		ddmTemplateModel.setName(sb.toString());
 
 		ddmTemplateModel.setType(DDMTemplateConstants.TEMPLATE_TYPE_DISPLAY);
-		ddmTemplateModel.setMode(DDMTemplateConstants.TEMPLATE_MODE_CREATE);
+		ddmTemplateModel.setMode(mode);
 		ddmTemplateModel.setLanguage(TemplateConstants.LANG_TYPE_FTL);
-		ddmTemplateModel.setScript("${content.getData()}");
+		ddmTemplateModel.setScript(script);
 		ddmTemplateModel.setCacheable(true);
 		ddmTemplateModel.setSmallImage(false);
 		ddmTemplateModel.setLastPublishDate(nextFutureDate());
@@ -4524,86 +6274,19 @@ public class DataFactory {
 	protected DLFileEntryModel newDlFileEntryModel(
 		DLFolderModel dlFolderModel, int index) {
 
-		DLFileEntryModel dlFileEntryModel = new DLFileEntryModelImpl();
-
-		// UUID
-
-		dlFileEntryModel.setUuid(SequentialUUID.generate());
-
-		// PK fields
-
-		dlFileEntryModel.setFileEntryId(_counter.get());
-
-		// Group instance
-
-		dlFileEntryModel.setGroupId(dlFolderModel.getGroupId());
-
-		// Audit fields
-
-		dlFileEntryModel.setCompanyId(_companyId);
-		dlFileEntryModel.setUserId(_sampleUserId);
-		dlFileEntryModel.setUserName(_SAMPLE_USER_NAME);
-		dlFileEntryModel.setCreateDate(nextFutureDate());
-		dlFileEntryModel.setModifiedDate(nextFutureDate());
-
-		// Other fields
-
-		dlFileEntryModel.setRepositoryId(dlFolderModel.getRepositoryId());
-		dlFileEntryModel.setFolderId(dlFolderModel.getFolderId());
-		dlFileEntryModel.setName("TestFile" + index);
-		dlFileEntryModel.setFileName("TestFile" + index + ".txt");
-		dlFileEntryModel.setExtension("txt");
-		dlFileEntryModel.setMimeType(ContentTypes.TEXT_PLAIN);
-		dlFileEntryModel.setTitle("TestFile" + index + ".txt");
-		dlFileEntryModel.setFileEntryTypeId(
-			DLFileEntryTypeConstants.FILE_ENTRY_TYPE_ID_BASIC_DOCUMENT);
-		dlFileEntryModel.setVersion(DLFileEntryConstants.VERSION_DEFAULT);
-		dlFileEntryModel.setSize(BenchmarksPropsValues.MAX_DL_FILE_ENTRY_SIZE);
-		dlFileEntryModel.setLastPublishDate(nextFutureDate());
-
-		return dlFileEntryModel;
-	}
-
-	protected DLFolderModel newDLFolderModel(
-		long groupId, long parentFolderId, int index) {
-
-		DLFolderModel dlFolderModel = new DLFolderModelImpl();
-
-		// UUID
-
-		dlFolderModel.setUuid(SequentialUUID.generate());
-
-		// PK fields
-
-		dlFolderModel.setFolderId(_counter.get());
-
-		// Group instance
-
-		dlFolderModel.setGroupId(groupId);
-
-		// Audit fields
-
-		dlFolderModel.setCompanyId(_companyId);
-		dlFolderModel.setUserId(_sampleUserId);
-		dlFolderModel.setUserName(_SAMPLE_USER_NAME);
-		dlFolderModel.setCreateDate(nextFutureDate());
-		dlFolderModel.setModifiedDate(nextFutureDate());
-
-		// Other fields
-
-		dlFolderModel.setRepositoryId(groupId);
-		dlFolderModel.setParentFolderId(parentFolderId);
-		dlFolderModel.setName("Test Folder " + index);
-		dlFolderModel.setLastPostDate(nextFutureDate());
-		dlFolderModel.setDefaultFileEntryTypeId(_DEFAULT_DL_FILE_ENTRY_TYPE_ID);
-		dlFolderModel.setLastPublishDate(nextFutureDate());
-		dlFolderModel.setStatusDate(nextFutureDate());
-
-		return dlFolderModel;
+		return newDlFileEntryModel(
+			dlFolderModel, "TestFile" + index, "txt", ContentTypes.TEXT_PLAIN);
 	}
 
 	protected GroupModel newGroupModel(
 		long groupId, long classNameId, long classPK, String name,
+		boolean site) {
+
+		return newGroupModel(groupId, classNameId, classPK, name, 0, site);
+	}
+
+	protected GroupModel newGroupModel(
+		long groupId, long classNameId, long classPK, String name, int type,
 		boolean site) {
 
 		GroupModel groupModel = new GroupModelImpl();
@@ -4629,6 +6312,7 @@ public class DataFactory {
 			StringPool.SLASH + groupModel.getGroupId() + StringPool.SLASH);
 		groupModel.setGroupKey(name);
 		groupModel.setName(name);
+		groupModel.setType(type);
 		groupModel.setManualMembership(true);
 		groupModel.setMembershipRestriction(
 			GroupConstants.DEFAULT_MEMBERSHIP_RESTRICTION);
@@ -4642,8 +6326,8 @@ public class DataFactory {
 	}
 
 	protected LayoutModel newLayoutModel(
-		long groupId, String name, boolean privateLayout,
-		String layoutTemplateId, String... columns) {
+		long groupId, long parentLayoutId, String name, boolean privateLayout,
+		boolean hidden, String layoutTemplateId, String... columns) {
 
 		SimpleCounter simpleCounter = _layoutCounters.get(groupId);
 
@@ -4678,9 +6362,11 @@ public class DataFactory {
 		// Other fields
 
 		layoutModel.setLayoutId(simpleCounter.get());
+		layoutModel.setParentLayoutId(parentLayoutId);
 		layoutModel.setName(
 			"<?xml version=\"1.0\"?><root><name>" + name + "</name></root>");
 		layoutModel.setType(LayoutConstants.TYPE_PORTLET);
+		layoutModel.setHidden(hidden);
 
 		UnicodeProperties typeSettingsUnicodeProperties = new UnicodeProperties(
 			true);
@@ -4711,8 +6397,23 @@ public class DataFactory {
 		return layoutModel;
 	}
 
+	protected LayoutModel newLayoutModel(
+		long groupId, String name, boolean privateLayout,
+		String layoutTemplateId, String... columns) {
+
+		return newLayoutModel(
+			groupId, 0, name, privateLayout, false, layoutTemplateId, columns);
+	}
+
 	protected LayoutSetModel newLayoutSetModel(
 		long groupId, boolean privateLayout) {
+
+		return newLayoutSetModel(
+			groupId, privateLayout, "classic_WAR_classictheme");
+	}
+
+	protected LayoutSetModel newLayoutSetModel(
+		long groupId, boolean privateLayout, String themeId) {
 
 		LayoutSetModel layoutSetModel = new LayoutSetModelImpl();
 
@@ -4733,7 +6434,7 @@ public class DataFactory {
 		// Other fields
 
 		layoutSetModel.setPrivateLayout(privateLayout);
-		layoutSetModel.setThemeId("classic_WAR_classictheme");
+		layoutSetModel.setThemeId(themeId);
 		layoutSetModel.setColorSchemeId("01");
 
 		return layoutSetModel;
@@ -5186,11 +6887,92 @@ public class DataFactory {
 				if (name.endsWith(StringPool.UNDERLINE)) {
 					name = name.substring(0, name.length() - 1);
 				}
+				else if (name.equals("DiscountPctLevel1WithTaxAmount")) {
+					name = "DiscountPercentageLevel1WithTaxAmount";
+				}
+				else if (name.equals("DiscountPctLevel2WithTaxAmount")) {
+					name = "DiscountPercentageLevel2WithTaxAmount";
+				}
+				else if (name.equals("DiscountPctLevel3WithTaxAmount")) {
+					name = "DiscountPercentageLevel3WithTaxAmount";
+				}
+				else if (name.equals("DiscountPctLevel4WithTaxAmount")) {
+					name = "DiscountPercentageLevel4WithTaxAmount";
+				}
+				else if (name.equals("CIWarehouseId")) {
+					name = "CommerceInventoryWarehouseId";
+				}
+				else if (name.equals("CIWarehouseItemId")) {
+					name = "CommerceInventoryWarehouseItemId";
+				}
+				else if (name.equals("CPDSpecificationOptionValueId")) {
+					name = "CPDefinitionSpecificationOptionValueId";
+				}
 				else if (name.equals("DeliverySubTypeSettings")) {
 					name = "DeliverySubscriptionTypeSettings";
 				}
 				else if (name.equals("LPageTemplateStructureRelId")) {
 					name = "LayoutPageTemplateStructureRelId";
+				}
+				else if (name.equals("ShippingDiscountPercentLevel1")) {
+					name = "ShippingDiscountPercentageLevel1";
+				}
+				else if (name.equals("ShippingDiscountPercentLevel2")) {
+					name = "ShippingDiscountPercentageLevel2";
+				}
+				else if (name.equals("ShippingDiscountPercentLevel3")) {
+					name = "ShippingDiscountPercentageLevel3";
+				}
+				else if (name.equals("ShippingDiscountPercentLevel4")) {
+					name = "ShippingDiscountPercentageLevel4";
+				}
+				else if (name.equals("ShippingDiscountPctLev1WithTax")) {
+					name = "ShippingDiscountPercentageLevel1WithTaxAmount";
+				}
+				else if (name.equals("ShippingDiscountPctLev2WithTax")) {
+					name = "ShippingDiscountPercentageLevel2WithTaxAmount";
+				}
+				else if (name.equals("ShippingDiscountPctLev3WithTax")) {
+					name = "ShippingDiscountPercentageLevel3WithTaxAmount";
+				}
+				else if (name.equals("ShippingDiscountPctLev4WithTax")) {
+					name = "ShippingDiscountPercentageLevel4WithTaxAmount";
+				}
+				else if (name.equals("SubtotalDiscountPercentLevel1")) {
+					name = "SubtotalDiscountPercentageLevel1";
+				}
+				else if (name.equals("SubtotalDiscountPercentLevel2")) {
+					name = "SubtotalDiscountPercentageLevel2";
+				}
+				else if (name.equals("SubtotalDiscountPercentLevel3")) {
+					name = "SubtotalDiscountPercentageLevel3";
+				}
+				else if (name.equals("SubtotalDiscountPercentLevel4")) {
+					name = "SubtotalDiscountPercentageLevel4";
+				}
+				else if (name.equals("SubtotalDiscountPctLev1WithTax")) {
+					name = "SubtotalDiscountPercentageLevel1WithTaxAmount";
+				}
+				else if (name.equals("SubtotalDiscountPctLev2WithTax")) {
+					name = "SubtotalDiscountPercentageLevel2WithTaxAmount";
+				}
+				else if (name.equals("SubtotalDiscountPctLev3WithTax")) {
+					name = "SubtotalDiscountPercentageLevel3WithTaxAmount";
+				}
+				else if (name.equals("SubtotalDiscountPctLev4WithTax")) {
+					name = "SubtotalDiscountPercentageLevel4WithTaxAmount";
+				}
+				else if (name.equals("TotalDiscountPctLev1WithTax")) {
+					name = "TotalDiscountPercentageLevel1WithTaxAmount";
+				}
+				else if (name.equals("TotalDiscountPctLev2WithTax")) {
+					name = "TotalDiscountPercentageLevel2WithTaxAmount";
+				}
+				else if (name.equals("TotalDiscountPctLev3WithTax")) {
+					name = "TotalDiscountPercentageLevel3WithTaxAmount";
+				}
+				else if (name.equals("TotalDiscountPctLev4WithTax")) {
+					name = "TotalDiscountPercentageLevel4WithTaxAmount";
 				}
 
 				int type = (int)tableColumn[1];

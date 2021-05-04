@@ -2410,85 +2410,86 @@ public class ServiceBuilder {
 			StringBundler.concat(
 				_serviceOutputPath, "/model/", name, "Table.java"));
 
-		Map<String, Object> context = HashMapBuilder.<String, Object>put(
-			"apiPackagePath", _apiPackagePath
-		).put(
-			"author", _author
-		).put(
-			"changeTrackingEnabled", changeTrackingEnabled
-		).put(
-			"classDeprecated", classDeprecated
-		).put(
-			"classDeprecatedComment", classDeprecatedComment
-		).put(
-			"columns",
-			() -> {
-				List<Map<String, String>> columns = new ArrayList<>(
-					entityColumns.size());
+		String content = _processTemplate(
+			_TPL_MODEL_TABLE,
+			HashMapBuilder.<String, Object>put(
+				"apiPackagePath", _apiPackagePath
+			).put(
+				"author", _author
+			).put(
+				"changeTrackingEnabled", changeTrackingEnabled
+			).put(
+				"classDeprecated", classDeprecated
+			).put(
+				"classDeprecatedComment", classDeprecatedComment
+			).put(
+				"columns",
+				() -> {
+					List<Map<String, String>> columns = new ArrayList<>(
+						entityColumns.size());
 
-				for (EntityColumn entityColumn : entityColumns) {
-					String sqlType = getSqlType(
-						name, entityColumn.getName(), entityColumn.getType());
+					for (EntityColumn entityColumn : entityColumns) {
+						String sqlType = getSqlType(
+							name, entityColumn.getName(),
+							entityColumn.getType());
 
-					columns.add(
-						HashMapBuilder.put(
-							"dbName", entityColumn.getDBName()
-						).put(
-							"flag",
-							() -> {
-								if (entityColumn.isPrimary()) {
-									return "FLAG_PRIMARY";
+						columns.add(
+							HashMapBuilder.put(
+								"dbName", entityColumn.getDBName()
+							).put(
+								"flag",
+								() -> {
+									if (entityColumn.isPrimary()) {
+										return "FLAG_PRIMARY";
+									}
+
+									if (changeTrackingEnabled &&
+										Objects.equals(
+											entityColumn.getName(),
+											"ctCollectionId")) {
+
+										return "FLAG_PRIMARY";
+									}
+
+									if (Objects.equals(
+											entityColumn.getName(),
+											"mvccVersion")) {
+
+										return "FLAG_NULLITY";
+									}
+
+									return "FLAG_DEFAULT";
 								}
+							).put(
+								"javaType",
+								() -> {
+									if (entityColumn.isPrimitiveType()) {
+										return getPrimitiveObj(
+											entityColumn.getType());
+									}
 
-								if (changeTrackingEnabled &&
-									Objects.equals(
-										entityColumn.getName(),
-										"ctCollectionId")) {
+									if (Objects.equals("CLOB", sqlType)) {
+										return "Clob";
+									}
 
-									return "FLAG_PRIMARY";
+									return entityColumn.getGenericizedType();
 								}
+							).put(
+								"name", entityColumn.getName()
+							).put(
+								"sqlType", sqlType
+							).build());
+					}
 
-								if (Objects.equals(
-										entityColumn.getName(),
-										"mvccVersion")) {
-
-									return "FLAG_NULLITY";
-								}
-
-								return "FLAG_DEFAULT";
-							}
-						).put(
-							"javaType",
-							() -> {
-								if (entityColumn.isPrimitiveType()) {
-									return getPrimitiveObj(
-										entityColumn.getType());
-								}
-
-								if (Objects.equals("CLOB", sqlType)) {
-									return "Clob";
-								}
-
-								return entityColumn.getGenericizedType();
-							}
-						).put(
-							"name", entityColumn.getName()
-						).put(
-							"sqlType", sqlType
-						).build());
+					return columns;
 				}
-
-				return columns;
-			}
-		).put(
-			"modelNames", modelNames
-		).put(
-			"name", name
-		).put(
-			"table", tableName
-		).build();
-
-		String content = _processTemplate(_TPL_MODEL_TABLE, context);
+			).put(
+				"modelNames", modelNames
+			).put(
+				"name", name
+			).put(
+				"table", tableName
+			).build());
 
 		_write(modelTableFile, content, _modifiedFileNames);
 	}
@@ -3310,14 +3311,16 @@ public class ServiceBuilder {
 		if (entity.hasPersistence()) {
 			Map<String, Object> context = _getContext();
 
-			context.put("entity", entity);
-			context.put("persistence", Boolean.TRUE);
-			context.put("referenceEntities", _mergeReferenceEntities(entity));
-
 			JavaClass modelImplJavaClass = _getJavaClass(
 				StringBundler.concat(
 					_outputPath, "/model/impl/", entity.getName(),
 					"Impl.java"));
+
+			context.put("cacheFields", _getCacheFields(modelImplJavaClass));
+
+			context.put("entity", entity);
+			context.put("persistence", Boolean.TRUE);
+			context.put("referenceEntities", _mergeReferenceEntities(entity));
 
 			context = _putDeprecatedKeys(context, modelImplJavaClass);
 
@@ -4768,10 +4771,10 @@ public class ServiceBuilder {
 	private Properties _getCompatProperties(String version) throws IOException {
 		Properties properties = new Properties();
 
-		try (InputStream is = ServiceBuilder.class.getResourceAsStream(
+		try (InputStream inputStream = ServiceBuilder.class.getResourceAsStream(
 				"dependencies/" + version + "/compatibility.properties")) {
 
-			properties.load(is);
+			properties.load(inputStream);
 		}
 
 		return properties;
@@ -5071,6 +5074,7 @@ public class ServiceBuilder {
 
 	/**
 	 * @see #_createDSLTable(List, String, String, boolean, boolean)
+	 * @see com.liferay.object.service.internal.petra.sql.dsl.DynamicObjectDefinitionTable#getCreateTableSQL
 	 */
 	private String _getCreateTableSQL(Entity entity) {
 		List<EntityColumn> databaseRegularEntityColumns =

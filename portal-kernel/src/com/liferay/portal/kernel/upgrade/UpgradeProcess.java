@@ -38,6 +38,7 @@ import com.liferay.portal.kernel.util.LoggingTimer;
 import com.liferay.portal.kernel.util.ObjectValuePair;
 import com.liferay.portal.kernel.util.PortalClassLoaderUtil;
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.util.Validator;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -97,11 +98,21 @@ public abstract class UpgradeProcess
 				return;
 			}
 
-			if (_log.isInfoEnabled()) {
-				_log.info("Upgrading " + ClassUtil.getClassName(this));
-			}
+			process(
+				companyId -> {
+					if (_log.isInfoEnabled()) {
+						String info =
+							"Upgrading " + ClassUtil.getClassName(this);
 
-			doUpgrade();
+						if (Validator.isNotNull(companyId)) {
+							info += "#" + companyId;
+						}
+
+						_log.info(info);
+					}
+
+					doUpgrade();
+				});
 		}
 		catch (Throwable throwable) {
 			message = "Failed upgrade process ";
@@ -437,17 +448,17 @@ public abstract class UpgradeProcess
 		throws IOException {
 
 		if (!PortalClassLoaderUtil.isPortalClassLoader(classLoader)) {
-			try (InputStream is = classLoader.getResourceAsStream(
+			try (InputStream inputStream = classLoader.getResourceAsStream(
 					"META-INF/sql/indexes.sql")) {
 
-				if (is == null) {
+				if (inputStream == null) {
 					return null;
 				}
 
 				List<ObjectValuePair<String, IndexMetadata>> objectValuePairs =
 					new ArrayList<>();
 
-				try (Reader reader = new InputStreamReader(is);
+				try (Reader reader = new InputStreamReader(inputStream);
 					UnsyncBufferedReader unsyncBufferedReader =
 						new UnsyncBufferedReader(reader)) {
 
@@ -478,9 +489,9 @@ public abstract class UpgradeProcess
 			return _portalIndexesSQL.get(tableName);
 		}
 
-		try (InputStream is = classLoader.getResourceAsStream(
+		try (InputStream inputStream = classLoader.getResourceAsStream(
 				"com/liferay/portal/tools/sql/dependencies/indexes.sql");
-			Reader reader = new InputStreamReader(is);
+			Reader reader = new InputStreamReader(inputStream);
 			UnsyncBufferedReader unsyncBufferedReader =
 				new UnsyncBufferedReader(reader)) {
 

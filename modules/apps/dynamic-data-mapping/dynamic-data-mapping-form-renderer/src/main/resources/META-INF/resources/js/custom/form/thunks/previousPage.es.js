@@ -28,11 +28,14 @@ export default function previousPage({
 }) {
 	return (dispatch) => {
 		evaluate(null, {
+			activePage,
 			defaultLanguageId,
 			editingLanguageId,
 			groupId,
+			nextPage: activePage - 1,
 			pages,
 			portletNamespace,
+			previousPage: activePage,
 			rules,
 			viewMode,
 		}).then((evaluatedPages) => {

@@ -8,7 +8,9 @@ definition {
 			Site.openSiteSettingsAdmin(siteURLKey = "guest");
 		}
 
-		Navigator.gotoNavTab(navTab = "Social");
+		Click(
+			key_url = "site-configuration-ratings",
+			locator1 = "ListGroupItem#CONFIGURATION_ITEM_LINK");
 
 		Select(
 			key_applications = "${applications}",

@@ -40,6 +40,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.net.UnknownHostException;
 
 import java.nio.charset.StandardCharsets;
@@ -557,7 +558,7 @@ public class JenkinsResultsParserUtil {
 			try (OutputStream outputStream =
 					httpURLConnection.getOutputStream()) {
 
-				script = "script=" + script;
+				script = "script=" + URLEncoder.encode(script, "UTF-8");
 
 				outputStream.write(script.getBytes("UTF-8"));
 
@@ -2396,11 +2397,11 @@ public class JenkinsResultsParserUtil {
 	public static String getResourceFileContent(String resourceName)
 		throws IOException {
 
-		try (InputStream resourceStream =
+		try (InputStream resourceInputStream =
 				JenkinsResultsParserUtil.class.getResourceAsStream(
 					resourceName)) {
 
-			return readInputStream(resourceStream);
+			return readInputStream(resourceInputStream);
 		}
 	}
 
@@ -4563,13 +4564,17 @@ public class JenkinsResultsParserUtil {
 		"https://(release|test).liferay.com/([0-9]+)/");
 	private static final Pattern _remoteURLAuthorityPattern2 = Pattern.compile(
 		"https://(test-[0-9]+-[0-9]+).liferay.com/");
-	private static final File _sshDir = new File(getUserHomeDir(), ".ssh") {
+
+	private static final File _sshDir = new File(
+		JenkinsResultsParserUtil._userHomeDir, ".ssh") {
+
 		{
 			if (!exists()) {
 				mkdirs();
 			}
 		}
 	};
+
 	private static final Set<String> _timeStamps = new HashSet<>();
 	private static final Pattern _topLevelBuildURLPattern = Pattern.compile(
 		"http(?:|s):\\/\\/test-(?<cohortNumber>[\\d]{1})-" +

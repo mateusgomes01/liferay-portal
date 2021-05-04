@@ -368,6 +368,21 @@ DLViewDisplayContext dlViewDisplayContext = new DLViewDisplayContext(dlAdminDisp
 			/>
 		</div>
 
+		<portlet:actionURL name="/document_library/edit_file_entry_image_editor" var="editImageURL" />
+
+		<div>
+			<react:component
+				module="document_library/js/image-editor/EditImageWithImageEditor"
+				props='<%=
+					HashMapBuilder.<String, Object>put(
+						"editImageURL", editImageURL
+					).put(
+						"redirectURL", currentURL
+					).build()
+				%>'
+			/>
+		</div>
+
 		<liferay-util:dynamic-include key="com.liferay.document.library.web#/document_library/view.jsp#post" />
 	</c:otherwise>
 </c:choose>

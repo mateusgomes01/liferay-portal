@@ -24,13 +24,12 @@ import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
-import com.liferay.portal.kernel.util.HashMapDictionary;
+import com.liferay.portal.kernel.util.HashMapDictionaryBuilder;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Dictionary;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -140,14 +139,11 @@ public class OAuth2WebServerServletTest extends BaseClientTestCase {
 				throw exception;
 			}
 
-			Dictionary<String, Object> properties = new HashMapDictionary<>();
-
-			properties.put(
-				"osgi.jaxrs.name", TestPreviewURLApplication.class.getName());
-
 			registerJaxRsApplication(
 				new TestPreviewURLApplication(previewURL), "preview-url",
-				properties);
+				HashMapDictionaryBuilder.<String, Object>put(
+					"osgi.jaxrs.name", TestPreviewURLApplication.class.getName()
+				).build());
 
 			createOAuth2Application(
 				defaultCompanyId, user, "oauthTestApplication",

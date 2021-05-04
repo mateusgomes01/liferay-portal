@@ -13,6 +13,14 @@
  */
 
 module.exports = {
-	check: [],
-	fix: [],
+	build: {
+		bundler: {
+			exclude: {
+				'*': ['test?(s)/**/*', 'test.js'],
+				'vm-browserify': ['example/**/*', 'test/**/*'],
+			},
+		},
+	},
+	check: false,
+	fix: false,
 };

@@ -16,7 +16,6 @@ package com.liferay.site.admin.web.internal.display.context;
 
 import com.liferay.petra.string.StringPool;
 import com.liferay.petra.string.StringUtil;
-import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
@@ -61,7 +60,13 @@ public class DisplaySettingsDisplayContext {
 			WebKeys.THEME_DISPLAY);
 	}
 
-	public Map<String, Object> getPropsMap() throws PortalException {
+	public long getLiveGroupId() {
+		Group liveGroup = _getLiveGroup();
+
+		return liveGroup.getGroupId();
+	}
+
+	public Map<String, Object> getPropsMap() {
 		Group liveGroup = _getLiveGroup();
 
 		return HashMapBuilder.<String, Object>put(
@@ -189,7 +194,14 @@ public class DisplaySettingsDisplayContext {
 			return _liveGroup;
 		}
 
-		_liveGroup = (Group)_httpServletRequest.getAttribute("site.liveGroup");
+		Group siteGroup = _themeDisplay.getSiteGroup();
+
+		if (siteGroup.isStagingGroup()) {
+			_liveGroup = siteGroup.getLiveGroup();
+		}
+		else {
+			_liveGroup = siteGroup;
+		}
 
 		return _liveGroup;
 	}

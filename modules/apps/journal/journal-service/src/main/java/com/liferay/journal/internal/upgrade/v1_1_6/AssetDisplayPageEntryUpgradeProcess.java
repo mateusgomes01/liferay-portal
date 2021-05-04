@@ -17,6 +17,7 @@ package com.liferay.journal.internal.upgrade.v1_1_6;
 import com.liferay.asset.display.page.constants.AssetDisplayPageConstants;
 import com.liferay.asset.display.page.service.AssetDisplayPageEntryLocalService;
 import com.liferay.journal.model.JournalArticle;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.dao.orm.common.SQLTransformer;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -24,6 +25,7 @@ import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.upgrade.BaseUpgradeCallable;
 import com.liferay.portal.kernel.upgrade.UpgradeException;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -40,7 +42,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -69,7 +70,7 @@ public class AssetDisplayPageEntryUpgradeProcess extends UpgradeProcess {
 
 		_init(company.getCompanyId());
 
-		StringBuilder sb = new StringBuilder(17);
+		StringBundler sb = new StringBundler(17);
 
 		sb.append("select JournalArticle.groupId, ");
 		sb.append("JournalArticle.resourcePrimKey, AssetEntry.classUuid from ");
@@ -101,8 +102,8 @@ public class AssetDisplayPageEntryUpgradeProcess extends UpgradeProcess {
 			ps1.setLong(2, company.getCompanyId());
 			ps1.setLong(3, journalArticleClassNameId);
 
-			List<SaveAssetDisplayPageEntryCallable>
-				saveAssetDisplayPageEntryCallables = new ArrayList<>();
+			List<SaveAssetDisplayPageEntryUpgradeCallable>
+				saveAssetDisplayPageEntryUpgradeCallables = new ArrayList<>();
 
 			try (ResultSet rs = ps1.executeQuery()) {
 				while (rs.next()) {
@@ -110,23 +111,23 @@ public class AssetDisplayPageEntryUpgradeProcess extends UpgradeProcess {
 					long resourcePrimKey = rs.getLong("resourcePrimKey");
 					String journalArticleUuid = rs.getString("classUuid");
 
-					SaveAssetDisplayPageEntryCallable
-						saveAssetDisplayPageEntryCallable =
-							new SaveAssetDisplayPageEntryCallable(
+					SaveAssetDisplayPageEntryUpgradeCallable
+						saveAssetDisplayPageEntryUpgradeCallable =
+							new SaveAssetDisplayPageEntryUpgradeCallable(
 								groupId, user.getUserId(),
 								journalArticleClassNameId, resourcePrimKey,
 								_generateLocalStagingAwareUUID(
 									groupId, journalArticleUuid));
 
-					saveAssetDisplayPageEntryCallables.add(
-						saveAssetDisplayPageEntryCallable);
+					saveAssetDisplayPageEntryUpgradeCallables.add(
+						saveAssetDisplayPageEntryUpgradeCallable);
 				}
 			}
 
 			ExecutorService executorService = Executors.newWorkStealingPool();
 
 			List<Future<Boolean>> futures = executorService.invokeAll(
-				saveAssetDisplayPageEntryCallables);
+				saveAssetDisplayPageEntryUpgradeCallables);
 
 			executorService.shutdown();
 
@@ -177,11 +178,11 @@ public class AssetDisplayPageEntryUpgradeProcess extends UpgradeProcess {
 		_stagedGroupIds.clear();
 		_uuidsMaps.clear();
 
-		StringBuilder sb = new StringBuilder(3);
+		StringBundler sb = new StringBundler(3);
 
-		sb.append("select groupId, liveGroupId from Group_ where ");
-		sb.append("companyId = ? and liveGroupId is not null and ");
-		sb.append("liveGroupId != 0 and remoteStagingGroupCount = 0");
+		sb.append("select groupId, liveGroupId from Group_ where companyId = ");
+		sb.append("? and liveGroupId is not null and liveGroupId != 0 and ");
+		sb.append("remoteStagingGroupCount = 0");
 
 		try (LoggingTimer loggingTimer = new LoggingTimer();
 			PreparedStatement ps = connection.prepareStatement(
@@ -213,10 +214,10 @@ public class AssetDisplayPageEntryUpgradeProcess extends UpgradeProcess {
 	private final Set<Long> _stagedGroupIds = new HashSet<>();
 	private final Map<Long, Map<String, String>> _uuidsMaps = new HashMap<>();
 
-	private class SaveAssetDisplayPageEntryCallable
-		implements Callable<Boolean> {
+	private class SaveAssetDisplayPageEntryUpgradeCallable
+		extends BaseUpgradeCallable<Boolean> {
 
-		public SaveAssetDisplayPageEntryCallable(
+		public SaveAssetDisplayPageEntryUpgradeCallable(
 			long groupId, long userId, long classNameId, long classPK,
 			String uuid) {
 
@@ -228,7 +229,7 @@ public class AssetDisplayPageEntryUpgradeProcess extends UpgradeProcess {
 		}
 
 		@Override
-		public Boolean call() throws Exception {
+		protected Boolean doCall() throws Exception {
 			try {
 				ServiceContext serviceContext = new ServiceContext();
 

@@ -35,8 +35,6 @@ import com.liferay.headless.delivery.client.dto.v1_0.Geo;
 import com.liferay.headless.delivery.client.dto.v1_0.StructuredContent;
 import com.liferay.headless.delivery.client.dto.v1_0.StructuredContentLink;
 import com.liferay.headless.delivery.client.http.HttpInvoker;
-import com.liferay.headless.delivery.client.pagination.Page;
-import com.liferay.headless.delivery.client.permission.Permission;
 import com.liferay.headless.delivery.client.resource.v1_0.StructuredContentResource;
 import com.liferay.headless.delivery.client.serdes.v1_0.StructuredContentSerDes;
 import com.liferay.journal.constants.JournalFolderConstants;
@@ -68,7 +66,7 @@ import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
-import com.liferay.portal.kernel.util.HashMapDictionary;
+import com.liferay.portal.kernel.util.HashMapDictionaryBuilder;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.PortalUtil;
@@ -85,7 +83,6 @@ import java.text.SimpleDateFormat;
 
 import java.util.Collections;
 import java.util.Date;
-import java.util.Dictionary;
 import java.util.Map;
 import java.util.Set;
 
@@ -218,17 +215,15 @@ public class StructuredContentResourceTest
 
 		BundleContext bundleContext = bundle.getBundleContext();
 
-		Dictionary<String, String> properties = new HashMapDictionary<>();
-
-		properties.put(
-			"osgi.jaxrs.application.select",
-			"(osgi.jaxrs.name=Liferay.Headless.Delivery)");
-		properties.put("osgi.jaxrs.extension", "true");
-
 		ServiceRegistration<?> serviceRegistration =
 			bundleContext.registerService(
 				ContextResolver.class, new ExtensionContextResolver(),
-				properties);
+				HashMapDictionaryBuilder.put(
+					"osgi.jaxrs.application.select",
+					"(osgi.jaxrs.name=Liferay.Headless.Delivery)"
+				).put(
+					"osgi.jaxrs.extension", "true"
+				).build());
 
 		structuredContent = structuredContentResource.postSiteStructuredContent(
 			testGroup.getGroupId(), randomStructuredContent());
@@ -374,20 +369,6 @@ public class StructuredContentResourceTest
 			_userLocalService.deleteUser(regularUser);
 			_userLocalService.deleteUser(ownerUser);
 		}
-	}
-
-	@Override
-	@Test
-	public void testGetStructuredContentPermissionsPage() throws Exception {
-		StructuredContent postStructuredContent =
-			testPostSiteStructuredContent_addStructuredContent(
-				randomStructuredContent());
-
-		Page<Permission> page =
-			structuredContentResource.getStructuredContentPermissionsPage(
-				postStructuredContent.getId(), RoleConstants.GUEST);
-
-		Assert.assertNotNull(page);
 	}
 
 	@Override
@@ -601,6 +582,20 @@ public class StructuredContentResourceTest
 
 		return super.testPostAssetLibraryStructuredContent_addStructuredContent(
 			structuredContent);
+	}
+
+	@Override
+	protected StructuredContent
+			testPutAssetLibraryStructuredContentPermission_addStructuredContent()
+		throws Exception {
+
+		StructuredContent structuredContent = randomStructuredContent();
+
+		structuredContent.setContentStructureId(
+			_depotDDMStructure.getStructureId());
+
+		return structuredContentResource.postAssetLibraryStructuredContent(
+			testDepotEntry.getDepotEntryId(), structuredContent);
 	}
 
 	private DDMStructure _addDDMStructure(Group group, String fileName)

@@ -151,6 +151,26 @@ public class Query {
 	/**
 	 * Invoke this method with the command line:
 	 *
+	 * curl -H 'Content-Type: text/plain; charset=utf-8' -X 'POST' 'http://localhost:8080/o/graphql' -d $'{"query": "query {structuredContentByVersion(structuredContentId: ___, version: ___){}}"}' -u 'test@liferay.com:test'
+	 */
+	@GraphQLField(description = "Retrieves a version of a structured content")
+	public com.liferay.headless.delivery.dto.v1_0.StructuredContent
+			structuredContentByVersion(
+				@GraphQLName("structuredContentId") Long structuredContentId,
+				@GraphQLName("version") Double version)
+		throws Exception {
+
+		return _applyComponentServiceObjects(
+			_structuredContentResourceComponentServiceObjects,
+			this::_populateResourceContext,
+			structuredContentResource ->
+				structuredContentResource.getStructuredContentByVersion(
+					structuredContentId, version));
+	}
+
+	/**
+	 * Invoke this method with the command line:
+	 *
 	 * curl -H 'Content-Type: text/plain; charset=utf-8' -X 'POST' 'http://localhost:8080/o/graphql' -d $'{"query": "query {structuredContentsVersions(structuredContentId: ___){items {__}, page, pageSize, totalCount}}"}' -u 'test@liferay.com:test'
 	 */
 	@GraphQLField(

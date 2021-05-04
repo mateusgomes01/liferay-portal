@@ -24,6 +24,7 @@ import com.liferay.document.library.kernel.model.DLFolderConstants;
 import com.liferay.document.library.kernel.versioning.VersioningStrategy;
 import com.liferay.document.library.util.DLURLHelper;
 import com.liferay.document.library.web.internal.helper.DLTrashHelper;
+import com.liferay.document.library.web.internal.util.FFImageEditorConfigurationUtil;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandler;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandlerRegistryUtil;
 import com.liferay.petra.io.unsync.UnsyncStringWriter;
@@ -70,6 +71,7 @@ import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
+import com.liferay.portal.util.PropsValues;
 import com.liferay.staging.StagingGroupHelper;
 import com.liferay.staging.StagingGroupHelperUtil;
 import com.liferay.taglib.security.PermissionsURLTag;
@@ -522,6 +524,38 @@ public class UIItemsBuilder {
 				")"),
 			_dlURLHelper.getDownloadURL(
 				_fileEntry, _fileVersion, _themeDisplay, StringPool.BLANK));
+	}
+
+	public void addEditImageItem(List<MenuItem> menuItems)
+		throws PortalException {
+
+		if (!FFImageEditorConfigurationUtil.enabled()) {
+			return;
+		}
+
+		if ((_fileShortcut != null) ||
+			!_fileEntryDisplayContextHelper.
+				isCheckoutDocumentActionAvailable()) {
+
+			return;
+		}
+
+		if (!ArrayUtil.contains(
+				PropsValues.DL_FILE_ENTRY_PREVIEW_IMAGE_MIME_TYPES,
+				_fileVersion.getMimeType())) {
+
+			return;
+		}
+
+		PortletURL portletURL = _getControlPanelRenderURL(
+			"/document_library/edit_image");
+
+		portletURL.setParameter("backURL", _getCurrentURL());
+
+		_addJavaScriptUIItem(
+			new JavaScriptMenuItem(), menuItems, DLUIItemKeys.EDIT_IMAGE,
+			LanguageUtil.get(_resourceBundle, "edit-image"),
+			_getEditImageOnClickJavaScript());
 	}
 
 	public void addEditMenuItem(List<MenuItem> menuItems)
@@ -1141,6 +1175,23 @@ public class UIItemsBuilder {
 		return _getActionURL(mvcActionCommandName, cmd);
 	}
 
+	private String _getEditImageOnClickJavaScript() {
+		StringBundler sb = new StringBundler(6);
+
+		sb.append(getNamespace());
+		sb.append("editWithImageEditor({fileEntryId: '");
+		sb.append(_fileEntry.getFileEntryId());
+		sb.append("', imageURL: '");
+		sb.append(
+			HtmlUtil.escapeJS(
+				_dlURLHelper.getPreviewURL(
+					_fileEntry, _fileVersion, _themeDisplay,
+					StringPool.BLANK)));
+		sb.append("'});");
+
+		return sb.toString();
+	}
+
 	private LiferayPortletRequest _getLiferayPortletRequest() {
 		PortletRequest portletRequest =
 			(PortletRequest)_httpServletRequest.getAttribute(
@@ -1298,7 +1349,7 @@ public class UIItemsBuilder {
 	private final DLURLHelper _dlURLHelper;
 	private final FileEntry _fileEntry;
 	private final FileEntryDisplayContextHelper _fileEntryDisplayContextHelper;
-	private FileShortcut _fileShortcut;
+	private final FileShortcut _fileShortcut;
 	private final FileShortcutDisplayContextHelper
 		_fileShortcutDisplayContextHelper;
 	private final FileVersion _fileVersion;

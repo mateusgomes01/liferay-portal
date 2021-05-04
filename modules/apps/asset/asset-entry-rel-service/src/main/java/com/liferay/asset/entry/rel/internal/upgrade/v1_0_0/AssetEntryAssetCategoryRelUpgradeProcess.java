@@ -18,6 +18,7 @@ import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.dao.jdbc.DataAccess;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.upgrade.BaseUpgradeCallable;
 import com.liferay.portal.kernel.upgrade.UpgradeException;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -29,7 +30,6 @@ import java.sql.ResultSet;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -44,26 +44,27 @@ public class AssetEntryAssetCategoryRelUpgradeProcess extends UpgradeProcess {
 				"select entryId, categoryId from AssetEntries_AssetCategories");
 			ResultSet rs = ps.executeQuery()) {
 
-			List<InsertAssetEntryAssetCategoryRelCallable>
-				insertAssetEntryAssetCategoryRelCallables = new ArrayList<>();
+			List<InsertAssetEntryAssetCategoryRelUpgradeCallable>
+				insertAssetEntryAssetCategoryRelUpgradeCallables =
+					new ArrayList<>();
 
 			while (rs.next()) {
 				long assetEntryId = rs.getLong("entryId");
 				long assetCategoryId = rs.getLong("categoryId");
 
-				InsertAssetEntryAssetCategoryRelCallable
-					insertAssetEntryAssetCategoryRelCallable =
-						new InsertAssetEntryAssetCategoryRelCallable(
+				InsertAssetEntryAssetCategoryRelUpgradeCallable
+					insertAssetEntryAssetCategoryRelUpgradeCallable =
+						new InsertAssetEntryAssetCategoryRelUpgradeCallable(
 							assetEntryId, assetCategoryId);
 
-				insertAssetEntryAssetCategoryRelCallables.add(
-					insertAssetEntryAssetCategoryRelCallable);
+				insertAssetEntryAssetCategoryRelUpgradeCallables.add(
+					insertAssetEntryAssetCategoryRelUpgradeCallable);
 			}
 
 			ExecutorService executorService = Executors.newWorkStealingPool();
 
 			List<Future<Boolean>> futures = executorService.invokeAll(
-				insertAssetEntryAssetCategoryRelCallables);
+				insertAssetEntryAssetCategoryRelUpgradeCallables);
 
 			executorService.shutdown();
 
@@ -97,10 +98,10 @@ public class AssetEntryAssetCategoryRelUpgradeProcess extends UpgradeProcess {
 	private static final Log _log = LogFactoryUtil.getLog(
 		AssetEntryAssetCategoryRelUpgradeProcess.class);
 
-	private class InsertAssetEntryAssetCategoryRelCallable
-		implements Callable<Boolean> {
+	private class InsertAssetEntryAssetCategoryRelUpgradeCallable
+		extends BaseUpgradeCallable<Boolean> {
 
-		public InsertAssetEntryAssetCategoryRelCallable(
+		public InsertAssetEntryAssetCategoryRelUpgradeCallable(
 			long assetEntryId, long assetCategoryId) {
 
 			_assetEntryId = assetEntryId;
@@ -108,7 +109,7 @@ public class AssetEntryAssetCategoryRelUpgradeProcess extends UpgradeProcess {
 		}
 
 		@Override
-		public Boolean call() throws Exception {
+		protected Boolean doCall() throws Exception {
 			try (Connection connection = DataAccess.getConnection()) {
 				StringBundler sb = new StringBundler(9);
 

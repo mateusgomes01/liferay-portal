@@ -17,9 +17,10 @@ import React from 'react';
 
 import ContentView from '../../../../shared/components/content-view/ContentView.es';
 import RetryButton from '../../../../shared/components/list/RetryButton.es';
+import {remainingTimeFormat} from '../../../../shared/util/duration.es';
 import moment from '../../../../shared/util/moment.es';
 
-const Body = ({
+function Body({
 	assetTitle,
 	assetType,
 	assignees = [{name: Liferay.Language.get('unassigned')}],
@@ -31,7 +32,7 @@ const Body = ({
 	id,
 	slaResults = [],
 	taskNames = [],
-}) => {
+}) {
 	const SLAs = {open: [], resolved: []};
 
 	slaResults.forEach((result) => {
@@ -169,23 +170,23 @@ const Body = ({
 			</ContentView>
 		</ClayModal.Body>
 	);
-};
+}
 
-const SectionTitle = ({children, className = ''}) => {
+function SectionTitle({children, className = ''}) {
 	const classNames = `${className} font-weight-medium mb-4`;
 
 	return <h4 className={classNames}>{children}</h4>;
-};
+}
 
-const SectionSubTitle = ({children}) => {
+function SectionSubTitle({children}) {
 	return (
 		<h5 className="font-weight-medium mb-4 mt-4 text-secondary">
 			{children}
 		</h5>
 	);
-};
+}
 
-const SectionAttribute = ({description, detail}) => {
+function SectionAttribute({description, detail}) {
 	return (
 		<ClayLayout.Row containerElement="p">
 			<ClayLayout.Col
@@ -201,9 +202,9 @@ const SectionAttribute = ({description, detail}) => {
 			</ClayLayout.Col>
 		</ClayLayout.Row>
 	);
-};
+}
 
-const SLAResultItem = ({dateOverdue, name, onTime, remainingTime, status}) => {
+function SLAResultItem({dateOverdue, name, onTime, remainingTime, status}) {
 	const bgColor = onTime ? 'success' : 'danger';
 	const iconName = onTime ? 'check-circle' : 'exclamation-circle';
 
@@ -213,20 +214,10 @@ const SLAResultItem = ({dateOverdue, name, onTime, remainingTime, status}) => {
 				return `(${Liferay.Language.get('sla-paused')})`;
 			}
 			case 'Running': {
-				const remainingTimePositive = onTime
-					? remainingTime
-					: remainingTime * -1;
-
-				const remainingTimeUTC = moment.utc(remainingTimePositive);
-
-				const durationText =
-					remainingTimeUTC.format('D') -
-					1 +
-					remainingTimeUTC.format('[d] HH[h] mm[min]');
-
-				const onTimeText = onTime
-					? Liferay.Language.get('left')
-					: Liferay.Language.get('overdue');
+				const [durationText, onTimeText] = remainingTimeFormat(
+					onTime,
+					remainingTime
+				);
 
 				return `${moment
 					.utc(dateOverdue)
@@ -257,11 +248,11 @@ const SLAResultItem = ({dateOverdue, name, onTime, remainingTime, status}) => {
 			<span className="small">{getStatusText(status)}</span>
 		</div>
 	);
-};
+}
 
 Body.SLAResultItem = SLAResultItem;
 Body.SectionTitle = SectionTitle;
 Body.SectionSubTitle = SectionSubTitle;
 Body.SectionAttribute = SectionAttribute;
 
-export {Body};
+export default Body;

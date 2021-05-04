@@ -32,12 +32,19 @@ import com.liferay.dynamic.data.mapping.model.LocalizedValue;
 	rules = {
 		@DDMFormRule(
 			actions = {
+				"setValue('inputMask', FALSE)", "setVisible('inputMask', FALSE)"
+			},
+			condition = "equals(getValue('dataType'), 'double')"
+		),
+		@DDMFormRule(
+			actions = {
 				"setDataType('predefinedValue', getValue('dataType'))",
 				"setValidationDataType('validation', getValue('dataType'))",
 				"setValidationFieldName('validation', getValue('name'))",
 				"setVisible('confirmationErrorMessage', getValue('requireConfirmation'))",
 				"setVisible('confirmationLabel', getValue('requireConfirmation'))",
 				"setVisible('direction', getValue('requireConfirmation'))",
+				"setVisible('inputMaskFormat', getValue('inputMask'))",
 				"setVisible('tooltip', false)"
 			},
 			condition = "TRUE"
@@ -78,7 +85,8 @@ import com.liferay.dynamic.data.mapping.model.LocalizedValue;
 								"type", "showLabel", "repeatable",
 								"requireConfirmation", "direction",
 								"confirmationLabel", "confirmationErrorMessage",
-								"validation", "tooltip"
+								"validation", "tooltip", "inputMask",
+								"inputMaskFormat"
 							}
 						)
 					}
@@ -119,6 +127,23 @@ public interface NumericDDMFormFieldTypeSettings
 	public String direction();
 
 	@DDMFormField(
+		label = "%input-mask", properties = "showAsSwitcher=true",
+		visibilityExpression = "FALSE"
+	)
+	public boolean inputMask();
+
+	@DDMFormField(
+		dataType = "string", label = "%format",
+		properties = {
+			"placeholder=%input-mask-format-placeholder", "regex=^[^1-8]+$"
+		},
+		required = true,
+		tip = "%to-create-a-custom-input-mask-you-will-need-to-use-a-specific-set-of-characters",
+		type = "text"
+	)
+	public LocalizedValue inputMaskFormat();
+
+	@DDMFormField(
 		dataType = "string", label = "%placeholder-text",
 		properties = {
 			"tooltip=%enter-text-that-assists-the-user-but-is-not-submitted-as-a-field-value",
@@ -141,8 +166,7 @@ public interface NumericDDMFormFieldTypeSettings
 	public LocalizedValue predefinedValue();
 
 	@DDMFormField(
-		label = "%require-confirmation", properties = "showAsSwitcher=true",
-		visibilityExpression = "FALSE"
+		label = "%require-confirmation", properties = "showAsSwitcher=true"
 	)
 	public boolean requireConfirmation();
 

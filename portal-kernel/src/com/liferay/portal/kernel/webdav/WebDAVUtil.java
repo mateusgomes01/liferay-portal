@@ -74,7 +74,7 @@ public class WebDAVUtil {
 	public static final String TOKEN_PREFIX = "opaquelocktoken:";
 
 	public static void addStorage(WebDAVStorage storage) {
-		getInstance()._addStorage(storage);
+		_webDAVUtil._addStorage(storage);
 	}
 
 	public static Namespace createNamespace(String prefix, String uri) {
@@ -94,7 +94,7 @@ public class WebDAVUtil {
 	}
 
 	public static void deleteStorage(WebDAVStorage storage) {
-		getInstance()._deleteStorage(storage);
+		_webDAVUtil._deleteStorage(storage);
 	}
 
 	public static long getDepth(HttpServletRequest httpServletRequest) {
@@ -281,7 +281,7 @@ public class WebDAVUtil {
 	}
 
 	public static WebDAVStorage getStorage(String token) {
-		return getInstance()._getStorage(token);
+		return _webDAVUtil._getStorage(token);
 	}
 
 	public static String getStorageToken(Portlet portlet) {
@@ -296,7 +296,7 @@ public class WebDAVUtil {
 	}
 
 	public static Collection<String> getStorageTokens() {
-		return getInstance()._getStorageTokens();
+		return _webDAVUtil._getStorageTokens();
 	}
 
 	public static long getTimeout(HttpServletRequest httpServletRequest) {
@@ -323,7 +323,7 @@ public class WebDAVUtil {
 	}
 
 	public static boolean isOverwrite(HttpServletRequest httpServletRequest) {
-		return getInstance()._isOverwrite(httpServletRequest);
+		return _webDAVUtil._isOverwrite(httpServletRequest);
 	}
 
 	public static String stripManualCheckInRequiredPath(String url) {
@@ -407,12 +407,12 @@ public class WebDAVUtil {
 		ServiceRegistration<WebDAVStorage> serviceRegistration =
 			registry.registerService(WebDAVStorage.class, storage);
 
-		_serviceRegistrations.put(storage, serviceRegistration);
+		_serviceRegistrationMap.put(storage, serviceRegistration);
 	}
 
 	private void _deleteStorage(WebDAVStorage storage) {
 		ServiceRegistration<WebDAVStorage> serviceRegistration =
-			_serviceRegistrations.remove(storage);
+			_serviceRegistrationMap.remove(storage);
 
 		if (serviceRegistration != null) {
 			serviceRegistration.unregister();
@@ -446,8 +446,8 @@ public class WebDAVUtil {
 
 	private static final WebDAVUtil _webDAVUtil = new WebDAVUtil();
 
-	private final ServiceRegistrationMap<WebDAVStorage> _serviceRegistrations =
-		new ServiceRegistrationMapImpl<>();
+	private final ServiceRegistrationMap<WebDAVStorage>
+		_serviceRegistrationMap = new ServiceRegistrationMapImpl<>();
 	private final ServiceTrackerMap<String, WebDAVStorage> _storages;
 
 }
