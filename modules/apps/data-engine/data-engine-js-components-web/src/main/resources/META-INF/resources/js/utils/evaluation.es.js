@@ -111,6 +111,8 @@ export const mergePages = (
 				};
 			}
 
+			//console.log("Merge Pages = " + newField.name);
+
 			return newField;
 		},
 		false,

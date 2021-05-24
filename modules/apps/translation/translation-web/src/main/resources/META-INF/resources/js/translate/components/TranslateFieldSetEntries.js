@@ -102,7 +102,8 @@ const TranslateFieldEditor = ({
 	targetContent,
 	targetContentDir,
 	onChange = noop,
-}) => (
+}) => 
+(
 	<ClayLayout.Row>
 		<ClayLayout.Col md={6}>
 			<ClayForm.Group>
@@ -228,6 +229,7 @@ const TranslateFieldSetEntries = ({
 						onChange({content, id: field.id});
 					},
 					targetContent: targetFieldsContent[field.id].content,
+					name: field.name
 				};
 
 				return (

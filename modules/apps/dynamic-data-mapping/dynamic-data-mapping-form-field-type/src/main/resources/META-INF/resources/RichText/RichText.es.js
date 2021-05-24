@@ -66,14 +66,29 @@ const RichText = ({
 				editorConfig={editorConfig}
 				name={name}
 				onChange={(data) => {
+					console.log('Name in richtext: ' + name);
 					if (currentValue !== data) {
 						setCurrentValue(data);
 						setDirty(true);
 
+						//const {dataValue} = data;
+
+						//setCurrentValue(dataValue);
+
+						//console.log('Name before onChange: ' + name);
+						//onChange({}, dataValue);
 						onChange({}, data);
+						console.log('Name after onChange: ' + name);
 					}
 					else if (!dirty) {
-						CKEDITOR.instances[name].resetUndo();
+						//console.log("Before if = " + name);
+						//console.log("Index of undefined = " + name.indexOf('undefined'));
+						//if(name.indexOf('undefined') === -1){
+							//console.log("not: " + name);
+							CKEDITOR.instances[name].resetUndo(); //undefined$
+						//} else {
+							//console.log("undefined: " + name);
+						//}
 					}
 				}}
 				onMode={({editor}) => {
