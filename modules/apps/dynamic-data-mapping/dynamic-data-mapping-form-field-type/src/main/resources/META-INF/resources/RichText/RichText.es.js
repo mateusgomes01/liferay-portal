@@ -38,18 +38,7 @@ const RichText = ({
 
 	const editorRef = useRef();
 
-	useEffect(() => {
-		const editor = editorRef.current?.editor;
-
-		if (editor) {
-			editor.config.contentsLangDirection =
-				Liferay.Language.direction[editingLanguageId];
-
-			editor.config.contentsLanguage = editingLanguageId;
-
-			editor.setData(editor.getData());
-		}
-	}, [editingLanguageId, editorRef]);
+	
 
 	return (
 		<FieldBase
