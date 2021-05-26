@@ -204,6 +204,7 @@ export const Page = ({
 	empty,
 	forceAriaUpdate,
 	header,
+	hideField = false,
 	invalidFormMessage,
 	pageIndex,
 }) => {
@@ -225,7 +226,12 @@ export const Page = ({
 			{editable && empty ? (
 				<ClayLayout.Row>
 					<ClayLayout.Col
-						className="col-ddm col-empty last-col lfr-initial-col mb-4 mt-5"
+						className={classNames(
+							'col-ddm col-empty last-col lfr-initial-col mb-4 mt-5',
+							{
+								hide: hideField,
+							}
+						)}
 						data-ddm-field-column="0"
 						data-ddm-field-page={pageIndex}
 						data-ddm-field-row="0"
@@ -254,7 +260,13 @@ export const Page = ({
 
 Page.displayName = 'EditorVariant.Page';
 
-export const Rows = ({children, editable, pageIndex, rows}) => {
+export const Rows = ({
+	children,
+	editable,
+	hideField = false,
+	pageIndex,
+	rows,
+}) => {
 	if (!rows) {
 		return null;
 	}
@@ -274,6 +286,7 @@ export const Rows = ({children, editable, pageIndex, rows}) => {
 
 			{editable && (
 				<Placeholder
+					className={classNames({hide: hideField})}
 					isRow
 					pageIndex={pageIndex}
 					rowIndex={index + 1}
