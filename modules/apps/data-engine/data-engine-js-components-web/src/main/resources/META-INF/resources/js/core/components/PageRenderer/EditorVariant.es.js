@@ -229,7 +229,7 @@ export const Page = ({
 						className={classNames(
 							'col-ddm col-empty last-col lfr-initial-col mb-4 mt-5',
 							{
-								hide: hideField,
+								'hide': hideField,
 							}
 						)}
 						data-ddm-field-column="0"
