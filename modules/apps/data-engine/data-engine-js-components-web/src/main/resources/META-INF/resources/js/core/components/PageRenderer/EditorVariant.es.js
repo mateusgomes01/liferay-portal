@@ -286,7 +286,7 @@ export const Rows = ({
 
 			{editable && (
 				<Placeholder
-					className={classNames({hide: hideField})}
+					className={classNames({'hide': hideField})}
 					isRow
 					pageIndex={pageIndex}
 					rowIndex={index + 1}
