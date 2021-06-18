@@ -14,6 +14,7 @@
 
 
 import React, {useState} from 'react';
+import Text from '../Text/Text.es';
 import ClayForm from '@clayui/form';
 import Checkbox from '../Checkbox/Checkbox.es';
 import Select from '../Select/Select.es';
@@ -41,7 +42,9 @@ const NEXT_STEP = {
 }
 
 const ValidationDate = ({
+    errorMessage,
     label,
+    name,
     readOnly,
     spritemap,
     visible,
@@ -98,6 +101,19 @@ const ValidationDate = ({
                             value={[NEXT_STEP[nextStep][0].name]}
                         />
                     )}
+					<Text
+						label={Liferay.Language.get('error-message')}
+						name={`${name}_errorMessage`}
+						onChange={(event) =>
+							handleChange('errorMessage', event.target.value)
+						}
+						placeholder={Liferay.Language.get('error-message')}
+						readOnly={readOnly}
+						required={false}
+						spritemap={spritemap}
+						value={errorMessage}
+						visible={visible}
+					/>
                 </>
             )}
 		</ClayForm.Group>
