@@ -12,23 +12,94 @@
  * details.
  */
 
+import {useFormState} from 'data-engine-js-components-web';
 import React, {useState} from 'react';
 
+import Select from '../Select/Select.es';
+import Text from '../Text/Text.es';
 import ValidationCheckbox from './ValidationCheckbox';
+import {transformValidations} from './transform.es';
 
-const ValidationDate = ({label, readOnly, spritemap, visible}) => {
+const ValidationDate = ({dataType, defaultLanguageId, editingLanguageId, label, name, readOnly, value, visible}) => {
+	const {errorMessage: initialErrorMessage, parameter: initialParameter} = value;
+
+	const {validations: initialValidations} = useFormState();
 	const [enabled, setEnabled] = useState(false);
+	const [errorMessage, setErrorMessage] = useState(() => {
+		if (initialErrorMessage[editingLanguageId] !== undefined) {
+			return initialErrorMessage[editingLanguageId]
+		}
+
+		return initialErrorMessage[defaultLanguageId]
+	});
+	
+	const parameter = JSON.stringify(initialParameter || {startsFrom: 'responseDate'});
+
+	const validations = transformValidations(initialValidations, dataType);
+	const selectedValidation = validations[0];
+
+	const startsFromOptions = [
+		{
+			checked: false,
+			label: Liferay.Language.get('response-date'),
+			name: 'responseDate',
+			value: 'responseDate'
+		}
+	];
+	const selectedStartsFromOptions = startsFromOptions[0];
 
 	return (
 		<ValidationCheckbox
 			label={label}
 			onChange={(event, value) => setEnabled(value)}
 			readOnly={readOnly}
-			spritemap={spritemap}
 			value={enabled}
 			visible={visible}
 		>
-			{enabled ? <div /> : <></>}
+			{enabled ? (
+				<>
+					<Select
+                        disableEmptyOption
+                        label={Liferay.Language.get('accepted-dates')}
+                        name="selectedValidation"
+                        onChange={() => {}}
+                        options={validations}
+                        placeholder={Liferay.Language.get('choose-an-option')}
+                        readOnly={readOnly}
+                        showEmptyOption={false}
+                        value={[selectedValidation.name]}
+                        visible={visible}
+                    />
+
+					<Select
+                        disableEmptyOption
+                        label={Liferay.Language.get('starts-from')}
+                        name="responseDate"
+                        onChange={() => {}}
+                        options={startsFromOptions}
+                        placeholder={Liferay.Language.get('choose-an-option')}
+                        readOnly={readOnly}
+                        showEmptyOption={false}
+                        value={[selectedStartsFromOptions.name]}
+                        visible={visible}
+                    />
+
+					<input name={`${name}_parameter`} type="hidden" value={parameter} />
+
+					<Text
+						label={Liferay.Language.get('error-message')}
+						name={`${name}_errorMessage`}
+						onChange={(event) => {
+                            setErrorMessage(event.target.value);
+                        }}
+						placeholder={Liferay.Language.get('error-message')}
+						readOnly={readOnly}
+						required={false}
+						value={errorMessage}
+						visible={visible}
+					/>
+				</>
+			) : null}
 		</ValidationCheckbox>
 	);
 };

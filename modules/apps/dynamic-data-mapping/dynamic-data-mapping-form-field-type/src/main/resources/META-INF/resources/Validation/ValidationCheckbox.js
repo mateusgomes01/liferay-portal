@@ -22,7 +22,6 @@ const ValidationCheckbox = ({
 	label,
 	onChange,
 	readOnly,
-	spritemap,
 	value,
 	visible,
 }) => {
@@ -36,7 +35,6 @@ const ValidationCheckbox = ({
 				onChange={onChange}
 				readOnly={readOnly}
 				showAsSwitcher
-				spritemap={spritemap}
 				value={value}
 				visible={visible}
 			/>

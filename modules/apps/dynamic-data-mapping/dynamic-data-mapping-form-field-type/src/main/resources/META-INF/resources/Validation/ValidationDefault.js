@@ -200,7 +200,6 @@ const ValidationDefaultWrapper = ({
 	dataType: initialDataType,
 	defaultLanguageId,
 	editingLanguageId,
-	ffCustomDDMValidationEnabled,
 	label,
 	name,
 	onChange,
@@ -214,7 +213,6 @@ const ValidationDefaultWrapper = ({
 	const data = transformData({
 		defaultLanguageId,
 		editingLanguageId,
-		ffCustomDDMValidationEnabled,
 		initialDataType,
 		validation,
 		validations,

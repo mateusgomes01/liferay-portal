@@ -32,7 +32,7 @@ const getValidationFromExpression = (validations, validation) => {
 	};
 };
 
-const transformValidations = (initialValidations, initialDataType) => {
+export const transformValidations = (initialValidations, initialDataType) => {
 	const dataType =
 		initialDataType === 'double' || initialDataType === 'integer'
 			? 'numeric'
