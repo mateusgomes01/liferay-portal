@@ -12,20 +12,31 @@
  * details.
  */
 
-import ClayForm from '@clayui/form';
 import {usePrevious} from '@liferay/frontend-js-react-web';
-import {useFormState} from 'data-engine-js-components-web';
 import React, {useEffect, useState} from 'react';
 
-import Checkbox from '../Checkbox/Checkbox.es';
-import Numeric from '../Numeric/Numeric.es';
 import Select from '../Select/Select.es';
 import Text from '../Text/Text.es';
 import {subWords} from '../util/strings.es';
-import {getSelectedValidation, transformData} from './transform.es';
+import ValidationCheckbox from './ValidationCheckbox';
+import {getSelectedValidation} from './transform.es';
 
-const Validation = ({
-	dataType,
+const parameters = {
+	futureDates: {
+		label: Liferay.Language.get('starts-from'),
+		name: 'startsFrom',
+		options: [
+			{
+				checked: false,
+				label: Liferay.Language.get('response-date'),
+				name: 'responseDate',
+				value: 'responseDate',
+			},
+		],
+	},
+};
+
+const ValidationDate = ({
 	defaultLanguageId,
 	editingLanguageId,
 	enableValidation: initialEnableValidation,
@@ -45,7 +56,7 @@ const Validation = ({
 	visible,
 }) => {
 	const [
-		{enableValidation, errorMessage, parameter, selectedValidation},
+		{enableValidation, errorMessage, selectedValidation},
 		setState,
 	] = useState({
 		enableValidation: initialEnableValidation,
@@ -54,12 +65,9 @@ const Validation = ({
 		selectedValidation: initialSelectedValidation,
 	});
 
-	const DynamicComponent =
-		selectedValidation &&
-		selectedValidation.parameterMessage &&
-		dataType === 'string'
-			? Text
-			: Numeric;
+	const transformSelectedValidation = getSelectedValidation(validations);
+	const prevEditingLanguageId = usePrevious(editingLanguageId);
+	const selectedParameter = parameters[selectedValidation.name];
 
 	const handleChange = (key, newValue) => {
 		setState((prevState) => {
@@ -98,10 +106,6 @@ const Validation = ({
 		});
 	};
 
-	const transformSelectedValidation = getSelectedValidation(validations);
-
-	const prevEditingLanguageId = usePrevious(editingLanguageId);
-
 	useEffect(() => {
 		if (prevEditingLanguageId !== editingLanguageId) {
 			setState((prevState) => {
@@ -130,25 +134,21 @@ const Validation = ({
 	}, [readOnly, visible]);
 
 	return (
-		<ClayForm.Group className="lfr-ddm-form-field-validation">
-			<Checkbox
-				label={label}
-				name="enableValidation"
-				onChange={(event, value) =>
-					handleChange('enableValidation', value)
-				}
-				readOnly={readOnly}
-				showAsSwitcher
-				spritemap={spritemap}
-				value={enableValidation}
-				visible={visible}
-			/>
-
+		<ValidationCheckbox
+			label={label}
+			onChange={(event, value) => {
+				handleChange('enableValidation', value);
+			}}
+			readOnly={readOnly}
+			spritemap={spritemap}
+			value={enableValidation}
+			visible={visible}
+		>
 			{enableValidation && (
 				<>
 					<Select
 						disableEmptyOption
-						label={Liferay.Language.get('accept-if-input')}
+						label={Liferay.Language.get('accepted-date')}
 						name="selectedValidation"
 						onChange={(event, value) =>
 							handleChange(
@@ -164,22 +164,24 @@ const Validation = ({
 						value={[selectedValidation.name]}
 						visible={visible}
 					/>
-					{selectedValidation.parameterMessage && (
-						<DynamicComponent
-							dataType={dataType}
-							label={Liferay.Language.get('value')}
-							name={`${name}_parameter`}
-							onChange={(event) =>
-								handleChange('parameter', event.target.value)
-							}
-							placeholder={selectedValidation.parameterMessage}
-							readOnly={readOnly}
-							required={false}
-							spritemap={spritemap}
-							value={parameter}
-							visible={visible}
-						/>
-					)}
+
+					<Select
+						disableEmptyOption
+						label={selectedParameter.label}
+						name="selectedParameter"
+						onChange={(event, value) => {
+							handleChange('parameter', {
+								[selectedParameter.name]: value[0],
+							});
+						}}
+						options={selectedParameter.options}
+						placeholder={Liferay.Language.get('choose-an-option')}
+						readOnly={readOnly}
+						showEmptyOption={false}
+						value={selectedParameter.options[0].name}
+						visible={visible}
+					/>
+
 					<Text
 						label={Liferay.Language.get('error-message')}
 						name={`${name}_errorMessage`}
@@ -195,48 +197,8 @@ const Validation = ({
 					/>
 				</>
 			)}
-		</ClayForm.Group>
+		</ValidationCheckbox>
 	);
 };
 
-const Main = ({
-	dataType: initialDataType,
-	defaultLanguageId,
-	editingLanguageId,
-	label,
-	name,
-	onChange,
-	readOnly,
-	spritemap,
-	validation,
-	value = {},
-	visible,
-}) => {
-	const {validations} = useFormState();
-	const data = transformData({
-		defaultLanguageId,
-		editingLanguageId,
-		initialDataType,
-		validation,
-		validations,
-		value,
-	});
-
-	return (
-		<Validation
-			{...data}
-			defaultLanguageId={defaultLanguageId}
-			editingLanguageId={editingLanguageId}
-			label={label}
-			name={name}
-			onChange={(value) => onChange({}, value)}
-			readOnly={readOnly}
-			spritemap={spritemap}
-			validation={validation}
-			value={value}
-			visible={visible}
-		/>
-	);
-};
-
-export default Main;
+export default ValidationDate;
