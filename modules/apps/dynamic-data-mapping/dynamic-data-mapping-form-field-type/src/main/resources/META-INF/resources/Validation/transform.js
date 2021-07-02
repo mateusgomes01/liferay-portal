@@ -32,18 +32,10 @@ const getValidationFromExpression = (validations, validation) => {
 	};
 };
 
-const transformValidations = (
-	initialValidations,
-	initialDataType,
-	ffCustomDDMValidationEnabled
-) => {
-	const dataType = initialDataType !== 'string' ? 'numeric' : initialDataType;
-	const validations =
-		ffCustomDDMValidationEnabled && initialValidations
-			? initialValidations
-			: VALIDATIONS;
+const transformValidations = (initialValidations, dataType) => {
+	const validations = initialValidations || VALIDATIONS;
 
-	return validations[dataType].map((validation) => {
+	return validations[normalizeDataType(dataType)].map((validation) => {
 		return {
 			...validation,
 			checked: false,
@@ -52,12 +44,7 @@ const transformValidations = (
 	});
 };
 
-const getValidation = (
-	defaultLanguageId,
-	editingLanguageId,
-	validations,
-	transformValidationFromExpression
-) => {
+const getValidation = (validations, transformValidationFromExpression) => {
 	return function transformValue(value) {
 		const {errorMessage = {}, expression = {}, parameter = {}} = value;
 		let parameterMessage = '';
@@ -73,17 +60,24 @@ const getValidation = (
 
 		return {
 			enableValidation,
-			errorMessage:
-				errorMessage[editingLanguageId] ||
-				errorMessage[defaultLanguageId],
+			errorMessage,
 			expression,
-			parameter:
-				parameter[editingLanguageId] || parameter[defaultLanguageId],
+			parameter,
 			parameterMessage,
 			selectedValidation,
 		};
 	};
 };
+
+export const normalizeDataType = (initialDataType) => {
+	return initialDataType === 'double' || initialDataType === 'integer'
+		? 'numeric'
+		: initialDataType;
+};
+
+export const getLocalizedValue = ({defaultLanguageId, editingLanguageId}) => (
+	value
+) => value[editingLanguageId] || value[defaultLanguageId];
 
 export const getSelectedValidation = (validations) => {
 	return function transformSelectedValidation(value) {
@@ -104,21 +98,14 @@ export const getSelectedValidation = (validations) => {
 export const transformData = ({
 	defaultLanguageId,
 	editingLanguageId,
-	ffCustomDDMValidationEnabled,
 	initialDataType,
 	validation,
 	validations: initialValidations,
 	value,
 }) => {
-	const dataType = validation?.dataType || initialDataType;
-	const validations = transformValidations(
-		initialValidations,
-		dataType,
-		ffCustomDDMValidationEnabled
-	);
+	const dataType = validation?.dataType ?? initialDataType;
+	const validations = transformValidations(initialValidations, dataType);
 	const parsedValidation = getValidation(
-		defaultLanguageId,
-		editingLanguageId,
 		validations,
 		getValidationFromExpression(validations, validation)
 	)(value);
