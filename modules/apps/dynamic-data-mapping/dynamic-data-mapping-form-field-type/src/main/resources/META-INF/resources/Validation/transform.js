@@ -33,7 +33,7 @@ const getValidationFromExpression = (validations, validation) => {
 };
 
 const transformValidations = (initialValidations, dataType) => {
-	const validations = initialValidations || VALIDATIONS;
+	const validations = initialValidations;
 
 	return validations[normalizeDataType(dataType)].map((validation) => {
 		return {

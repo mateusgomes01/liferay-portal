@@ -17,6 +17,7 @@ import {PageProvider} from 'data-engine-js-components-web';
 import React from 'react';
 
 import Validation from '../../../src/main/resources/META-INF/resources/Validation/Validation';
+import VALIDATIONS from '../../../src/main/resources/META-INF/resources/util/validations.es';
 
 const globalLanguageDirection = Liferay.Language.direction;
 
@@ -30,7 +31,7 @@ const defaultValue = {
 
 const ValidationWithProvider = (props) => (
 	<PageProvider value={{editingLanguageId: 'en_US'}}>
-		<Validation {...props} />
+		<Validation {...props, validations=VALIDATIONS} />
 	</PageProvider>
 );
 
