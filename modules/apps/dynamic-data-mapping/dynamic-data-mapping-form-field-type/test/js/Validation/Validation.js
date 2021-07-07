@@ -12,12 +12,13 @@
  * details.
  */
 
-import {act, cleanup, fireEvent, render} from '@testing-library/react';
-import {PageProvider} from 'data-engine-js-components-web';
+import {act, cleanup, /* userEvent, */ render} from '@testing-library/react';
+import userEvent from '@testing-library/user-event'
+import {FormProvider} from 'data-engine-js-components-web';
 import React from 'react';
 
 import Validation from '../../../src/main/resources/META-INF/resources/Validation/Validation';
-import VALIDATIONS from '../../../src/main/resources/META-INF/resources/util/validations.es';
+import {VALIDATIONS} from '../utils/validations';
 
 const globalLanguageDirection = Liferay.Language.direction;
 
@@ -30,66 +31,42 @@ const defaultValue = {
 };
 
 const ValidationWithProvider = (props) => (
-	<PageProvider value={{editingLanguageId: 'en_US'}}>
-		<Validation {...props, validations=VALIDATIONS} />
-	</PageProvider>
-);
+	<FormProvider value={{validations: VALIDATIONS}}>
+		<Validation {...props} />
+	</FormProvider>
+)
 
 describe('Validation', () => {
-	// eslint-disable-next-line no-console
-	const originalWarn = console.warn;
 
 	beforeAll(() => {
-		// eslint-disable-next-line no-console
-		console.warn = (...args) => {
-			if (/DataProvider: Trying/.test(args[0])) {
-				return;
-			}
-			originalWarn.call(console, ...args);
-		};
-
 		Liferay.Language.direction = {
 			en_US: 'rtl',
 		};
 	});
 
 	afterAll(() => {
-		// eslint-disable-next-line no-console
-		console.warn = originalWarn;
-
 		Liferay.Language.direction = globalLanguageDirection;
 	});
 
 	afterEach(cleanup);
 
-	beforeEach(() => {
-		jest.useFakeTimers();
-		fetch.mockResponseOnce(JSON.stringify({}));
-	});
-
 	it('renders checkbox to enable Validation', () => {
-		const onChange = jest.fn();
 
 		const {container} = render(
 			<ValidationWithProvider
 				dataType="string"
 				label="Validator"
 				name="validation"
-				onChange={onChange}
+				onChange={()=>{}}
 				spritemap={spritemap}
 				value={defaultValue}
 			/>
 		);
 
-		act(() => {
-			jest.runAllTimers();
-		});
-
 		expect(container).toMatchSnapshot();
 	});
 
 	it('enables validation after click on toogle', () => {
-		const onChange = jest.fn();
 
 		const {container} = render(
 			<ValidationWithProvider
@@ -99,7 +76,7 @@ describe('Validation', () => {
 				expression={{}}
 				label="Validator"
 				name="validation"
-				onChange={onChange}
+				onChange={()=>{}}
 				spritemap={spritemap}
 				validation={{
 					dataType: 'string',
@@ -111,7 +88,7 @@ describe('Validation', () => {
 
 		const inputCheckbox = container.querySelector('input[type="checkbox"]');
 
-		fireEvent.click(inputCheckbox);
+		userEvent.click(inputCheckbox);
 
 		act(() => {
 			jest.runAllTimers();
@@ -133,7 +110,6 @@ describe('Validation', () => {
 	});
 
 	it('renders parameter field with Numeric element', () => {
-		const onChange = jest.fn();
 
 		const {container} = render(
 			<ValidationWithProvider
@@ -143,7 +119,7 @@ describe('Validation', () => {
 				expression={{}}
 				label="Validator"
 				name="validation"
-				onChange={onChange}
+				onChange={()=>{}}
 				spritemap={spritemap}
 				validation={{
 					dataType: 'integer',
@@ -155,7 +131,7 @@ describe('Validation', () => {
 
 		const inputCheckbox = container.querySelector('input[type="checkbox"]');
 
-		fireEvent.click(inputCheckbox);
+		userEvent.click(inputCheckbox);
 
 		act(() => {
 			jest.runAllTimers();
@@ -177,7 +153,6 @@ describe('Validation', () => {
 	});
 
 	it('renders parameter field with Date element', () => {
-		const onChange = jest.fn();
 
 		const {container} = render(
 			<ValidationWithProvider
@@ -187,7 +162,7 @@ describe('Validation', () => {
 				expression={{}}
 				label="Validator"
 				name="validation"
-				onChange={onChange}
+				onChange={()=>{}}
 				spritemap={spritemap}
 				validation={{
 					dataType: 'date',
@@ -199,7 +174,7 @@ describe('Validation', () => {
 
 		const inputCheckbox = container.querySelector('input[type="checkbox"]');
 
-		fireEvent.click(inputCheckbox);
+		userEvent.click(inputCheckbox);
 
 		act(() => {
 			jest.runAllTimers();

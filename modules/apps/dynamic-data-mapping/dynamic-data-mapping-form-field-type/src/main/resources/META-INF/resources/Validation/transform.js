@@ -12,7 +12,6 @@
  * details.
  */
 
-import VALIDATIONS from '../util/validations.es';
 
 const getValidationFromExpression = (validations, validation) => {
 	return function transformValidationFromExpression(expression) {
@@ -32,9 +31,7 @@ const getValidationFromExpression = (validations, validation) => {
 	};
 };
 
-const transformValidations = (initialValidations, dataType) => {
-	const validations = initialValidations;
-
+const transformValidations = (validations, dataType) => {
 	return validations[normalizeDataType(dataType)].map((validation) => {
 		return {
 			...validation,
