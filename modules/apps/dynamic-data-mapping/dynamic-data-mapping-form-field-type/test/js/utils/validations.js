@@ -103,5 +103,3 @@ export const VALIDATIONS = {
 		},
 	],
 };
-
-export default VALIDATIONS;

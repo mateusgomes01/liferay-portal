@@ -12,8 +12,9 @@
  * details.
  */
 
-import {act, cleanup, fireEvent, render} from '@testing-library/react';
-import {PageProvider} from 'data-engine-js-components-web';
+import {cleanup, render} from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import {FormProvider} from 'data-engine-js-components-web';
 import React from 'react';
 
 import Validation from '../../../src/main/resources/META-INF/resources/Validation/Validation';
@@ -29,60 +30,35 @@ const defaultValue = {
 };
 
 const ValidationWithProvider = (props) => (
-	<PageProvider value={{editingLanguageId: 'en_US'}}>
+	<FormProvider value={{validations: VALIDATIONS}}>
 		<Validation {...props} />
-	</PageProvider>
+	</FormProvider>
 );
 
 describe('Validation', () => {
-	// eslint-disable-next-line no-console
-	const originalWarn = console.warn;
-
 	beforeAll(() => {
-		// eslint-disable-next-line no-console
-		console.warn = (...args) => {
-			if (/DataProvider: Trying/.test(args[0])) {
-				return;
-			}
-			originalWarn.call(console, ...args);
-		};
-
 		Liferay.Language.direction = {
 			en_US: 'rtl',
 		};
 	});
 
 	afterAll(() => {
-		// eslint-disable-next-line no-console
-		console.warn = originalWarn;
-
 		Liferay.Language.direction = globalLanguageDirection;
 	});
 
 	afterEach(cleanup);
 
-	beforeEach(() => {
-		jest.useFakeTimers();
-		fetch.mockResponseOnce(JSON.stringify({}));
-	});
-
 	it('renders checkbox to enable Validation', () => {
-		const onChange = jest.fn();
-
 		const {container} = render(
 			<ValidationWithProvider
 				dataType="string"
 				label="Validator"
 				name="validation"
-				onChange={onChange}
+				onChange={() => {}}
 				spritemap={spritemap}
 				value={defaultValue}
 			/>
 		);
-
-		act(() => {
-			jest.runAllTimers();
-		});
 
 		expect(container).toMatchSnapshot();
 	});
@@ -110,11 +86,7 @@ describe('Validation', () => {
 
 		const inputCheckbox = container.querySelector('input[type="checkbox"]');
 
-		fireEvent.click(inputCheckbox);
-
-		act(() => {
-			jest.runAllTimers();
-		});
+		userEvent.click(inputCheckbox);
 
 		expect(onChange).toHaveBeenCalledWith(expect.any(Object), {
 			enableValidation: true,
@@ -154,11 +126,7 @@ describe('Validation', () => {
 
 		const inputCheckbox = container.querySelector('input[type="checkbox"]');
 
-		fireEvent.click(inputCheckbox);
-
-		act(() => {
-			jest.runAllTimers();
-		});
+		userEvent.click(inputCheckbox);
 
 		expect(onChange).toHaveBeenCalledWith(expect.any(Object), {
 			enableValidation: true,
@@ -198,11 +166,7 @@ describe('Validation', () => {
 
 		const inputCheckbox = container.querySelector('input[type="checkbox"]');
 
-		fireEvent.click(inputCheckbox);
-
-		act(() => {
-			jest.runAllTimers();
-		});
+		userEvent.click(inputCheckbox);
 
 		expect(onChange).toHaveBeenCalledWith(expect.any(Object), {
 			enableValidation: true,
