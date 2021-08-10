@@ -163,8 +163,10 @@ const ValidationDate = ({
 							showEmptyOption={false}
 							value={
 								element.name === 'startsFrom'
-									? startsFrom
-									: endsOn
+									? startsFrom ??
+									  selectedParameter[index].options[0].name
+									: endsOn ??
+									  selectedParameter[index].options[0].name
 							}
 							visible={visible}
 						/>
