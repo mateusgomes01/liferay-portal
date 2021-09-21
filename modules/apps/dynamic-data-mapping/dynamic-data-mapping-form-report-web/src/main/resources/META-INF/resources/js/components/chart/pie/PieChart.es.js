@@ -136,7 +136,7 @@ export default ({data, height, totalEntries, width}) => {
 
 			<Legend
 				activeIndex={activeIndex}
-				labels={data.map(({label}) => label)}
+				labels={data.map(({label}) => (Liferay.Language.get(label)))}
 				onMouseOut={handleOnMouseOut}
 				onMouseOver={handleOnMouseOver}
 			/>
