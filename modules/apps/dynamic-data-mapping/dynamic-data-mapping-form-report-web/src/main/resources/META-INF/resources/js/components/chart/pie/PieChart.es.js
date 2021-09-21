@@ -12,7 +12,7 @@
  * details.
  */
 
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
 	Cell,
 	Pie,
@@ -32,6 +32,7 @@ const RADIAN = Math.PI / 180;
 export default ({data, height, totalEntries, width}) => {
 	const [activeIndex, setActiveIndex] = useState(null);
 	const [isAnimationActive, setAnimationActive] = useState(true);
+	const [newData, setNewData] = useState(data);
 
 	const handleOnMouseOut = () => {
 		setActiveIndex(null);
@@ -85,13 +86,17 @@ export default ({data, height, totalEntries, width}) => {
 		);
 	};
 
-	newData = data;
+	useEffect(() => {
+		setNewData(data);
 
-	for(let elm of newData){
-		console.log(elm.label);
-		elm.label = elm.label === 'true' ? Liferay.Language.get('true') : Liferay.Language.get('false');
-		console.log(elm.label);
-	}
+		for(let elm of newData){
+			console.log(elm.label);
+			elm.label = elm.label === 'true' ? Liferay.Language.get('true') : Liferay.Language.get('false');
+			console.log(elm.label);
+		}
+
+		return () => clear(newData);
+	}, []);
 
 	return (
 		<div className="custom-chart-size pie-chart">
