@@ -85,6 +85,14 @@ export default ({data, height, totalEntries, width}) => {
 		);
 	};
 
+	newData = data;
+
+	for(let elm of newData){
+		console.log(elm.label);
+		elm.label = elm.label === 'true' ? Liferay.Language.get('true') : Liferay.Language.get('false');
+		console.log(elm.label);
+	}
+
 	return (
 		<div className="custom-chart-size pie-chart">
 			<ResponsiveContainer
@@ -97,7 +105,7 @@ export default ({data, height, totalEntries, width}) => {
 						activeShape={ActiveShape}
 						cx="50%"
 						cy="50%"
-						data={data}
+						data={newData}
 						dataKey="count"
 						innerRadius={80}
 						isAnimationActive={isAnimationActive}
@@ -108,7 +116,7 @@ export default ({data, height, totalEntries, width}) => {
 						outerRadius={135}
 						paddingAngle={0}
 					>
-						{data.map((_, index) => (
+						{newData.map((_, index) => (
 							<Cell
 								fill={colors(index)}
 								fillOpacity={
