@@ -86,7 +86,7 @@ export default ({data, height, totalEntries, width}) => {
 		);
 	};
 
-	useEffect(() => {
+	/* useEffect(() => {
 		setNewData(data);
 
 		for(let elm of newData){
@@ -95,8 +95,8 @@ export default ({data, height, totalEntries, width}) => {
 			console.log(elm.label);
 		}
 
-		return () => clear(newData);
-	}, []);
+		return () => clearNewData(newData);
+	}, []); */
 
 	return (
 		<div className="custom-chart-size pie-chart">
@@ -149,7 +149,7 @@ export default ({data, height, totalEntries, width}) => {
 
 			<Legend
 				activeIndex={activeIndex}
-				labels={data.map(({label}) => (Liferay.Language.get(label)))}
+				labels={newData.map(({label}) => label)}
 				onMouseOut={handleOnMouseOut}
 				onMouseOver={handleOnMouseOver}
 			/>

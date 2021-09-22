@@ -15,7 +15,7 @@
 import ClayCard from '@clayui/card';
 import ClayIcon from '@clayui/icon';
 import ClayLayout from '@clayui/layout';
-import React, {useContext} from 'react';
+import React, {useEffect, useState, useContext} from 'react';
 
 import EmptyState from '../empty-state/EmptyState.es';
 import {SidebarContext} from '../sidebar/SidebarContext.es';
@@ -49,6 +49,19 @@ export default ({
 	totalEntries,
 }) => {
 	const {portletNamespace} = useContext(SidebarContext);
+	const [newChildren, setNewChildren] = useState(children);
+
+	useEffect(() => {
+		setNewChildren(children);
+
+		for(let elm of newChildren.props.data){
+			console.log(elm.label);
+			elm.label = elm.label === 'true' ? Liferay.Language.get('true') : Liferay.Language.get('false');
+			console.log(elm.label);
+		}
+
+		return () => clearNewChildren(newChildren);
+	}, []);
 
 	return (
 		<div className="card-item" id={`${portletNamespace}card_${index}`}>
@@ -82,7 +95,7 @@ export default ({
 
 						<ClayCard.Body>
 							{totalEntries > 0 ? (
-								children
+								newChildren
 							) : (
 								<EmptyState
 									description={Liferay.Language.get(
