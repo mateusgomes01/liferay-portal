@@ -137,17 +137,13 @@ export function FormBuilder() {
 	);
 
 	useEffect(() => {
-		const sessionLength = Liferay.Session
-			? Liferay.Session.get('sessionLength')
-			: 60000;
+		const autoExtend = Liferay.Session.get('autoExtend');
 
-		const interval = setInterval(() => {
-			if (Liferay.Session) {
-				Liferay.Session.extend();
-			}
-		}, sessionLength / 2);
+		if (!autoExtend) {
+			Liferay.Session.set('autoExtend', true);
 
-		return () => clearInterval(interval);
+			return () => Liferay.Session.set('autoExtend', autoExtend);
+		}
 	}, []);
 
 	/**
