@@ -17,11 +17,16 @@ import './ValidationDate.scss';
 import {ClayInput} from '@clayui/form';
 import ClayIcon from '@clayui/icon';
 import {ClayTooltipProvider} from '@clayui/tooltip';
-import React, {useState} from 'react';
+import React, {useState, useMemo} from 'react';
 
 import Select from '../Select/Select.es';
 import {limitValue} from '../util/limitValue';
 import {EVENT_TYPES} from './validationReducer';
+
+import {
+	PagesVisitor,
+	useFormState,
+} from 'data-engine-js-components-web';
 
 const MAX_QUANTITY = 999;
 const MIN_QUANTITY = 1;
@@ -302,6 +307,31 @@ const ValidationDate = ({
 		'unit'
 	);
 
+	const {builderPages} = useFormState();
+
+	const fields = useMemo(() => {
+		const fields = [];
+		const visitor = new PagesVisitor(builderPages);
+
+		visitor.mapFields(
+			(field, fieldIndex, columnIndex, rowIndex, pageIndex) => {
+				if (field.type === 'date') { //falta filtrar repeatable e o proprio field. Acredito que podemos usar o useFormState()
+					// para pegar o pages e pegar o fieldReference do date atual.
+					fields.push({
+						checked: false,
+						label: field.label,
+						name: field.fieldName,
+						value: field.value
+					});
+				}
+			},
+			true,
+			true
+		);
+
+		return fields;
+	}, [builderPages]);
+
 	const selectedParameter = parameters[selectedValidation.name];
 	const [startDate, setStartDate] = useState(initialStartDate);
 	const [startOperation, setStartOperation] = useState(
@@ -467,6 +497,7 @@ const ValidationDate = ({
 								);
 							}}
 							options={selectedParameter[index].options}
+							fixedOptions={fields} //isso fica abaixo do divider
 							placeholder={Liferay.Language.get(
 								'choose-an-option'
 							)}
