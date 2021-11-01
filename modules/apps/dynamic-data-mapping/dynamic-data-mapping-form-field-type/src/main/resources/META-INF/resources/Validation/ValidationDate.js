@@ -12,13 +12,18 @@
  * details.
  */
 
-import './ValidationDate.scss';
-
+import {ClayDropDownWithItems} from '@clayui/drop-down';
 import {ClayInput} from '@clayui/form';
-import React, {useState} from 'react';
+import {ClaySelect} from '@clayui/form';
+import {ClaySelectWithOption} from '@clayui/form';
+import ClayIcon from '@clayui/icon';
+import {PagesVisitor, useFormState} from 'data-engine-js-components-web';
+import React, {useMemo, useState} from 'react';
 
 import Select from '../Select/Select.es';
 import {limitValue} from '../util/limitValue';
+
+import './ValidationDate.scss';
 import {EVENT_TYPES} from './validationReducer';
 
 const MAX_QUANTITY = 999;
@@ -252,6 +257,7 @@ const ValidationDate = ({
 	name,
 	onBlur,
 	parameter,
+	parentFieldName,
 	readOnly,
 	selectedValidation,
 	transformSelectedValidation,
@@ -318,6 +324,9 @@ const ValidationDate = ({
 	const [endsOn, setEndsOn] = useState(initialEndType);
 	const [endUnit, setEndUnit] = useState(initialEndUnit);
 
+	const [startsOnSelectedValue, setStartsOnSelectedValue] = useState('Response Date');
+	const [endsOnSelectedValue, setEndsOnSelectedValue] = useState('Response Date');
+
 	const handleChangeParameters = (value, typeName, type) => {
 		const parameter = {};
 
@@ -355,6 +364,10 @@ const ValidationDate = ({
 
 			newValue = getSignedValue(operation, quantity);
 		}
+		else if (type === 'dateFieldName') {
+			parameter[typeName].type = 'dateField';
+			parameter[typeName].date = 'dateField';
+		}
 
 		parameter[typeName] = {
 			...parameter[typeName],
@@ -368,6 +381,11 @@ const ValidationDate = ({
 	const getDateTypeValue = (name) => {
 		return name === 'startsFrom' ? startsFrom : endsOn;
 	};
+
+
+	const {builderPages} = useFormState();
+
+
 
 	return (
 		<>
@@ -398,11 +416,90 @@ const ValidationDate = ({
 				let label = '';
 				const startSection = element.name === 'startsFrom';
 
+				const fields = useMemo(() => {
+					const fields = [];
+					const visitor = new PagesVisitor(builderPages);
+			
+					visitor.mapFields(
+						(field) => {
+							if (
+								!field.repeatable &&
+								field.type === 'date' &&
+								field.fieldName !== parentFieldName
+							) {
+								fields.push({
+									checked: false,
+									label: field.label,
+									name: field.fieldName,
+									value: field.fieldName,
+									onClick: (event) => {
+										handleChangeParameters(
+											field.fieldName,
+											'startsFrom',
+											'dateFieldName'
+										);
+										
+										element.name === 'startsFrom' ? setStartsOnSelectedValue(field.label) : setEndsOnSelectedValue(field.label);
+										console.log("Mudou");
+										console.log(event.target);
+									},
+									
+								});
+							}
+						},
+						true,
+						true
+					);
+			
+					return fields;
+				}, [builderPages]);
+
+				selectedParameter[index].options.map((option, optionIndex) => {
+					const newOption = {
+						...option,
+						onClick: () => {
+							handleChangeParameters(
+								option.name,
+								element.name,
+								option.name
+							)
+							element.name === 'startsFrom' ? setStartsOnSelectedValue(option.label) : setEndsOnSelectedValue(option.label);
+						}
+					}
+					
+					selectedParameter[index].options[optionIndex] = newOption;
+
+				})
+
 				if (selectedParameter.length > 1) {
 					label = startSection
 						? Liferay.Language.get('start-date')
 						: Liferay.Language.get('end-date');
 				}
+
+				const items = [
+					...selectedParameter[index].options,
+					{
+						type: 'divider',
+					},
+					{	
+						items: fields,
+						label: Liferay.Language.get('date-fields'),
+						type: 'group',
+					},
+					
+				];
+
+				const select = (
+					<div className="form-builder-select-field input-group-container">
+						<div className="form-control results-chosen select-field-trigger">
+							<div className="option-selected">{element.name === 'startsFrom' ? startsOnSelectedValue : endsOnSelectedValue}</div>
+							<a className="select-arrow-down-container">
+								<ClayIcon symbol="caret-double" />
+							</a>
+						</div>
+					</div>
+				);
 
 				return (
 					<>
@@ -413,7 +510,15 @@ const ValidationDate = ({
 							</>
 						)}
 
-						<Select
+						<label>{element.label}</label>
+						
+
+						<ClayDropDownWithItems
+							items={items}
+							trigger={select}		
+						/>
+
+						{/* <Select
 							disableEmptyOption
 							key={`selectedParameter_${index}`}
 							label={element.label}
@@ -442,6 +547,7 @@ const ValidationDate = ({
 								);
 							}}
 							options={selectedParameter[index].options}
+							fixedOptions={fields} 
 							placeholder={Liferay.Language.get(
 								'choose-an-option'
 							)}
@@ -449,7 +555,7 @@ const ValidationDate = ({
 							showEmptyOption={false}
 							value={startSection ? startsFrom : endsOn}
 							visible={visible}
-						/>
+						/> */}
 
 						{getDateTypeValue(element.name) === 'customDate' && (
 							<CustomDates
