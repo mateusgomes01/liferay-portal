@@ -12,13 +12,16 @@
  * details.
  */
 
-import './ValidationDate.scss';
-
 import {ClayInput} from '@clayui/form';
-import React, {useState} from 'react';
+import {PagesVisitor, useFormState} from 'data-engine-js-components-web';
+import React, {useMemo, useState} from 'react';
 
 import Select from '../Select/Select.es';
 import {limitValue} from '../util/numericalOperations';
+import {limitValue} from '../util/limitValue';
+import StartEndDate from './StartEndDate';
+
+import './ValidationDate.scss';
 import {EVENT_TYPES} from './validationReducer';
 
 const MAX_QUANTITY = 999;
@@ -252,6 +255,7 @@ const ValidationDate = ({
 	name,
 	onBlur,
 	parameter,
+	parentFieldName,
 	readOnly,
 	selectedValidation,
 	transformSelectedValidation,
@@ -318,6 +322,13 @@ const ValidationDate = ({
 	const [endsOn, setEndsOn] = useState(initialEndType);
 	const [endUnit, setEndUnit] = useState(initialEndUnit);
 
+	const [startsFromSelectedValue, setStartsFromSelectedValue] = useState(
+		'Response Date'
+	);
+	const [endsOnSelectedValue, setEndsOnSelectedValue] = useState(
+		'Response Date'
+	);
+	
 	const handleChangeParameters = (value, typeName, type) => {
 		const parameter = {};
 
@@ -355,6 +366,10 @@ const ValidationDate = ({
 
 			newValue = getSignedValue(operation, quantity);
 		}
+		else if (type === 'dateFieldName') {
+			parameter[typeName].type = 'dateField';
+			parameter[typeName].date = 'dateField';
+		}
 
 		parameter[typeName] = {
 			...parameter[typeName],
@@ -368,6 +383,31 @@ const ValidationDate = ({
 	const getDateTypeValue = (name) => {
 		return name === 'startsFrom' ? startsFrom : endsOn;
 	};
+
+	const {builderPages} = useFormState();
+
+	
+	const fields = useMemo(() => {
+		const fields = [];
+		const visitor = new PagesVisitor(builderPages);
+
+		visitor.visitFields((field) => {
+			if (
+				!field.repeatable &&
+				field.type === 'date' &&
+				field.fieldName !== parentFieldName
+			) {
+				fields.push({
+					checked: false,
+					label: field.label,
+					name: field.fieldName,
+					value: field.fieldName,
+				});
+			}
+		});
+
+		return fields;
+	}, [builderPages]);
 
 	return (
 		<>
@@ -394,26 +434,41 @@ const ValidationDate = ({
 				value={[selectedValidation.name]}
 				visible={visible}
 			/>
-			{selectedParameter.map((element, index) => {
-				let label = '';
-				const startSection = element.name === 'startsFrom';
 
-				if (selectedParameter.length > 1) {
-					label = startSection
-						? Liferay.Language.get('start-date')
-						: Liferay.Language.get('end-date');
+			{selectedParameter.map(({label, name, options}) => {
+
+				const {title, tooltip, selectedOption} = name === 'startsFrom' ? {
+					title: Liferay.Language.get('start-date'),
+					tooltip: Liferay.Language.get(
+						'starts-from-tooltip'
+				  ),
+				  	selectedOption: startsFromSelectedValue
+				} : {
+					title: Liferay.Language.get('end-date'),
+					tooltip: Liferay.Language.get('ends-on-tooltip'),
+				 	selectedOption: endsOnSelectedValue
 				}
 
 				return (
 					<>
-						{label !== '' && (
+						{selectedParameter.length > 1 && (
 							<>
-								<label>{label.toUpperCase()}</label>
+								<label>{title.toUpperCase()}</label>
 								<div className="separator" />
 							</>
 						)}
 
-						<Select
+						<StartEndDate
+							dateFieldOptions={fields}
+							onChange={handleChangeParameters}
+							label={label}
+							name={name}
+							options={options}
+							selectedOption={selectedOption}
+							tooltip={tooltip}
+						/>
+
+						{/* <Select
 							disableEmptyOption
 							key={`selectedParameter_${index}`}
 							label={element.label}
@@ -442,6 +497,7 @@ const ValidationDate = ({
 								);
 							}}
 							options={selectedParameter[index].options}
+							fixedOptions={fields} 
 							placeholder={Liferay.Language.get(
 								'choose-an-option'
 							)}
@@ -449,9 +505,9 @@ const ValidationDate = ({
 							showEmptyOption={false}
 							value={startSection ? startsFrom : endsOn}
 							visible={visible}
-						/>
+						/> */}
 
-						{getDateTypeValue(element.name) === 'customDate' && (
+						{/* {getDateTypeValue(element.name) === 'customDate' && (
 							<CustomDates
 								date={startSection ? startDate : endDate}
 								endDate={endDate}
@@ -484,7 +540,7 @@ const ValidationDate = ({
 								unit={startSection ? startUnit : endUnit}
 								visible={visible}
 							/>
-						)}
+						)} */}
 					</>
 				);
 			})}
