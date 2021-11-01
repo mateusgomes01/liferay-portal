@@ -12,13 +12,15 @@
  * details.
  */
 
-import './ValidationDate.scss';
-
 import {ClayInput} from '@clayui/form';
-import React, {useState} from 'react';
+import {PagesVisitor, useFormState} from 'data-engine-js-components-web';
+import React, {useMemo, useState} from 'react';
 
 import Select from '../Select/Select.es';
 import {limitValue} from '../util/limitValue';
+import StartEndDate from './StartEndDate';
+
+import './ValidationDate.scss';
 import {EVENT_TYPES} from './validationReducer';
 
 const MAX_QUANTITY = 999;
@@ -252,6 +254,7 @@ const ValidationDate = ({
 	name,
 	onBlur,
 	parameter,
+	parentFieldName,
 	readOnly,
 	selectedValidation,
 	transformSelectedValidation,
@@ -318,6 +321,13 @@ const ValidationDate = ({
 	const [endsOn, setEndsOn] = useState(initialEndType);
 	const [endUnit, setEndUnit] = useState(initialEndUnit);
 
+	const [startsFromSelectedValue, setStartsFromSelectedValue] = useState(
+		'Response Date'
+	);
+	const [endsOnSelectedValue, setEndsOnSelectedValue] = useState(
+		'Response Date'
+	);
+
 	const handleChangeParameters = (value, typeName, type) => {
 		const parameter = {};
 
@@ -355,6 +365,10 @@ const ValidationDate = ({
 
 			newValue = getSignedValue(operation, quantity);
 		}
+		else if (type === 'dateFieldName') {
+			parameter[typeName].type = 'dateField';
+			parameter[typeName].date = 'dateField';
+		}
 
 		parameter[typeName] = {
 			...parameter[typeName],
@@ -368,6 +382,30 @@ const ValidationDate = ({
 	const getDateTypeValue = (name) => {
 		return name === 'startsFrom' ? startsFrom : endsOn;
 	};
+
+	const {builderPages} = useFormState();
+
+	const fields = useMemo(() => {
+		const fields = [];
+		const visitor = new PagesVisitor(builderPages);
+
+		visitor.visitFields((field) => {
+			if (
+				!field.repeatable &&
+				field.type === 'date' &&
+				field.fieldName !== parentFieldName
+			) {
+				fields.push({
+					checked: false,
+					label: field.label,
+					name: field.fieldName,
+					value: field.fieldName,
+				});
+			}
+		});
+
+		return fields;
+	}, [builderPages]);
 
 	return (
 		<>
@@ -398,6 +436,45 @@ const ValidationDate = ({
 				let label = '';
 				const startSection = element.name === 'startsFrom';
 
+				selectedParameter[index].options.map((option, optionIndex) => {
+					const newOption = {
+						...option,
+						onClick: () => {
+							handleChangeParameters(
+								option.name,
+								element.name,
+								option.name
+							);
+							element.name === 'startsFrom'
+								? setStartsFromSelectedValue(option.label)
+								: setEndsOnSelectedValue(option.label);
+						},
+					};
+
+					selectedParameter[index].options[optionIndex] = newOption;
+				});
+
+				fields.map((field, fieldIndex) => {
+					const newField = {
+						...field,
+						onClick: (event) => {
+							handleChangeParameters(
+								field.name,
+								element.name,
+								'dateFieldName'
+							);
+
+							element.name === 'startsFrom'
+								? setStartsFromSelectedValue(field.label)
+								: setEndsOnSelectedValue(field.label);
+							console.log('Mudou');
+							console.log(event.target);
+						},
+					};
+
+					fields[fieldIndex] = newField;
+				});
+
 				if (selectedParameter.length > 1) {
 					label = startSection
 						? Liferay.Language.get('start-date')
@@ -413,7 +490,26 @@ const ValidationDate = ({
 							</>
 						)}
 
-						<Select
+						<StartEndDate
+							dateFieldOptions={fields}
+							label={element.label}
+							name={element.name}
+							options={selectedParameter[index].options}
+							selectedOption={
+								element.name === 'startsFrom'
+									? startsFromSelectedValue
+									: endsOnSelectedValue
+							}
+							tooltip={
+								element.label === 'Starts From'
+									? Liferay.Language.get(
+											'starts-from-tooltip'
+									  )
+									: Liferay.Language.get('ends-on-tooltip')
+							}
+						/>
+
+						{/* <Select
 							disableEmptyOption
 							key={`selectedParameter_${index}`}
 							label={element.label}
@@ -442,6 +538,7 @@ const ValidationDate = ({
 								);
 							}}
 							options={selectedParameter[index].options}
+							fixedOptions={fields} 
 							placeholder={Liferay.Language.get(
 								'choose-an-option'
 							)}
@@ -449,7 +546,7 @@ const ValidationDate = ({
 							showEmptyOption={false}
 							value={startSection ? startsFrom : endsOn}
 							visible={visible}
-						/>
+						/> */}
 
 						{getDateTypeValue(element.name) === 'customDate' && (
 							<CustomDates

@@ -46,6 +46,7 @@ declare global {
 
 	type LocalizedTextKey =
 		| 'choose-an-option'
+		| 'date-fields'
 		| 'decimal-places'
 		| 'decimal-separator'
 		| 'input-mask-append-placeholder'
