@@ -15,7 +15,7 @@
 import {ClayDropDownWithItems} from '@clayui/drop-down';
 import ClayIcon from '@clayui/icon';
 import {ClayTooltipProvider} from '@clayui/tooltip';
-import React from 'react';
+import React, {useMemo} from 'react';
 
 import './StartEndDate.scss';
 
@@ -25,9 +25,22 @@ const StartEndDate: React.FC<IProps> = ({
 	name,
 	onChange,
 	options,
-	selectedOption,
+	parameters,
 	tooltip,
 }) => {
+
+	const selectedOption = useMemo(()=>{
+		if(parameters.type === "dateField"){
+			return parameters.dateFieldName;
+		}
+
+		const option = options.find(({value}) => 
+			value === parameters.type
+		);
+
+		return option?.label ?? "Response Date";
+	},[parameters.type]);
+
 	const select = (
 		<div className="form-builder-select-field input-group-container">
 			<div className="form-control results-chosen select-field-trigger">
@@ -99,7 +112,7 @@ interface IProps {
 	options: IOptions[];
 	onChange: (value: string, typeName: string, type: DateType) => void;
 	tooltip: string;
-	selectedOption: string;
+	parameters: any;
 	dateFieldOptions: IDateFieldOption[];
 }
 
