@@ -22,7 +22,7 @@ interface IProps {
 	options: IOptions[];
 	onChange: (value: string, typeName: string, type: DateType) => void;
 	tooltip: string;
-	selectedOption: string;
+	parameters: any;
 	dateFieldOptions: IDateFieldOption[];
 }
 interface IDateFieldOption {
