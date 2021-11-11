@@ -99,18 +99,17 @@ const getOperation = (quantity) => {
 };
 
 const getSelectedParameter = (
-	localizedValue,
+	value,
 	selectedParameterName,
-	attributeName
 ) => {
-	if (localizedValue && typeof localizedValue === 'string') {
+	if (value && typeof value === 'string') {
 		try {
-			localizedValue = JSON.parse(localizedValue);
+			value = JSON.parse(value);
 		}
 		catch (error) {}
 	}
 
-	return localizedValue?.[selectedParameterName]?.[attributeName];
+	return value?.[selectedParameterName];
 };
 
 const getSignedValue = (operation, value) => {
@@ -262,72 +261,16 @@ const ValidationDate = ({
 	validations,
 	visible,
 }) => {
-	const initialStartQuantity = getSelectedParameter(
+	const startDate = getSelectedParameter(
 		localizedValue(parameter),
 		'startsFrom',
-		'quantity'
 	);
-	const initialEndQuantity = getSelectedParameter(
+	const endDate = getSelectedParameter(
 		localizedValue(parameter),
 		'endsOn',
-		'quantity'
-	);
-	const initialStartDate = getSelectedParameter(
-		localizedValue(parameter),
-		'startsFrom',
-		'date'
-	);
-	const initialEndDate = getSelectedParameter(
-		localizedValue(parameter),
-		'endsOn',
-		'date'
-	);
-
-	const initialStartType = getSelectedParameter(
-		localizedValue(parameter),
-		'startsFrom',
-		'type'
-	);
-	const initialEndType = getSelectedParameter(
-		localizedValue(parameter),
-		'endsOn',
-		'type'
-	);
-	const initialStartUnit = getSelectedParameter(
-		localizedValue(parameter),
-		'startsFrom',
-		'unit'
-	);
-	const initialEndUnit = getSelectedParameter(
-		localizedValue(parameter),
-		'endsOn',
-		'unit'
 	);
 
 	const selectedParameter = parameters[selectedValidation.name];
-	const [startDate, setStartDate] = useState(initialStartDate);
-	const [startOperation, setStartOperation] = useState(
-		getOperation(initialStartQuantity)
-	);
-	const [startQuantity, setStartQuantity] = useState(initialStartQuantity);
-	const [startsFrom, setStartsFrom] = useState(initialStartType);
-
-	const [startUnit, setStartUnit] = useState(initialStartUnit);
-
-	const [endDate, setEndDate] = useState(initialEndDate);
-	const [endOperation, setEndOperation] = useState(
-		getOperation(initialEndQuantity)
-	);
-	const [endQuantity, setEndQuantity] = useState(initialEndQuantity);
-	const [endsOn, setEndsOn] = useState(initialEndType);
-	const [endUnit, setEndUnit] = useState(initialEndUnit);
-
-	const [startsFromSelectedValue, setStartsFromSelectedValue] = useState(
-		'Response Date'
-	);
-	const [endsOnSelectedValue, setEndsOnSelectedValue] = useState(
-		'Response Date'
-	);
 	
 	const handleChangeParameters = (value, typeName, type) => {
 		const parameter = {};
@@ -416,8 +359,6 @@ const ValidationDate = ({
 				label={Liferay.Language.get('accepted-date')}
 				name="selectedValidation"
 				onChange={(event, value) => {
-					setStartsFrom(initialStartType);
-					setEndsOn(initialEndType);
 					dispatch({
 						payload: {
 							selectedValidation: transformSelectedValidation(
@@ -435,22 +376,22 @@ const ValidationDate = ({
 				visible={visible}
 			/>
 
-			{selectedParameter.map(({label, name, options}) => {
+			{selectedParameter.map(({label, name, options}, index) => {
 
-				const {title, tooltip, selectedOption} = name === 'startsFrom' ? {
+				const {title, tooltip, parameters} = name === 'startsFrom' ? {
 					title: Liferay.Language.get('start-date'),
 					tooltip: Liferay.Language.get(
 						'starts-from-tooltip'
 				  ),
-				  	selectedOption: startsFromSelectedValue
+				  	parameters: startDate
 				} : {
 					title: Liferay.Language.get('end-date'),
 					tooltip: Liferay.Language.get('ends-on-tooltip'),
-				 	selectedOption: endsOnSelectedValue
+					parameters: endDate
 				}
 
 				return (
-					<>
+					<div key={index}>
 						{selectedParameter.length > 1 && (
 							<>
 								<label>{title.toUpperCase()}</label>
@@ -464,7 +405,7 @@ const ValidationDate = ({
 							label={label}
 							name={name}
 							options={options}
-							selectedOption={selectedOption}
+							parameters={parameters}
 							tooltip={tooltip}
 						/>
 
@@ -541,7 +482,7 @@ const ValidationDate = ({
 								visible={visible}
 							/>
 						)} */}
-					</>
+					</div>
 				);
 			})}
 			<label htmlFor={errorMessageName}>
