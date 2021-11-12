@@ -20,7 +20,7 @@ interface IProps {
 	label: string;
 	name: string;
 	options: IOptions[];
-	onChange: (value: string, typeName: string, type: DateType) => void;
+	onChange: any;
 	tooltip: string;
 	parameters: any;
 	dateFieldOptions: IDateFieldOption[];
@@ -34,4 +34,3 @@ interface IOptions {
 	name: 'customDate' | 'responseDate';
 	value: 'customDate' | 'responseDate';
 }
-declare type DateType = 'customDate' | 'responseDate' | 'dateFieldName';
