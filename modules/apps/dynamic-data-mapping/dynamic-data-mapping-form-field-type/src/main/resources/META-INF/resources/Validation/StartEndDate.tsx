@@ -29,25 +29,50 @@ const StartEndDate: React.FC<IProps> = ({
 	tooltip,
 }) => {
 
+	const handleChange = (key: string, value: string, options?: {}) => {
+
+		onChange(name,{
+			...parameters,
+			...options,
+			[key]: value,
+		});
+	}
+
 	const selectedOption = useMemo(()=>{
-		if(parameters.type === "dateField"){
+		if(parameters?.type === "dateField"){
 			const date = dateFieldOptions.find(({name}) => 
 				parameters.dateFieldName === name
-			)
-			return date?.label ?? "Date Undefined";
+			) as IDateFieldOption;
+
+			return date.label;
 		}
 
-		const option = options.find(({value}) => 
-			value === parameters.type
+		const option = options?.find(({value}) => 
+			value === parameters?.type
 		);
 
-		return option?.label ?? "Response Date";
+		return option?.label;
 	},[parameters]);
+
+	const customDateSelectedOption = useMemo(() => { 
+
+	}, [])
 
 	const select = (
 		<div className="form-builder-select-field input-group-container">
 			<div className="form-control results-chosen select-field-trigger">
 				<div className="option-selected">{selectedOption}</div>
+				<a className="select-arrow-down-container">
+					<ClayIcon symbol="caret-double" />
+				</a>
+			</div>
+		</div>
+	);
+
+	const customDateSelect = (
+		<div className="form-builder-select-field input-group-container">
+			<div className="form-control results-chosen select-field-trigger">
+				<div className="option-selected">{customDateSelectedOption}</div>
 				<a className="select-arrow-down-container">
 					<ClayIcon symbol="caret-double" />
 				</a>
@@ -70,17 +95,55 @@ const StartEndDate: React.FC<IProps> = ({
 		...options.map((option) => ({
 			...option,
 			onClick: () => {
-				onChange(option.name, name, option.value);
+				handleChange('type', option.name);
 			},
 		})),
 		{
 			type: 'divider',
 		},
 		{
-			items: dateFieldOptions.map((dateFieldOption) => ({
-				...dateFieldOption,
+			items: dateFieldOptions.map((option) => ({
+				...option,
 				onClick: () => {
-					onChange(dateFieldOption.name, name, 'dateFieldName');
+					handleChange('type', 'dateField', {dateFieldName: option.name});
+				},
+			})),
+			label: Liferay.Language.get('date-fields'),
+			type: 'group',
+		},
+	];
+
+	const customDateitems: {
+		items?: {
+			onClick: () => void;
+			label: string;
+			name: string;
+		}[];
+		onClick?: () => void;
+		name?: 'responseDate';
+		value?: 'responseDate';
+		label?: string;
+		type?: 'group' | 'divider';
+	}[] = [
+		
+		{
+			...(options.find(({name}) => name === 'responseDate') as {
+				label: string;
+				name: 'responseDate';
+				value: 'responseDate';
+			}),
+			onClick: () => {
+				handleChange('type', name);
+			}
+		},
+		{
+			type: 'divider',
+		},
+		{
+			items: dateFieldOptions.map((option) => ({
+				...option,
+				onClick: () => {
+					handleChange('type', 'dateField', {dateFieldName: option.name});
 				},
 			})),
 			label: Liferay.Language.get('date-fields'),
@@ -91,18 +154,31 @@ const StartEndDate: React.FC<IProps> = ({
 	return (
 		<>
 			<div className="ddm__validation-date-start-end">
-				<label>{label}</label>
-				<ClayTooltipProvider>
-					<div data-tooltip-align="top" title={tooltip}>
-						<ClayIcon
-							className="ddm__validation-date-start-end-icon"
-							symbol="question-circle-full"
-						/>
-					</div>
-				</ClayTooltipProvider>
+				<div className="ddm__validation-date-start-end-label">
+					<label>{label}</label>
+					<ClayTooltipProvider>
+						<div data-tooltip-align="top" title={tooltip}>
+							<ClayIcon
+								className="ddm__validation-date-start-end-icon"
+								symbol="question-circle-full"
+							/>
+						</div>
+					</ClayTooltipProvider>
+				</div>
+
+				<ClayDropDownWithItems items={items} trigger={select} />
 			</div>
 
-			<ClayDropDownWithItems items={items} trigger={select} />
+
+			{parameters?.type === 'customDate' && (
+				<div className="ddm__validation-date-start-end">
+					<div className="ddm__validation-date-start-end-label">
+						<label>Date</label>
+					</div>
+
+					<ClayDropDownWithItems items={customDateitems} trigger={customDateSelect} />
+				</div>
+			)}
 		</>
 	);
 };
@@ -113,7 +189,7 @@ interface IProps {
 	label: string;
 	name: string;
 	options: IOptions[];
-	onChange: (value: string, typeName: string, type: DateType) => void;
+	onChange: any; //(value: string, typeName: string, type: DateType) => void;
 	tooltip: string;
 	parameters: any;
 	dateFieldOptions: IDateFieldOption[];
