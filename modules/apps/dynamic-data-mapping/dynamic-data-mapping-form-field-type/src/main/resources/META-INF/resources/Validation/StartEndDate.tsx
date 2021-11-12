@@ -29,16 +29,26 @@ const StartEndDate: React.FC<IProps> = ({
 	tooltip,
 }) => {
 
+	const handleChange = (key: string, value: string, options?: {}) => {
+
+		onChange(name,{
+			...parameters,
+			...options,
+			[key]: value,
+		});
+	}
+
 	const selectedOption = useMemo(()=>{
-		if(parameters.type === "dateField"){
+		if(parameters?.type === "dateField"){
 			const date = dateFieldOptions.find(({name}) => 
 				parameters.dateFieldName === name
-			)
-			return date?.label ?? "Date Undefined";
+			) as IDateFieldOption;
+
+			return date.label;
 		}
 
-		const option = options.find(({value}) => 
-			value === parameters.type
+		const option = options?.find(({value}) => 
+			value === parameters?.type
 		);
 
 		return option?.label ?? "Response Date";
@@ -70,23 +80,61 @@ const StartEndDate: React.FC<IProps> = ({
 		...options.map((option) => ({
 			...option,
 			onClick: () => {
-				onChange(option.name, name, option.value);
+				handleChange('type', name);
 			},
 		})),
 		{
 			type: 'divider',
 		},
 		{
-			items: dateFieldOptions.map((dateFieldOption) => ({
-				...dateFieldOption,
+			items: dateFieldOptions.map((option) => ({
+				...option,
 				onClick: () => {
-					onChange(dateFieldOption.name, name, 'dateFieldName');
+					handleChange('type', 'dateField', {dateFieldName: option.name});
 				},
 			})),
 			label: Liferay.Language.get('date-fields'),
 			type: 'group',
 		},
 	];
+
+	// const customDateitems: {
+	// 	items?: {
+	// 		onClick: () => void;
+	// 		label: string;
+	// 		name: string;
+	// 	}[];
+	// 	onClick?: () => void;
+	// 	name?: 'responseDate';
+	// 	value?: 'responseDate';
+	// 	label?: string;
+	// 	type?: 'group' | 'divider';
+	// }[] = [
+		
+	// 	{
+	// 		...(options.find(({name, value}) => name === 'responseDate') as {
+	// 			label: string;
+	// 			name: 'responseDate';
+	// 			value: 'responseDate';
+	// 		}),
+	// 		onClick: () => {
+	// 			onChange(name, name, value);
+	// 		}
+	// 	},
+	// 	{
+	// 		type: 'divider',
+	// 	},
+	// 	{
+	// 		items: dateFieldOptions.map((dateFieldOption) => ({
+	// 			...dateFieldOption,
+	// 			onClick: () => {
+	// 				onChange(dateFieldOption.name, name, 'dateFieldName');
+	// 			},
+	// 		})),
+	// 		label: Liferay.Language.get('date-fields'),
+	// 		type: 'group',
+	// 	},
+	// ];
 
 	return (
 		<>
@@ -113,7 +161,7 @@ interface IProps {
 	label: string;
 	name: string;
 	options: IOptions[];
-	onChange: (value: string, typeName: string, type: DateType) => void;
+	onChange: any; //(value: string, typeName: string, type: DateType) => void;
 	tooltip: string;
 	parameters: any;
 	dateFieldOptions: IDateFieldOption[];

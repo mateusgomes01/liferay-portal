@@ -133,117 +133,117 @@ const parameters = {
 	pastDates: [getDateOptionsByType(endsOnLabel, 'endsOn')],
 };
 
-const CustomDates = ({
-	date,
-	eventType,
-	handleChangeParameters,
-	localizationMode,
-	name,
-	operation,
-	quantity,
-	readOnly,
-	setDate,
-	setOperation,
-	setQuantity,
-	setUnit,
-	unit,
-	visible,
-}) => {
-	return (
-		<>
-			<Select
-				label={Liferay.Language.get('date')}
-				name={`selectedDate_${eventType}`}
-				onChange={(event, value) => {
-					setDate(value[0]);
-					handleChangeParameters(value[0], eventType, 'date');
-				}}
-				options={[responseDateOption]}
-				readOnly={readOnly || localizationMode}
-				showEmptyOption={false}
-				value={date}
-				visible={visible}
-			/>
-			<div className="align-items-end d-flex position-relative">
-				<div className="ddm-form-field-type__validation-date pr-2">
-					<Select
-						label={Liferay.Language.get('operation')}
-						name={`selectedOperation_${eventType}`}
-						onChange={(event, value) => {
-							setOperation(value[0]);
-							handleChangeParameters(
-								value[0],
-								eventType,
-								'quantity'
-							);
-						}}
-						options={operationsOptions}
-						readOnly={readOnly || localizationMode}
-						showEmptyOption={false}
-						value={operation}
-						visible={visible}
-					/>
-				</div>
-				<div className="ddm-form-field-type__validation-date pr-2">
-					<div className="form-group">
-						<label htmlFor={`${name}_validation_date_quantity`}>
-							{Liferay.Language.get('quantity')}
-						</label>
-						<ClayInput
-							className="ddm-field-text"
-							disabled={readOnly}
-							id={`${name}_validation_date_quantity`}
-							max={MAX_QUANTITY}
-							name={`inputedQuantity_${eventType}`}
-							onBlur={(event) => {
-								let {value: newValue} = event.target;
+// const CustomDates = ({
+// 	date,
+// 	eventType,
+// 	handleChangeParameters,
+// 	localizationMode,
+// 	name,
+// 	operation,
+// 	quantity,
+// 	readOnly,
+// 	setDate,
+// 	setOperation,
+// 	setQuantity,
+// 	setUnit,
+// 	unit,
+// 	visible,
+// }) => {
+// 	return (
+// 		<>
+// 			<Select
+// 				label={Liferay.Language.get('date')}
+// 				name={`selectedDate_${eventType}`}
+// 				onChange={(event, value) => {
+// 					setDate(value[0]);
+// 					handleChangeParameters(value[0], eventType, 'date');
+// 				}}
+// 				options={[responseDateOption]}
+// 				readOnly={readOnly || localizationMode}
+// 				showEmptyOption={false}
+// 				value={date}
+// 				visible={visible}
+// 			/>
+// 			<div className="align-items-end d-flex position-relative">
+// 				<div className="ddm-form-field-type__validation-date pr-2">
+// 					<Select
+// 						label={Liferay.Language.get('operation')}
+// 						name={`selectedOperation_${eventType}`}
+// 						onChange={(event, value) => {
+// 							setOperation(value[0]);
+// 							handleChangeParameters(
+// 								value[0],
+// 								eventType,
+// 								'quantity'
+// 							);
+// 						}}
+// 						options={operationsOptions}
+// 						readOnly={readOnly || localizationMode}
+// 						showEmptyOption={false}
+// 						value={operation}
+// 						visible={visible}
+// 					/>
+// 				</div>
+// 				<div className="ddm-form-field-type__validation-date pr-2">
+// 					<div className="form-group">
+// 						<label htmlFor={`${name}_validation_date_quantity`}>
+// 							{Liferay.Language.get('quantity')}
+// 						</label>
+// 						<ClayInput
+// 							className="ddm-field-text"
+// 							disabled={readOnly}
+// 							id={`${name}_validation_date_quantity`}
+// 							max={MAX_QUANTITY}
+// 							name={`inputedQuantity_${eventType}`}
+// 							onBlur={(event) => {
+// 								let {value: newValue} = event.target;
 
-								newValue = limitValue({
-									defaultValue: MIN_QUANTITY,
-									max: MAX_QUANTITY,
-									min: MIN_QUANTITY,
-									value: newValue,
-								});
+// 								newValue = limitValue({
+// 									defaultValue: MIN_QUANTITY,
+// 									max: MAX_QUANTITY,
+// 									min: MIN_QUANTITY,
+// 									value: newValue,
+// 								});
 
-								newValue =
-									operation === 'minus'
-										? (newValue * -1).toString()
-										: newValue;
+// 								newValue =
+// 									operation === 'minus'
+// 										? (newValue * -1).toString()
+// 										: newValue;
 
-								setQuantity(newValue);
-								handleChangeParameters(
-									newValue,
-									eventType,
-									'quantity'
-								);
-							}}
-							onChange={({target: {value}}) => {
-								setQuantity(value);
-							}}
-							type="number"
-							value={quantity === '' ? '' : Math.abs(quantity)}
-						/>
-					</div>
-				</div>
-				<div className="ddm-form-field-type__validation-date">
-					<Select
-						label={Liferay.Language.get('unit')}
-						name={`selectedUnit_${eventType}`}
-						onChange={(event, value) => {
-							setUnit(value[0]);
-							handleChangeParameters(value[0], eventType, 'unit');
-						}}
-						options={unitOptions}
-						readOnly={readOnly || localizationMode}
-						showEmptyOption={false}
-						value={unit}
-						visible={visible}
-					/>
-				</div>
-			</div>
-		</>
-	);
-};
+// 								setQuantity(newValue);
+// 								handleChangeParameters(
+// 									newValue,
+// 									eventType,
+// 									'quantity'
+// 								);
+// 							}}
+// 							onChange={({target: {value}}) => {
+// 								setQuantity(value);
+// 							}}
+// 							type="number"
+// 							value={quantity === '' ? '' : Math.abs(quantity)}
+// 						/>
+// 					</div>
+// 				</div>
+// 				<div className="ddm-form-field-type__validation-date">
+// 					<Select
+// 						label={Liferay.Language.get('unit')}
+// 						name={`selectedUnit_${eventType}`}
+// 						onChange={(event, value) => {
+// 							setUnit(value[0]);
+// 							handleChangeParameters(value[0], eventType, 'unit');
+// 						}}
+// 						options={unitOptions}
+// 						readOnly={readOnly || localizationMode}
+// 						showEmptyOption={false}
+// 						value={unit}
+// 						visible={visible}
+// 					/>
+// 				</div>
+// 			</div>
+// 		</>
+// 	);
+// };
 
 const ValidationDate = ({
 	dispatch,
@@ -260,6 +260,7 @@ const ValidationDate = ({
 	validations,
 	visible,
 }) => {
+
 	const startDate = getSelectedParameter(
 		localizedValue(parameter),
 		'startsFrom',
@@ -271,50 +272,22 @@ const ValidationDate = ({
 
 	const selectedParameter = parameters[selectedValidation.name];
 	
-	const handleChangeParameters = (value, typeName, type) => {
-		const parameter = {};
+	const handleChangeParameters = (typeName, parameters) => {
 
-		let newValue = value;
+		const parameter = {}
 
 		if (typeName === 'startsFrom') {
-			parameter['startsFrom'] = {
-				date: startDate.date,
-				quantity: startDate.startQuantity,
-				type: startDate.startsFrom,
-				unit: startDate.unit,
-			};
+			if(selectedValidation.name === 'dateRange') {
+				parameter.endsOn = endDate;
+			}
+			parameter.startsFrom = parameters
+			
 		} else if (typeName === 'endsOn') {
-			parameter['endsOn'] = {
-				date: endDate.date,
-				quantity: endDate.startQuantity,
-				type: endDate.startsFrom,
-				unit: endDate.unit,
+			if(selectedValidation.name === 'dateRange') {
+				parameter.startsFrom = startDate;
 			}
+			parameter.endsOn = parameters
 		}
-
-		/* let operation =
-			typeName === 'startsFrom' ? startOperation : endOperation;
-		*/
-		if (type === 'quantity') {
-			let quantity = value;
-
-			if (isNaN(value)) {
-				operation = value;
-				quantity =
-					typeName === 'startsFrom' ? startQuantity : endQuantity;
-			}
-
-			newValue = getSignedValue(operation, quantity);
-		}
-		else if (type === 'dateFieldName') {
-			parameter[typeName].type = 'dateField';
-			parameter[typeName].date = 'dateField';
-		}
-
-		parameter[typeName] = {
-			...parameter[typeName],
-			[type]: newValue,
-		};
 
 		dispatch({payload: {parameter}, type: EVENT_TYPES.SET_PARAMETER});
 	};
@@ -388,7 +361,7 @@ const ValidationDate = ({
 				}
 
 				return (
-					<div key={index}>
+					<React.Fragment key={index}>
 						{selectedParameter.length > 1 && (
 							<>
 								<label>{title.toUpperCase()}</label>
@@ -445,19 +418,6 @@ const ValidationDate = ({
 							visible={visible}
 						/> */}
 
-						{getDateTypeValue(name) === 'customDate' && (
-							<StartEndDate
-								dateFieldOptions={fields}
-								onChange={handleChangeParameters}
-								label={label}
-								name={name}
-								options={options}
-								parameters={parameters}
-								tooltip={tooltip}
-							/>
-
-							
-						)}
 						{/* {getDateTypeValue(element.name) === 'customDate' && (
 							<CustomDates
 								date={startSection ? startDate : endDate}
@@ -492,7 +452,7 @@ const ValidationDate = ({
 								visible={visible}
 							/>
 						)} */}
-					</div>
+					</React.Fragment>
 				);
 			})}
 			<label htmlFor={errorMessageName}>
