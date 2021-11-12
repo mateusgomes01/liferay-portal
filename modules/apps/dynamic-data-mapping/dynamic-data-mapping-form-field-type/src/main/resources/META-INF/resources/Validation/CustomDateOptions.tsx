@@ -12,10 +12,13 @@
  * details.
  */
 
+import {ClayInput} from '@clayui/form';
 import {ClayDropDownWithItems} from '@clayui/drop-down';
 import ClayIcon from '@clayui/icon';
 import {ClayTooltipProvider} from '@clayui/tooltip';
 import React, {useMemo} from 'react';
+
+import Select from '../Select/Select.es';
 
 import './StartEndDate.scss';
 
@@ -90,19 +93,83 @@ const StartEndDate: React.FC<IProps> = ({
 
 	return (
 		<>
-			<div className="ddm__validation-date-start-end">
-				<label>{label}</label>
-				<ClayTooltipProvider>
-					<div data-tooltip-align="top" title={tooltip}>
-						<ClayIcon
-							className="ddm__validation-date-start-end-icon"
-							symbol="question-circle-full"
+			{/* <div className="align-items-end d-flex position-relative">
+				<div className="ddm-form-field-type__validation-date pr-2">
+					<Select
+						label={Liferay.Language.get('operation')}
+						name={`selectedOperation_${eventType}`}
+						onChange={(event, value) => {
+							setOperation(value[0]);
+							handleChangeParameters(
+								value[0],
+								eventType,
+								'quantity'
+							);
+						}}
+						options={operationsOptions}
+						readOnly={readOnly || localizationMode}
+						showEmptyOption={false}
+						value={operation}
+						visible={visible}
+					/>
+				</div>
+				<div className="ddm-form-field-type__validation-date pr-2">
+					<div className="form-group">
+						<label htmlFor={`${name}_validation_date_quantity`}>
+							{Liferay.Language.get('quantity')}
+						</label>
+						<ClayInput
+							className="ddm-field-text"
+							disabled={readOnly}
+							id={`${name}_validation_date_quantity`}
+							max={MAX_QUANTITY}
+							name={`inputedQuantity_${eventType}`}
+							onBlur={(event) => {
+								let {value: newValue} = event.target;
+
+								newValue = limitValue({
+									defaultValue: MIN_QUANTITY,
+									max: MAX_QUANTITY,
+									min: MIN_QUANTITY,
+									value: newValue,
+								});
+
+								newValue =
+									operation === 'minus'
+										? (newValue * -1).toString()
+										: newValue;
+
+								setQuantity(newValue);
+								handleChangeParameters(
+									newValue,
+									eventType,
+									'quantity'
+								);
+							}}
+							onChange={({target: {value}}) => {
+								setQuantity(value);
+							}}
+							type="number"
+							value={quantity === '' ? '' : Math.abs(quantity)}
 						/>
 					</div>
-				</ClayTooltipProvider>
-			</div>
-
-			<ClayDropDownWithItems items={items} trigger={select} />
+				</div>
+				<div className="ddm-form-field-type__validation-date">
+					<Select
+						label={Liferay.Language.get('unit')}
+						name={`selectedUnit_${eventType}`}
+						onChange={(event, value) => {
+							setUnit(value[0]);
+							handleChangeParameters(value[0], eventType, 'unit');
+						}}
+						options={unitOptions}
+						readOnly={readOnly || localizationMode}
+						showEmptyOption={false}
+						value={unit}
+						visible={visible}
+					/>
+				</div>
+			</div> */}
 		</>
 	);
 };

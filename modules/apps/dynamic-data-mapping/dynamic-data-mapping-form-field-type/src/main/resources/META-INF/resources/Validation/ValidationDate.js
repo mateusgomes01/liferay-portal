@@ -276,27 +276,25 @@ const ValidationDate = ({
 
 		let newValue = value;
 
-		if (startsFrom) {
+		if (typeName === 'startsFrom') {
 			parameter['startsFrom'] = {
-				date: startDate,
-				quantity: startQuantity,
-				type: startsFrom,
-				unit: startUnit,
+				date: startDate.date,
+				quantity: startDate.startQuantity,
+				type: startDate.startsFrom,
+				unit: startDate.unit,
 			};
-		}
-
-		if (endsOn) {
+		} else if (typeName === 'endsOn') {
 			parameter['endsOn'] = {
-				date: endDate,
-				quantity: endQuantity,
-				type: endsOn,
-				unit: endUnit,
-			};
+				date: endDate.date,
+				quantity: endDate.startQuantity,
+				type: endDate.startsFrom,
+				unit: endDate.unit,
+			}
 		}
 
-		let operation =
+		/* let operation =
 			typeName === 'startsFrom' ? startOperation : endOperation;
-
+		*/
 		if (type === 'quantity') {
 			let quantity = value;
 
@@ -447,6 +445,19 @@ const ValidationDate = ({
 							visible={visible}
 						/> */}
 
+						{getDateTypeValue(name) === 'customDate' && (
+							<StartEndDate
+								dateFieldOptions={fields}
+								onChange={handleChangeParameters}
+								label={label}
+								name={name}
+								options={options}
+								parameters={parameters}
+								tooltip={tooltip}
+							/>
+
+							
+						)}
 						{/* {getDateTypeValue(element.name) === 'customDate' && (
 							<CustomDates
 								date={startSection ? startDate : endDate}
