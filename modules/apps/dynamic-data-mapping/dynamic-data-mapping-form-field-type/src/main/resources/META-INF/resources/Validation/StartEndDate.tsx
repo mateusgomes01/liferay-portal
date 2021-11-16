@@ -113,44 +113,6 @@ const StartEndDate: React.FC<IProps> = ({
 		},
 	];
 
-	const customDateitems: {
-		items?: {
-			onClick: () => void;
-			label: string;
-			name: string;
-		}[];
-		onClick?: () => void;
-		name?: 'responseDate';
-		value?: 'responseDate';
-		label?: string;
-		type?: 'group' | 'divider';
-	}[] = [
-		
-		{
-			...(options.find(({name}) => name === 'responseDate') as {
-				label: string;
-				name: 'responseDate';
-				value: 'responseDate';
-			}),
-			onClick: () => {
-				handleChange('type', name);
-			}
-		},
-		{
-			type: 'divider',
-		},
-		{
-			items: dateFieldOptions.map((option) => ({
-				...option,
-				onClick: () => {
-					handleChange('type', 'dateField', {dateFieldName: option.name});
-				},
-			})),
-			label: Liferay.Language.get('date-fields'),
-			type: 'group',
-		},
-	];
-
 	return (
 		<>
 			<div className="ddm__validation-date-start-end">
@@ -171,13 +133,38 @@ const StartEndDate: React.FC<IProps> = ({
 
 
 			{parameters?.type === 'customDate' && (
-				<div className="ddm__validation-date-start-end">
-					<div className="ddm__validation-date-start-end-label">
-						<label>Date</label>
-					</div>
-
-					<ClayDropDownWithItems items={customDateitems} trigger={customDateSelect} />
-				</div>
+				<CustomDates
+					date={startSection ? startDate : endDate}
+					endDate={endDate}
+					eventType={element.name}
+					handleChangeParameters={handleChangeParameters}
+					name={name}
+					operation={
+						startSection ? startOperation : endOperation
+					}
+					quantity={
+						startSection ? startQuantity : endQuantity
+					}
+					readOnly={localizationMode || readOnly}
+					setDate={
+						startSection ? setStartDate : setEndDate
+					}
+					setOperation={
+						startSection
+							? setStartOperation
+							: setEndOperation
+					}
+					setQuantity={
+						startSection
+							? setStartQuantity
+							: setEndQuantity
+					}
+					setUnit={
+						startSection ? setStartUnit : setEndUnit
+					}
+					unit={startSection ? startUnit : endUnit}
+					visible={visible}
+				/>
 			)}
 		</>
 	);
