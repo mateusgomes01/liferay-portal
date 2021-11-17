@@ -22,18 +22,10 @@ import StartEndDate from './StartEndDate';
 import './ValidationDate.scss';
 import {EVENT_TYPES} from './validationReducer';
 
-const MAX_QUANTITY = 999;
-const MIN_QUANTITY = 1;
-
 const customDateLabel = Liferay.Language.get('custom-date');
-const daysLabel = Liferay.Language.get('days');
 const endsOnLabel = Liferay.Language.get('ends-on');
-const minusLabel = Liferay.Language.get('minus');
-const monthsLabel = Liferay.Language.get('months');
-const plusLabel = Liferay.Language.get('plus');
 const responseDateLabel = Liferay.Language.get('response-date');
 const startsFromLabel = Liferay.Language.get('starts-from');
-const yearsLabel = Liferay.Language.get('years');
 
 const responseDateOption = {
 	checked: false,
@@ -41,42 +33,6 @@ const responseDateOption = {
 	name: 'responseDate',
 	value: 'responseDate',
 };
-
-const operationsOptions = [
-	{
-		checked: false,
-		label: minusLabel,
-		name: 'minus',
-		value: 'minus',
-	},
-	{
-		checked: false,
-		label: plusLabel,
-		name: 'plus',
-		value: 'plus',
-	},
-];
-
-const unitOptions = [
-	{
-		checked: false,
-		label: daysLabel,
-		name: 'days',
-		value: 'days',
-	},
-	{
-		checked: false,
-		label: monthsLabel,
-		name: 'months',
-		value: 'months',
-	},
-	{
-		checked: false,
-		label: yearsLabel,
-		name: 'years',
-		value: 'years',
-	},
-];
 
 const getDateOptionsByType = (label, name) => ({
 	label,
@@ -345,9 +301,9 @@ const ValidationDate = ({
 				visible={visible}
 			/>
 
-			{selectedParameter.map(({label, name, options}, index) => {
+			{selectedParameter.map(({label, name: eventType, options}, index) => {
 
-				const {title, tooltip, parameters} = name === 'startsFrom' ? {
+				const {title, tooltip, parameters} = eventType === 'startsFrom' ? {
 					title: Liferay.Language.get('start-date'),
 					tooltip: Liferay.Language.get(
 						'starts-from-tooltip'
@@ -370,11 +326,13 @@ const ValidationDate = ({
 
 						<StartEndDate
 							dateFieldOptions={fields}
-							onChange={handleChangeParameters}
+							eventType={eventType}
 							label={label}
 							name={name}
+							onChange={handleChangeParameters}
 							options={options}
 							parameters={parameters}
+							readOnly={localizationMode || readOnly }
 							tooltip={tooltip}
 						/>
 
