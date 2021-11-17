@@ -13,31 +13,14 @@
  */
 
 import React from 'react';
-import './StartEndDate.scss';
-declare const StartEndDate: React.FC<IProps>;
-export default StartEndDate;
+declare const CustomDate: React.FC<IProps>;
+export default CustomDate;
 interface IProps {
 	eventType: 'startsFrom' | 'endsOn';
-	label: string;
+	readOnly?: boolean;
 	name: string;
-	options: IOptions[];
-	onChange: any;
-	tooltip: string;
+	onChange: (key: string, value: string | number) => void;
 	parameters: {
-		type: DateType;
-		dateFieldName: string;
 		quantity: number;
 	};
-	readOnly?: boolean;
-	dateFieldOptions: IDateFieldOption[];
 }
-interface IDateFieldOption {
-	label: string;
-	name: string;
-}
-interface IOptions {
-	label: string;
-	name: 'customDate' | 'responseDate';
-	value: 'customDate' | 'responseDate';
-}
-declare type DateType = 'customDate' | 'responseDate' | 'dateField';

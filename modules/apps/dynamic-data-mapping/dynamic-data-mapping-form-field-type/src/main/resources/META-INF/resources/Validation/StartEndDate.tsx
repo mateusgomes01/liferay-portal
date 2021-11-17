@@ -17,21 +17,24 @@ import ClayIcon from '@clayui/icon';
 import {ClayTooltipProvider} from '@clayui/tooltip';
 import React, {useMemo} from 'react';
 
+import CustomDate from './CustomDate';
 import './StartEndDate.scss';
 
 const StartEndDate: React.FC<IProps> = ({
 	dateFieldOptions,
+	eventType,
 	label,
 	name,
 	onChange,
 	options,
 	parameters,
+	readOnly,
 	tooltip,
 }) => {
 
-	const handleChange = (key: string, value: string, options?: {}) => {
+	const handleChange = (key: string, value: string | number, options?: {}) => {
 
-		onChange(name,{
+		onChange(eventType,{
 			...parameters,
 			...options,
 			[key]: value,
@@ -54,25 +57,10 @@ const StartEndDate: React.FC<IProps> = ({
 		return option?.label;
 	},[parameters]);
 
-	const customDateSelectedOption = useMemo(() => { 
-
-	}, [])
-
 	const select = (
 		<div className="form-builder-select-field input-group-container">
 			<div className="form-control results-chosen select-field-trigger">
 				<div className="option-selected">{selectedOption}</div>
-				<a className="select-arrow-down-container">
-					<ClayIcon symbol="caret-double" />
-				</a>
-			</div>
-		</div>
-	);
-
-	const customDateSelect = (
-		<div className="form-builder-select-field input-group-container">
-			<div className="form-control results-chosen select-field-trigger">
-				<div className="option-selected">{customDateSelectedOption}</div>
 				<a className="select-arrow-down-container">
 					<ClayIcon symbol="caret-double" />
 				</a>
@@ -133,37 +121,44 @@ const StartEndDate: React.FC<IProps> = ({
 
 
 			{parameters?.type === 'customDate' && (
-				<CustomDates
-					date={startSection ? startDate : endDate}
-					endDate={endDate}
-					eventType={element.name}
-					handleChangeParameters={handleChangeParameters}
+				<CustomDate
+					// dateFieldOptions={fields}
+					onChange={handleChange}
+					// label={label}
 					name={name}
-					operation={
-						startSection ? startOperation : endOperation
-					}
-					quantity={
-						startSection ? startQuantity : endQuantity
-					}
-					readOnly={localizationMode || readOnly}
-					setDate={
-						startSection ? setStartDate : setEndDate
-					}
-					setOperation={
-						startSection
-							? setStartOperation
-							: setEndOperation
-					}
-					setQuantity={
-						startSection
-							? setStartQuantity
-							: setEndQuantity
-					}
-					setUnit={
-						startSection ? setStartUnit : setEndUnit
-					}
-					unit={startSection ? startUnit : endUnit}
-					visible={visible}
+					// options={options}
+					parameters={parameters}
+					// tooltip={tooltip}
+					// date={startSection ? startDate : endDate}
+					// endDate={endDate}
+					eventType={eventType}
+					// handleChangeParameters={handleChangeParameters}
+					// name={name}
+					// operation={
+					// 	startSection ? startOperation : endOperation
+					// }
+					// quantity={
+					// 	startSection ? startQuantity : endQuantity
+					// }
+					readOnly={readOnly}
+					// setDate={
+					// 	startSection ? setStartDate : setEndDate
+					// }
+					// setOperation={
+					// 	startSection
+					// 		? setStartOperation
+					// 		: setEndOperation
+					// }
+					// setQuantity={
+					// 	startSection
+					// 		? setStartQuantity
+					// 		: setEndQuantity
+					// }
+					// setUnit={
+					// 	startSection ? setStartUnit : setEndUnit
+					// }
+					// unit={startSection ? startUnit : endUnit}
+					// visible={visible}
 				/>
 			)}
 		</>
@@ -173,12 +168,18 @@ const StartEndDate: React.FC<IProps> = ({
 export default StartEndDate;
 
 interface IProps {
+	eventType: 'startsFrom' | 'endsOn';
 	label: string;
 	name: string;
 	options: IOptions[];
 	onChange: any; //(value: string, typeName: string, type: DateType) => void;
 	tooltip: string;
-	parameters: any;
+	parameters: {
+		type: DateType;
+		dateFieldName: string;
+		quantity: number;
+	};
+	readOnly?: boolean;
 	dateFieldOptions: IDateFieldOption[];
 }
 
@@ -193,4 +194,4 @@ interface IOptions {
 	value: 'customDate' | 'responseDate';
 }
 
-type DateType = 'customDate' | 'responseDate' | 'dateFieldName';
+type DateType = 'customDate' | 'responseDate' | 'dateField';

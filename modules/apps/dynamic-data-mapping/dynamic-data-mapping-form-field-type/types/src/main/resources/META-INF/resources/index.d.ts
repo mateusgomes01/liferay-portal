@@ -43,6 +43,7 @@ declare global {
 		| 'input-mask-append-placeholder'
 		| 'prefix'
 		| 'prefix-or-suffix'
+		| 'quantity'
 		| 'suffix'
 		| 'the-maximum-length-is-10-characters'
 		| 'thousands-separator'
