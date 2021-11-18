@@ -30,6 +30,7 @@ const StartEndDate: React.FC<IProps> = ({
 	parameters,
 	readOnly,
 	tooltip,
+	visible
 }) => {
 
 	const handleChange = (key: string, value: string | number, options?: {}) => {
@@ -158,7 +159,7 @@ const StartEndDate: React.FC<IProps> = ({
 					// 	startSection ? setStartUnit : setEndUnit
 					// }
 					// unit={startSection ? startUnit : endUnit}
-					// visible={visible}
+					visible={visible}
 				/>
 			)}
 		</>
@@ -181,6 +182,7 @@ interface IProps {
 	};
 	readOnly?: boolean;
 	dateFieldOptions: IDateFieldOption[];
+	visible: boolean;
 }
 
 interface IDateFieldOption {

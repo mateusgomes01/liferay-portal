@@ -334,6 +334,7 @@ const ValidationDate = ({
 							parameters={parameters}
 							readOnly={localizationMode || readOnly }
 							tooltip={tooltip}
+							visible={visible}
 						/>
 
 						{/* <Select

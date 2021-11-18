@@ -23,4 +23,5 @@ interface IProps {
 	parameters: {
 		quantity: number;
 	};
+	visible: boolean;
 }

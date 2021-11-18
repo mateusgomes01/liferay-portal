@@ -30,6 +30,7 @@ interface IProps {
 	};
 	readOnly?: boolean;
 	dateFieldOptions: IDateFieldOption[];
+	visible: boolean;
 }
 interface IDateFieldOption {
 	label: string;

@@ -12,14 +12,14 @@
  * details.
  */
 
-import {ClayInput} from '@clayui/form';
+import {ClayInput, ClaySelectWithOption} from '@clayui/form';
 // import ClayIcon from '@clayui/icon';
-// import {ClayDropDownWithItems} from '@clayui/drop-down';
-import React, {useMemo, FocusEvent} from 'react';
+import {ClayDropDownWithItems} from '@clayui/drop-down';
+import React, {useMemo, FocusEvent, useState} from 'react';
 
-// // @ts-ignore
+// @ts-ignore
 
-// import Select from '../Select/Select.es';
+import Select from '../Select/Select.es';
 import {limitValue} from '../util/numericalOperations';
 // import './ValidationDate.scss';
 
@@ -30,26 +30,22 @@ import {limitValue} from '../util/numericalOperations';
 const MAX_QUANTITY = 999;
 const MIN_QUANTITY = 1;
 
-// const minusLabel = Liferay.Language.get('minus');
-// const plusLabel = Liferay.Language.get('plus');
+const minusLabel = Liferay.Language.get('minus');
+const plusLabel = Liferay.Language.get('plus');
 // const daysLabel = Liferay.Language.get('days');
 // const monthsLabel = Liferay.Language.get('months');
 // const yearsLabel = Liferay.Language.get('years');
 
-// const operationsOptions = [
-// 	{
-// 		checked: false,
-// 		label: minusLabel,
-// 		name: 'minus',
-// 		value: 'minus',
-// 	},
-// 	{
-// 		checked: false,
-// 		label: plusLabel,
-// 		name: 'plus',
-// 		value: 'plus',
-// 	},
-// ];
+const operationsOptions: ISelectOptions[] = [
+	{
+		label: plusLabel,
+		value: 'plus',
+	},
+	{
+		label: minusLabel,
+		value: 'minus',
+	},
+];
 
 // const unitOptions = [
 // 	{
@@ -82,7 +78,7 @@ const CustomDate:React.FC<IProps> = ({
 	name,
 	onChange,
 // 	options,
-	parameters,
+	parameters: parametersInit,
 // 	date,
 	eventType,
 // 	handleChangeParameters,
@@ -95,10 +91,10 @@ const CustomDate:React.FC<IProps> = ({
 // 	setQuantity,
 // 	setUnit,
 // 	unit,
-// 	visible,
+	visible,
 }) => {
 
-        
+    const [parameters, setParameters] = useState(parametersInit);
 	
 // 	const handleChange = (key: string, value: string, options?: {}) => {
 
@@ -191,8 +187,8 @@ const CustomDate:React.FC<IProps> = ({
 	}
 
 	return (
-// 		<>
-// 			<Select
+		<>
+{/* // 			<Select
 // 				label={Liferay.Language.get('date')}
 // 				name={`selectedDate_${eventType}`}
 // 				onChange={(event, value) => {
@@ -205,48 +201,45 @@ const CustomDate:React.FC<IProps> = ({
 // 				value={date}
 // 				visible={visible}
 // 			/>
-// 			<div className="align-items-end d-flex position-relative">
-// 				<div className="ddm-form-field-type__validation-date pr-2">
-// 					<Select
-// 						label={Liferay.Language.get('operation')}
-// 						name={`selectedOperation_${eventType}`}
-// 						onChange={(event, value) => {
-// 							setOperation(value[0]);
-// 							handleChangeParameters(
-// 								value[0],
-// 								eventType,
-// 								'quantity'
-// 							);
-// 						}}
-// 						options={operationsOptions}
-// 						readOnly={readOnly || localizationMode}
-// 						showEmptyOption={false}
-// 						value={operation}
-// 						visible={visible}
-// 					/>
-// 				</div>
+// 			<div className="align-items-end d-flex position-relative"> */}
+				<div className="ddm-form-field-type__validation-date pr-2">
+					<label>
+						{Liferay.Language.get('operation')}
+						<ClaySelectWithOption
+							name={`selectedOperation_${eventType}`}
+							onChange={({target: {}}) => {
+								// setOperation(value);
+							}}
+							options={operationsOptions}
+							// readOnly={readOnly}
+							// showEmptyOption={false}
+							value={['minus']}
+							// visible={visible}
+						/>
+					</label>
+				</div>
 				<div className="ddm-form-field-type__validation-date pr-2">
 					<div className="form-group">
-						<label htmlFor={`${name}_validation_date_quantity`}>
+						<label>
 							{Liferay.Language.get('quantity')}
+							<ClayInput
+								className="ddm-field-text"
+								disabled={readOnly}
+								max={MAX_QUANTITY}
+								min={MIN_QUANTITY}
+								name={`inputedQuantity_${eventType}`}
+								onBlur={handleBlur}
+								onChange={({target: {value}}) => {
+									onChange('quantity', parseInt(value,10));
+								}}
+								type="number"
+								value={Math.abs(parameters.quantity)}
+							/>
 						</label>
-						<ClayInput
-							className="ddm-field-text"
-							disabled={readOnly}
-							id={`${name}_validation_date_quantity`}
-							max={MAX_QUANTITY}
-							min={MIN_QUANTITY}
-							name={`inputedQuantity_${eventType}`}
-							onBlur={handleBlur}
-							onChange={({target: {value}}) => {
-								onChange('quantity', value);
-							}}
-							type="number"
-							value={Math.abs(parameters.quantity)}
-						/>
+						
 					</div>
 				</div>
-// 				<div className="ddm-form-field-type__validation-date">
+				{/*<div className="ddm-form-field-type__validation-date">
 // 					<Select
 // 						label={Liferay.Language.get('unit')}
 // 						name={`selectedUnit_${eventType}`}
@@ -261,8 +254,8 @@ const CustomDate:React.FC<IProps> = ({
 // 						visible={visible}
 // 					/>
 // 				</div>
-// 			</div>
-// 		</>
+						// 			</div>*/}
+		</>
 	);
 };
 
@@ -280,6 +273,7 @@ interface IProps {
 		quantity: number;
 	};
 // 	dateFieldOptions: IDateFieldOption[];
+	visible: boolean;
 }
 
 // interface IDateFieldOption {
@@ -287,10 +281,15 @@ interface IProps {
 // 	name: string;
 // }
 
-// interface IOptions {
-// 	label: string;
-// 	name: 'customDate' | 'responseDate';
-// 	value: 'customDate' | 'responseDate';
-// }
+interface IOptions {
+	label: string;
+	name: 'customDate' | 'responseDate';
+	value: 'customDate' | 'responseDate';
+}
+
+interface ISelectOptions {
+	label: string;
+	value: 'minus' | 'plus';
+}
 
 // type DateType = 'customDate' | 'responseDate' | 'dateFieldName';
