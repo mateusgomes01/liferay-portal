@@ -17,6 +17,7 @@ import {cleanup, render} from '@testing-library/react';
 import React from 'react';
 
 import ValidationDate from '../../../src/main/resources/META-INF/resources/Validation/ValidationDate';
+import {FormProvider} from 'data-engine-js-components-web';
 
 const globalLanguageDirection = Liferay.Language.direction;
 
@@ -47,6 +48,12 @@ const validations = [
 	},
 ];
 
+const ValidationDateProvider = ({builderPages = [], ...props}) => (
+	<FormProvider initialState={{builderPages}}>
+		<ValidationDate {...props}/>
+	</FormProvider>
+);
+
 describe('ValidationDate', () => {
 	beforeAll(() => {
 		Liferay.Language.direction = {
@@ -62,7 +69,7 @@ describe('ValidationDate', () => {
 
 	it('shows future dates validation', () => {
 		const {container} = render(
-			<ValidationDate
+			<ValidationDateProvider
 				defaultLanguageId="en_US"
 				editingLanguageId="en_US"
 				localizedValue={() => {}}
@@ -84,7 +91,7 @@ describe('ValidationDate', () => {
 
 	it('shows past dates validation', () => {
 		const {container} = render(
-			<ValidationDate
+			<ValidationDateProvider
 				defaultLanguageId="en_US"
 				editingLanguageId="en_US"
 				localizedValue={() => {}}
@@ -106,7 +113,7 @@ describe('ValidationDate', () => {
 
 	it('shows date range validation', () => {
 		const {container} = render(
-			<ValidationDate
+			<ValidationDateProvider
 				defaultLanguageId="en_US"
 				editingLanguageId="en_US"
 				localizedValue={() => {}}
@@ -140,7 +147,7 @@ describe('ValidationDate', () => {
 
 		const localizedValue = jest.fn(() => parameter['en_US']);
 		const {container} = render(
-			<ValidationDate
+			<ValidationDateProvider
 				defaultLanguageId="en_US"
 				editingLanguageId="en_US"
 				localizedValue={localizedValue}
@@ -196,8 +203,8 @@ describe('ValidationDate', () => {
 		};
 
 		const localizedValue = jest.fn(() => parameter['en_US']);
-		const {container} = render(
-			<ValidationDate
+		const {container, getByText, getByRole} = render(
+			<ValidationDateProvider
 				defaultLanguageId="en_US"
 				editingLanguageId="en_US"
 				localizedValue={localizedValue}
@@ -215,13 +222,9 @@ describe('ValidationDate', () => {
 			/>
 		);
 
-		const endDate = container.querySelector(
-			'select[name="selectedDate_endsOn_field"]'
-		);
+		const dateType = getByText('response-date');
 
-		const endOperation = container.querySelector(
-			'select[name="selectedOperation_endsOn_field"]'
-		);
+		const endOperation = getByRole('test');
 
 		const endQuantity = container.querySelector(
 			'input[name="inputedQuantity_endsOn"]'
@@ -231,7 +234,7 @@ describe('ValidationDate', () => {
 			'input[name="selectedUnit_endsOn"]'
 		);
 
-		expect(endDate).toBeInTheDocument();
+		expect(dateType).toBeInTheDocument();
 		expect(endOperation).toBeInTheDocument();
 		expect(endOperation.value).toBe('minus');
 		expect(endQuantity).toBeInTheDocument();

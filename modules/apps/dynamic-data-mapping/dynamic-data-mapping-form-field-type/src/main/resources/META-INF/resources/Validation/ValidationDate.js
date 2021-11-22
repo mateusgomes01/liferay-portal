@@ -87,7 +87,7 @@ const ValidationDate = ({
 		'startsFrom'
 	);
 	const endDate = getSelectedParameter(localizedValue(parameter), 'endsOn');
-
+	
 	const selectedParameter = parameters[selectedValidation.name];
 
 	const handleChangeParameters = (typeName, parameters) => {
@@ -108,7 +108,6 @@ const ValidationDate = ({
 	const errorMessageName = name + '_errorMessage';
 
 	const {builderPages} = useFormState();
-
 	const fields = useMemo(() => {
 		const fields = [];
 		const visitor = new PagesVisitor(builderPages);
