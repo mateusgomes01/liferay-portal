@@ -30,12 +30,11 @@ const StartEndDate: React.FC<IProps> = ({
 	visible
 }) => {
 
-	const handleChange = (key: string, value: string | number, dateFieldName?: string) => {
+	const handleChange = (properties: IParametersProperties) => {
 
 		onChange(eventType,{
 			...parameters,
-			dateFieldName,
-			[key]: value,
+			...properties
 		});
 	}
 
@@ -46,7 +45,7 @@ const StartEndDate: React.FC<IProps> = ({
 				dateFieldName={parameters.dateFieldName}
 				dateFieldOptions={dateFieldOptions}
 				options={options}
-				onChange={(value, options) => handleChange('type', value, options)}
+				onChange={(value, dateFieldName) => handleChange({type: value, dateFieldName})}
 				label={label}
 				tooltip={tooltip}
 			/>

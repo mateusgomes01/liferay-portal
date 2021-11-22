@@ -75,15 +75,11 @@ const CustomDate:React.FC<IProps> = ({
 
 		const quantity = parameters.quantity < 0 ? limit * -1 : limit;
 
-		const onChange = parameterAttUpdater('quantity');
-
-		onChange(quantity);
+		parameterAttUpdater({quantity: quantity, dateFieldName: parameters.dateFieldName});
 	}
 
-	function parameterAttUpdater(key: keyof IParameters) {
-
-		return (value: string | number, dateFieldName?: string) => {
-
+	/* function parameterAttUpdater(key: keyof IParameters, value: string | number, dateFieldName?: string) {
+		
 		if(value !== parameters[key] || dateFieldName !== parameters.dateFieldName) {
 	
 			setParameters((parameters) => ({
@@ -94,20 +90,29 @@ const CustomDate:React.FC<IProps> = ({
 
 			onChange(key, value, dateFieldName);
 		}
-	}}
+	} */
+
+	function parameterAttUpdater(properties: IParametersProperties) {
+		const hasChanges = Object.entries(properties).some(([key, value]) => parameters[key as keyof IParameters] !== value);
+
+		if(hasChanges){	
+			setParameters((parameters) => ({
+				...parameters,
+				...properties
+			}));
+
+			onChange(properties);
+		}
+	}
 
 	return (
 		<>
-			<SelectDateType 
+			<SelectDateType
 				type={parameters.date}
 				dateFieldName={parameters.dateFieldName}
 				dateFieldOptions={dateFieldOptions}
 				options={options.filter(({name}) => name !== 'customDate') }
-				onChange={(value, options) => {
-					const onChange = parameterAttUpdater('date');
-
-					onChange(value, options);
-				}}
+				onChange={(value, dateFieldName) => parameterAttUpdater({date: value, dateFieldName})}
 				label={Liferay.Language.get('date')}
 			/>
 			<div className="ddm-custom-date">
@@ -123,8 +128,7 @@ const CustomDate:React.FC<IProps> = ({
 								if(value !== currentOperation) {
 									const quantity = parameters.quantity * -1
 
-									const onChange = parameterAttUpdater('quantity');
-									onChange(quantity);
+									parameterAttUpdater({quantity: quantity, dateFieldName: parameters.dateFieldName});
 								}
 							}}
 							options={operationsOptions}
@@ -151,10 +155,7 @@ const CustomDate:React.FC<IProps> = ({
 						<ClaySelectWithOption
 							disabled={readOnly}
 							name={`selectedUnit_${eventType}`}
-							onChange={({target: {value}}) => {
-								const onChange = parameterAttUpdater('unit');
-								onChange(value);
-							}}
+							onChange={({target: {value}}) => parameterAttUpdater({unit: value as Unit, dateFieldName: parameters.dateFieldName})}
 							options={unitOptions}
 							value={parameters.unit}
 						/>
@@ -173,8 +174,9 @@ interface IProps {
 // 	label: string;
 	name: string;
 	options: IOptions[];
-	onChange: (key: string, value: string | number, dateFieldName?: string) => void;
-// 	tooltip: string;
+	// onChange: (key: string, value: string | number, dateFieldName?: string) => void;
+	onChange: (properties: IParametersProperties) => void;
+	// 	tooltip: string;
 	parameters: IParameters;
 	dateFieldOptions: IDateFieldOption[];
 	visible: boolean;

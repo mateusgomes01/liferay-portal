@@ -21,11 +21,7 @@ interface IProps {
 	readOnly?: boolean;
 	name: string;
 	options: IOptions[];
-	onChange: (
-		key: string,
-		value: string | number,
-		dateFieldName?: string
-	) => void;
+	onChange: (properties: IParametersProperties) => void;
 	parameters: IParameters;
 	dateFieldOptions: IDateFieldOption[];
 	visible: boolean;
