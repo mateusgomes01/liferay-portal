@@ -14,9 +14,8 @@
 
 import {ClayInput, ClaySelectWithOption} from '@clayui/form';
 import {PagesVisitor, useFormState} from 'data-engine-js-components-web';
-import React, {useMemo, useState} from 'react';
+import React, {useMemo} from 'react';
 
-import Select from '../Select/Select.es';
 import StartEndDate from './StartEndDate';
 
 import './ValidationDate.scss';
@@ -48,14 +47,7 @@ const getDateOptionsByType = (label, name) => ({
 	],
 });
 
-const getOperation = (quantity) => {
-	return quantity < 0 ? 'minus' : 'plus';
-};
-
-const getSelectedParameter = (
-	value,
-	selectedParameterName,
-) => {
+const getSelectedParameter = (value, selectedParameterName) => {
 	if (value && typeof value === 'string') {
 		try {
 			value = JSON.parse(value);
@@ -64,19 +56,6 @@ const getSelectedParameter = (
 	}
 
 	return value?.[selectedParameterName];
-};
-
-const getSignedValue = (operation, value) => {
-	let signedValue = value;
-
-	if (
-		(operation === 'minus' && value > 0) ||
-		(operation === 'plus' && value < 0)
-	) {
-		signedValue = value * -1;
-	}
-
-	return signedValue;
 };
 
 const parameters = {
@@ -103,27 +82,22 @@ const ValidationDate = ({
 	validations,
 	visible,
 }) => {
-
 	const startDate = getSelectedParameter(
 		localizedValue(parameter),
-		'startsFrom',
+		'startsFrom'
 	);
-	const endDate = getSelectedParameter(
-		localizedValue(parameter),
-		'endsOn',
-	);
+	const endDate = getSelectedParameter(localizedValue(parameter), 'endsOn');
 
 	const selectedParameter = parameters[selectedValidation.name];
-	
-	const handleChangeParameters = (typeName, parameters) => {
 
-		const parameter = {}
+	const handleChangeParameters = (typeName, parameters) => {
+		const parameter = {};
 
 		if (typeName === 'startsFrom') {
 			parameter.startsFrom = parameters;
 			parameter.endsOn = endDate;
-			
-		} else if (typeName === 'endsOn') {
+		}
+		else if (typeName === 'endsOn') {
 			parameter.endsOn = parameters;
 			parameter.startsFrom = startDate;
 		}
@@ -132,13 +106,9 @@ const ValidationDate = ({
 	};
 
 	const errorMessageName = name + '_errorMessage';
-	const getDateTypeValue = (name) => {
-		return name === 'startsFrom' ? startsFrom : endsOn;
-	};
 
 	const {builderPages} = useFormState();
 
-	
 	const fields = useMemo(() => {
 		const fields = [];
 		const visitor = new PagesVisitor(builderPages);
@@ -159,13 +129,14 @@ const ValidationDate = ({
 		});
 
 		return fields;
-	}, [builderPages]);
+	}, [builderPages, parentFieldName]);
 
 	return (
 		<>
-			<label>
-				{Liferay.Language.get('accepted-date')}
-				<ClaySelectWithOption 
+			<div className="ddm__validation-date-accepted-date">
+				<label>{Liferay.Language.get('accepted-date')}</label>
+
+				<ClaySelectWithOption
 					disabled={readOnly || localizationMode}
 					name="selectedValidation"
 					onChange={({target: {value}}) => {
@@ -179,48 +150,54 @@ const ValidationDate = ({
 						});
 					}}
 					options={validations}
-					value={selectedValidation.name}		
+					value={selectedValidation.name}
 				/>
-			</label>
+			</div>
 
-			{selectedParameter.map(({label, name: eventType, options}, index) => {
+			{selectedParameter.map(
+				({label, name: eventType, options}, index) => {
+					const {parameters, title, tooltip} =
+						eventType === 'startsFrom'
+							? {
+									parameters: startDate,
+									title: Liferay.Language.get('start-date'),
+									tooltip: Liferay.Language.get(
+										'starts-from-tooltip'
+									),
+							  }
+							: {
+									parameters: endDate,
+									title: Liferay.Language.get('end-date'),
+									tooltip: Liferay.Language.get(
+										'ends-on-tooltip'
+									),
+							  };
 
-				const {title, tooltip, parameters} = eventType === 'startsFrom' ? {
-					title: Liferay.Language.get('start-date'),
-					tooltip: Liferay.Language.get(
-						'starts-from-tooltip'
-				  ),
-				  	parameters: startDate
-				} : {
-					title: Liferay.Language.get('end-date'),
-					tooltip: Liferay.Language.get('ends-on-tooltip'),
-					parameters: endDate
+					return (
+						<React.Fragment key={index}>
+							{selectedParameter.length > 1 && (
+								<>
+									<label>{title.toUpperCase()}</label>
+									<div className="separator" />
+								</>
+							)}
+
+							<StartEndDate
+								dateFieldOptions={fields}
+								eventType={eventType}
+								label={label}
+								name={name}
+								onChange={handleChangeParameters}
+								options={options}
+								parameters={parameters}
+								readOnly={localizationMode || readOnly}
+								tooltip={tooltip}
+								visible={visible}
+							/>
+						</React.Fragment>
+					);
 				}
-
-				return (
-					<React.Fragment key={index}>
-						{selectedParameter.length > 1 && (
-							<>
-								<label>{title.toUpperCase()}</label>
-								<div className="separator" />
-							</>
-						)}
-
-						<StartEndDate
-							dateFieldOptions={fields}
-							eventType={eventType}
-							label={label}
-							name={name}
-							onChange={handleChangeParameters}
-							options={options}
-							parameters={parameters}
-							readOnly={localizationMode || readOnly }
-							tooltip={tooltip}
-							visible={visible}
-						/>
-					</React.Fragment>
-				);
-			})}
+			)}
 			<label htmlFor={errorMessageName}>
 				{Liferay.Language.get('error-message')}
 			</label>
