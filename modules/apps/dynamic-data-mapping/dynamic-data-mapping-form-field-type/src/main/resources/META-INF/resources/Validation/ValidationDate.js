@@ -164,16 +164,16 @@ const ValidationDate = ({
 							? {
 									parameters: startDate,
 									title: Liferay.Language.get('start-date'),
-									tooltip: Liferay.Language.get(
+									tooltip: dateFieldTypeValidationEnabled ? Liferay.Language.get(
 										'starts-from-tooltip'
-									),
+									) : null,
 							  }
 							: {
 									parameters: endDate,
 									title: Liferay.Language.get('end-date'),
-									tooltip: Liferay.Language.get(
+									tooltip: dateFieldTypeValidationEnabled ? Liferay.Language.get(
 										'ends-on-tooltip'
-									),
+									) : null,
 							  };
 
 					return (
