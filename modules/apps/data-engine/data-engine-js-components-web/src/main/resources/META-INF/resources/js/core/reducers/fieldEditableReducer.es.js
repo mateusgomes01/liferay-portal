@@ -292,9 +292,7 @@ export default function fieldEditableReducer(state, action, config) {
 
 			const visitor = new PagesVisitor(pages);
 
-			return {
-				focusedField: newFocusedField,
-				pages: visitor.mapFields(
+			const pages = visitor.mapFields(
 					(field) => {
 						if (field.fieldName === newFocusedField.fieldName) {
 							return newFocusedField;
@@ -304,7 +302,33 @@ export default function fieldEditableReducer(state, action, config) {
 					},
 					false,
 					true
-				),
+				);
+
+			if(newFocusedField.type === 'date' && newFocusedField.repeatable === true){
+				const dateVisitor = new PagesVisitor(pages);
+
+				const newPages = dateVisitor.mapFields(
+					(field) => {
+						if(field.validation.parameter?.en_us.startsFrom.dateFieldName === newFocusedField.fieldName){
+							field.validation.parameter?.en_us.startsFrom = {date: "responseDate", type: "responseDate"};
+						}
+					}
+				)
+
+				return {
+					focusedField: newFocusedField,
+					pages: newPages,
+					rules: updateRulesReferences(
+						rules || [],
+						focusedField,
+						newFocusedField
+					),
+				};
+			}
+
+			return {
+				focusedField: newFocusedField,
+				pages: pages,
 				rules: updateRulesReferences(
 					rules || [],
 					focusedField,
