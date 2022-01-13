@@ -282,7 +282,7 @@ export default function fieldEditableReducer(state, action, config) {
 				editingLanguageId,
 				fieldNameGenerator,
 				focusedField: fieldName
-					? getField(pages, fieldName)
+					? getField(pages, fieldName) 
 					: focusedField,
 				generateFieldNameUsingFieldLabel,
 				pages,
@@ -292,19 +292,106 @@ export default function fieldEditableReducer(state, action, config) {
 
 			const visitor = new PagesVisitor(pages);
 
+			const visitedPages = visitor.mapFields(
+				(field, ...parentFields) => { // check nested fields to find date fields when fieldgroup is repeatable
+					if (field.fieldName === newFocusedField.fieldName) {
+						return newFocusedField;
+					}
+
+					if (
+						field.type === 'date' &&
+						propertyName === 'repeatable' &&
+						propertyValue &&
+						!!field.validation 
+					) {
+						if (newFocusedField.type === 'date'){
+							let newField;
+							const fieldParameter =
+								field.validation.parameter[field.locale];
+							if (
+								fieldParameter?.endsOn?.dateFieldName ===
+								newFocusedField.fieldName
+							) {
+								const propertyValue = {
+	
+									// make a function to encapsulate this code
+	
+									...field.validation,
+									parameter: {
+										[field.locale]: {
+											endsOn: {
+												date: 'responseDate',
+												quantity: 1,
+												type: 'responseDate',
+												unit: 'days',
+											},
+											startsFrom: fieldParameter?.startsFrom,
+										},
+									},
+								};
+	
+								newField = updateFieldProperty({
+									defaultLanguageId,
+									editingLanguageId,
+									fieldNameGenerator,
+									focusedField: field,
+									generateFieldNameUsingFieldLabel,
+									pages,
+									propertyName: 'validation',
+									propertyValue,
+								});
+							}
+	
+							if (
+								fieldParameter?.startsFrom?.dateFieldName ===
+								newFocusedField.fieldName
+							) {
+								const propertyValue = {
+	
+									// make a function to encapsulate this code
+	
+									...field.validation,
+									parameter: {
+										[field.locale]: {
+											endsOn: fieldParameter?.endsOn,
+											startsFrom: {
+												date: 'responseDate',
+												quantity: 1,
+												type: 'responseDate',
+												unit: 'days',
+											},
+										},
+									},
+								};
+	
+								newField = updateFieldProperty({
+									defaultLanguageId,
+									editingLanguageId,
+									fieldNameGenerator,
+									focusedField: field,
+									generateFieldNameUsingFieldLabel,
+									pages,
+									propertyName: 'validation',
+									propertyValue,
+								});
+							}
+	
+							return newField;
+						} else if (newFocusedField.type === 'fieldset'){
+							newFocusedField.nestedFields;
+						}
+						
+					}
+
+					return field;
+				},
+				false,
+				true
+			);
+
 			return {
 				focusedField: newFocusedField,
-				pages: visitor.mapFields(
-					(field) => {
-						if (field.fieldName === newFocusedField.fieldName) {
-							return newFocusedField;
-						}
-
-						return field;
-					},
-					false,
-					true
-				),
+				pages: visitedPages,
 				rules: updateRulesReferences(
 					rules || [],
 					focusedField,
