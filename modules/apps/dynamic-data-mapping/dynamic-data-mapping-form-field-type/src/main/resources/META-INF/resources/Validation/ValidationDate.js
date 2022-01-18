@@ -14,7 +14,7 @@
 
 import {ClayInput} from '@clayui/form';
 import {PagesVisitor, useFormState} from 'data-engine-js-components-web';
-import React, {useMemo} from 'react';
+import React, {useEffect, useMemo} from 'react';
 
 import DDMSelect from './DDMSelect';
 import StartEndDate from './StartEndDate';
@@ -90,6 +90,11 @@ const ValidationDate = ({
 	const endDate = getSelectedParameter(localizedValue(parameter), 'endsOn');
 
 	const selectedParameter = parameters[selectedValidation.name];
+
+	useEffect(() => {
+		handleChangeParameters('startFrom', parameters);
+		handleChangeParameters('endsOn', parameters);
+	}, []);
 
 	const handleChangeParameters = (typeName, parameters) => {
 		const parameter = {};
