@@ -292,95 +292,105 @@ export default function fieldEditableReducer(state, action, config) {
 
 			const visitor = new PagesVisitor(pages);
 
+			const dateFieldNames = [];
+
+			const isRepeatableTrue = propertyName === 'repeatable' && propertyValue
+
+			if (isRepeatableTrue) {
+				if (newFocusedField.type === 'date') {
+					// date
+					dateFieldNames.push(newFocusedField.fieldName);
+				} else if (newFocusedField.type === 'fieldset') {
+					///fieldset
+					newFocusedField.nestedFields.map((nestedField) => {
+						if (nestedField.type==='date') {
+							dateFieldNames.push(nestedField.fieldName);
+						}
+					})
+				}
+			}
+
 			const visitedPages = visitor.mapFields(
-				(field, ...parentFields) => { // check nested fields to find date fields when fieldgroup is repeatable
+				(field) => { // check nested fields to find date fields when fieldgroup is repeatable
 					if (field.fieldName === newFocusedField.fieldName) {
 						return newFocusedField;
 					}
 
 					if (
 						field.type === 'date' &&
-						propertyName === 'repeatable' &&
-						propertyValue &&
-						!!field.validation 
+						!!field.validation &&
+						isRepeatableTrue
 					) {
-						if (newFocusedField.type === 'date'){
-							let newField;
-							const fieldParameter =
-								field.validation.parameter[field.locale];
-							if (
-								fieldParameter?.endsOn?.dateFieldName ===
-								newFocusedField.fieldName
-							) {
-								const propertyValue = {
-	
-									// make a function to encapsulate this code
-	
-									...field.validation,
-									parameter: {
-										[field.locale]: {
-											endsOn: {
-												date: 'responseDate',
-												quantity: 1,
-												type: 'responseDate',
-												unit: 'days',
-											},
-											startsFrom: fieldParameter?.startsFrom,
+						let newField;
+						const fieldParameter = field.validation.parameter[field.locale];
+						if (
+							dateFieldNames.some(fieldName => fieldParameter?.endsOn?.dateFieldName === fieldName)
+						) {
+							const propertyValue = {
+
+								// make a function to encapsulate this code
+
+								...field.validation,
+								parameter: {
+									[field.locale]: {
+										endsOn: {
+											date: 'responseDate',
+											quantity: 1,
+											type: 'responseDate',
+											unit: 'days',
 										},
+										startsFrom: fieldParameter?.startsFrom,
 									},
-								};
-	
-								newField = updateFieldProperty({
-									defaultLanguageId,
-									editingLanguageId,
-									fieldNameGenerator,
-									focusedField: field,
-									generateFieldNameUsingFieldLabel,
-									pages,
-									propertyName: 'validation',
-									propertyValue,
-								});
-							}
-	
-							if (
-								fieldParameter?.startsFrom?.dateFieldName ===
-								newFocusedField.fieldName
-							) {
-								const propertyValue = {
-	
-									// make a function to encapsulate this code
-	
-									...field.validation,
-									parameter: {
-										[field.locale]: {
-											endsOn: fieldParameter?.endsOn,
-											startsFrom: {
-												date: 'responseDate',
-												quantity: 1,
-												type: 'responseDate',
-												unit: 'days',
-											},
-										},
-									},
-								};
-	
-								newField = updateFieldProperty({
-									defaultLanguageId,
-									editingLanguageId,
-									fieldNameGenerator,
-									focusedField: field,
-									generateFieldNameUsingFieldLabel,
-									pages,
-									propertyName: 'validation',
-									propertyValue,
-								});
-							}
-	
-							return newField;
-						} else if (newFocusedField.type === 'fieldset'){
-							newFocusedField.nestedFields;
+								},
+							};
+
+							newField = updateFieldProperty({
+								defaultLanguageId,
+								editingLanguageId,
+								fieldNameGenerator,
+								focusedField: field,
+								generateFieldNameUsingFieldLabel,
+								pages,
+								propertyName: 'validation',
+								propertyValue,
+							});
 						}
-						
+
+						if (
+							dateFieldNames.some(fieldName => fieldParameter?.startsFrom?.dateFieldName === fieldName)
+
+						) {
+							const propertyValue = {
+
+								// make a function to encapsulate this code
+
+								...field.validation,
+								parameter: {
+									[field.locale]: {
+										endsOn: fieldParameter?.endsOn,
+										startsFrom: {
+											date: 'responseDate',
+											quantity: 1,
+											type: 'responseDate',
+											unit: 'days',
+										},
+									},
+								},
+							};
+
+							newField = updateFieldProperty({
+								defaultLanguageId,
+								editingLanguageId,
+								fieldNameGenerator,
+								focusedField: field,
+								generateFieldNameUsingFieldLabel,
+								pages,
+								propertyName: 'validation',
+								propertyValue,
+							});
+						}
+	
+						return newField;
 					}
 
 					return field;
